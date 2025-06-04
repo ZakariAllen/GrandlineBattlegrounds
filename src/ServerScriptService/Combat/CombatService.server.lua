@@ -112,14 +112,13 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 
                local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
                 if blockResult == "Perfect" then
-                        StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
-                        PlayAnimation(humanoid, AnimationData.Stun.PerfectBlock, "Knockback")
+                        StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, enemyPlayer)
                         BlockEvent:FireClient(enemyPlayer, false)
                         continue
                 elseif blockResult == "Damaged" then
                         continue
                 elseif blockResult == "Broken" then
-                        StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
+                        StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), AnimationData.Stun.BlockBreak, player)
                         BlockEvent:FireClient(enemyPlayer, false)
                         continue
                 end
