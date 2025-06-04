@@ -8,6 +8,7 @@ local DashEvent = MovementRemotes:WaitForChild("DashEvent")
 
 local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
+local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 
 local validDirections = {
 	Forward = true,
@@ -26,9 +27,12 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
                 return
         end
 
-        if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
-                return
-        end
+       if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
+               return
+       end
+       if BlockService.IsBlocking(player) or BlockService.IsInStartup(player) then
+               return
+       end
 
         -- Always forward dashVector to the DashModule (module handles all logic now)
         DashModule.ExecuteDash(player, direction, dashVector)

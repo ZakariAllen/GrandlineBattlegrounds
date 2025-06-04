@@ -17,6 +17,7 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local M1AnimationClient = require(ReplicatedStorage.Modules.Combat.M1AnimationClient)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 
 -- 📌 State
 local comboIndex = 1
@@ -30,7 +31,7 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
 	-- 🖱️ Handle M1
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		local now = tick()
-		if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or isAwaitingServer then return end
+                if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() or isAwaitingServer then return end
 		if now - lastClick < CombatConfig.M1.DelayBetweenHits then return end
 
 		local tool = ToolController.GetEquippedTool()

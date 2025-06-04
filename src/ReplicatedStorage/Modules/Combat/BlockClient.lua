@@ -12,6 +12,7 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 
 -- ✅ Fixed remote path
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
@@ -105,6 +106,7 @@ function BlockClient.OnInputBegan(input, gameProcessed)
 	end
 
         isBlocking = true
+        MovementClient.StopSprint()
         playBlockAnimation()
         BlockEvent:FireServer(true)
 end

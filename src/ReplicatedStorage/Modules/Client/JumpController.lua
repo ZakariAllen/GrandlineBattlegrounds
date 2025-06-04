@@ -8,6 +8,7 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
+local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local player = Players.LocalPlayer
 
 local JUMP_COOLDOWN = Config.GameSettings.JumpCooldown
@@ -57,14 +58,18 @@ end
 
 -- 📦 Handle jump input
 local function onJumpRequest()
-	if not humanoid then return end
-	if tick() < jumpBlockedUntil then
-		if DEBUG then print("[JumpController] Jump blocked. Time left:", jumpBlockedUntil - tick()) end
-		blockJump()
-	else
-		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-		JumpController.StartCooldown()
-	end
+        if not humanoid then return end
+        if BlockClient.IsBlocking() then
+                blockJump()
+                return
+        end
+        if tick() < jumpBlockedUntil then
+                if DEBUG then print("[JumpController] Jump blocked. Time left:", jumpBlockedUntil - tick()) end
+                blockJump()
+        else
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                JumpController.StartCooldown()
+        end
 end
 
 -- 🔁 Character added

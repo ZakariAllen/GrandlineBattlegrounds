@@ -18,6 +18,7 @@ end
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
+local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 
 local StunService = {}
 
@@ -74,6 +75,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
         local targetPlayer = getPlayer(targetHumanoid)
         local attackerPlayer = getPlayer(attacker)
         if not targetPlayer or not attackerPlayer then return end
+
+       BlockService.StopBlocking(targetPlayer)
 
         if self:WasRecentlyHit(targetPlayer) then return end
         HitReservations[targetPlayer] = tick()

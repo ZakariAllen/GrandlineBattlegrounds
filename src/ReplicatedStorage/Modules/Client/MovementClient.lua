@@ -10,6 +10,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
+local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
@@ -36,11 +37,11 @@ StunStatusEvent.OnClientEvent:Connect(function(data)
 end)
 
 local function beginSprint()
-	if not sprinting and not isStunned and not isLocked then
-		sprinting = true
-		humanoid.WalkSpeed = Config.GameSettings.DefaultSprintSpeed
-		SprintEvent:FireServer(true)
-	end
+       if not sprinting and not isStunned and not isLocked and not BlockClient.IsBlocking() then
+               sprinting = true
+               humanoid.WalkSpeed = Config.GameSettings.DefaultSprintSpeed
+               SprintEvent:FireServer(true)
+       end
 end
 
 local function stopSprint()
@@ -86,7 +87,11 @@ end
 
 -- Expose movement key state to other modules (like DashClient)
 function MovementClient.GetMovementKeys()
-	return movementKeys
+        return movementKeys
+end
+
+function MovementClient.StopSprint()
+       stopSprint()
 end
 
 -- Reset on respawn
