@@ -4,15 +4,37 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- Remotes (may not exist during tests)
+local StunStatusEvent
+local success, remotes = pcall(function()
+    return ReplicatedStorage:WaitForChild("Remotes")
+end)
+if success and remotes then
+    local stunFolder = remotes:FindFirstChild("Stun")
+    if stunFolder then
+        StunStatusEvent = stunFolder:FindFirstChild("StunStatusRequestEvent")
+    end
+end
+
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 
 local StunService = {}
 
-local StunnedPlayers = {}         
-local AttackerLockouts = {}       
-local HitReservations = {}        
-local ActiveAnimations = {}       
+local StunnedPlayers = {}
+local AttackerLockouts = {}
+local HitReservations = {}
+local ActiveAnimations = {}
+
+local function sendStatus(player)
+    if RunService:IsServer() and StunStatusEvent and player then
+        local data = {
+            Stunned = StunnedPlayers[player] ~= nil,
+            AttackerLock = AttackerLockouts[player] ~= nil and tick() < (AttackerLockouts[player] or 0)
+        }
+        StunStatusEvent:FireClient(player, data)
+    end
+end
 
 local function getPlayer(thing)
 	if typeof(thing) == "Instance" then
@@ -62,8 +84,17 @@ function StunService:ApplyStun(targetHumanoid, duration, skipAnim, attacker)
 		ActiveAnimations[targetPlayer] = nil
 	end
 
-	targetHumanoid.WalkSpeed = 0
-	targetHumanoid.JumpPower = 0
+    targetHumanoid.WalkSpeed = 0
+    targetHumanoid.JumpPower = 0
+    local hrp = targetHumanoid.Parent and targetHumanoid.Parent:FindFirstChild("HumanoidRootPart")
+    local prevAutoRotate
+    if hrp then
+        prevAutoRotate = targetHumanoid.AutoRotate
+        targetHumanoid.AutoRotate = false
+        -- Clear all momentum on hit so gravity takes over
+        hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+        hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+    end
 
 	if not skipAnim then
 		local animator = targetHumanoid:FindFirstChildOfClass("Animator")
@@ -79,43 +110,55 @@ function StunService:ApplyStun(targetHumanoid, duration, skipAnim, attacker)
 		end
 	end
 
-	local conn
-	conn = RunService.Heartbeat:Connect(function()
-		if targetHumanoid and targetHumanoid.Parent then
-			targetHumanoid.WalkSpeed = 0
-			targetHumanoid.Jump = false
-		end
-	end)
+        local conn
+        conn = RunService.Heartbeat:Connect(function()
+                if targetHumanoid and targetHumanoid.Parent then
+                        targetHumanoid.WalkSpeed = 0
+                        targetHumanoid.Jump = false
+                        if hrp then
+                                local v = hrp.AssemblyLinearVelocity
+                                hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+                                hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
+                        end
+                end
+        end)
 
-	local endTime = tick() + duration
-	StunnedPlayers[targetPlayer] = { EndsAt = endTime, Conn = conn }
+        local endTime = tick() + duration
+        StunnedPlayers[targetPlayer] = { EndsAt = endTime, Conn = conn, HRP = hrp, PrevAutoRotate = prevAutoRotate }
+        sendStatus(targetPlayer)
 
 	task.delay(duration, function()
 		local data = StunnedPlayers[targetPlayer]
 		if data and tick() >= data.EndsAt then
-			if data.Conn then data.Conn:Disconnect() end
-			StunnedPlayers[targetPlayer] = nil
+                        if data.Conn then data.Conn:Disconnect() end
+                        StunnedPlayers[targetPlayer] = nil
+                        if data.HRP then
+                                targetHumanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
+                        end
 
 			targetHumanoid.WalkSpeed = Config.GameSettings.DefaultWalkSpeed
 			targetHumanoid.JumpPower = Config.GameSettings.DefaultJumpPower
 
-			if ActiveAnimations[targetPlayer] then
-				ActiveAnimations[targetPlayer]:Stop()
-				ActiveAnimations[targetPlayer]:Destroy()
-				ActiveAnimations[targetPlayer] = nil
-			end
-		end
-	end)
+                        if ActiveAnimations[targetPlayer] then
+                                ActiveAnimations[targetPlayer]:Stop()
+                                ActiveAnimations[targetPlayer]:Destroy()
+                                ActiveAnimations[targetPlayer] = nil
+                        end
+                        sendStatus(targetPlayer)
+                end
+        end)
 
-	local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
-	local unlockTime = tick() + lockoutDuration
-	AttackerLockouts[attackerPlayer] = unlockTime
+        local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
+        local unlockTime = tick() + lockoutDuration
+        AttackerLockouts[attackerPlayer] = unlockTime
+        sendStatus(attackerPlayer)
 
 	task.delay(lockoutDuration, function()
-		if AttackerLockouts[attackerPlayer] and tick() >= unlockTime then
-			AttackerLockouts[attackerPlayer] = nil
-		end
-	end)
+                if AttackerLockouts[attackerPlayer] and tick() >= unlockTime then
+                        AttackerLockouts[attackerPlayer] = nil
+                        sendStatus(attackerPlayer)
+                end
+        end)
 end
 
 return StunService
