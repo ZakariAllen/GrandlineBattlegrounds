@@ -4,6 +4,9 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Config = require(ReplicatedStorage.Modules.Config.Config)
+local DEBUG = Config.GameSettings.DebugEnabled
+
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -17,6 +20,9 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 
 -- Moves folder has an `init` ModuleScript, requiring the folder loads it
 local Moves = require(ReplicatedStorage.Modules.Combat.Moves)
+if DEBUG then
+    print("[InputController] Loaded moves:", #Moves)
+end
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -45,10 +51,13 @@ end
 
 -- 🔁 Detect tools added/removed from character
 local function setupToolDetection(char)
-	for _, child in ipairs(char:GetChildren()) do
-		if child:IsA("Tool") then
-			connectToolEvents(child)
-		end
+        if DEBUG then
+                print("[InputController] Setting up tool detection for", char.Name)
+        end
+        for _, child in ipairs(char:GetChildren()) do
+                if child:IsA("Tool") then
+                        connectToolEvents(child)
+                end
 	end
 
 	char.ChildAdded:Connect(function(child)
@@ -72,6 +81,9 @@ end
 
 -- 🕹️ Route all input through controllers
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
+                print("[InputController] InputBegan:", input.KeyCode.Name, "GP:", gameProcessed)
+        end
         M1InputClient.OnInputBegan(input, gameProcessed)
         DashClient.OnInputBegan(input, gameProcessed)
         BlockClient.OnInputBegan(input, gameProcessed)
@@ -84,6 +96,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
+        if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
+                print("[InputController] InputEnded:", input.KeyCode.Name, "GP:", gameProcessed)
+        end
         M1InputClient.OnInputEnded(input, gameProcessed)
         DashClient.OnInputEnded(input, gameProcessed)
         BlockClient.OnInputEnded(input, gameProcessed)
@@ -95,4 +110,4 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
         end
 end)
 
-print("[InputController] Initialized")
+if DEBUG then print("[InputController] Initialized") end
