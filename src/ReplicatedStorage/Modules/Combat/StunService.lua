@@ -64,7 +64,13 @@ function StunService:CanBeHitBy(attacker, target)
         return true
 end
 
-function StunService:ApplyStun(targetHumanoid, duration, skipAnim, attacker)
+--[[@
+        ApplyStun applies a stun to the target humanoid for the given duration.
+        The third parameter can either be:
+                * boolean true/false to indicate if the default animation should be skipped
+                * a string/number representing a custom animation id to play
+]]
+function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
 	local targetPlayer = getPlayer(targetHumanoid)
 	local attackerPlayer = getPlayer(attacker)
 	if not targetPlayer or not attackerPlayer then return end
@@ -109,7 +115,6 @@ function StunService:ApplyStun(targetHumanoid, duration, skipAnim, attacker)
 			ActiveAnimations[targetPlayer] = track
 		end
 	end
-
         local conn
         conn = RunService.Heartbeat:Connect(function()
                 if targetHumanoid and targetHumanoid.Parent then
