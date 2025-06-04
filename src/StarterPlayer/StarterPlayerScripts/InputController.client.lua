@@ -15,7 +15,7 @@ local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
--- Moves folder exports a ModuleScript via its init.lua
+-- Moves folder has an `init` ModuleScript, requiring the folder loads it
 local Moves = require(ReplicatedStorage.Modules.Combat.Moves)
 
 -- 🔁 Remotes
