@@ -1,0 +1,85 @@
+-- InputController.lua
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- 🔁 Client Modules
+local M1InputClient = require(ReplicatedStorage.Modules.Combat.M1InputClient)
+local DashClient = require(ReplicatedStorage.Modules.Movement.DashClient) -- updated path: Movement folder
+local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
+local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
+local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+
+-- 🔁 Remotes
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local Stun = Remotes:WaitForChild("Stun") -- Confirmed no "Remotes" suffix in folder name
+
+local StunStatusEvent = Stun:WaitForChild("StunStatusRequestEvent")
+
+StunStatusEvent.OnClientEvent:Connect(function(data)
+	StunStatusClient.IsStunned = data.Stunned
+	StunStatusClient.IsAttackerLocked = data.AttackerLock
+end)
+
+-- 🔗 Tool event connection
+local function connectToolEvents(tool)
+	print("[InputController] Connecting tool:", tool.Name)
+	ToolController.SetEquippedTool(tool)
+
+	tool.Equipped:Connect(function()
+		ToolController.SetEquippedTool(tool)
+	end)
+
+	tool.Unequipped:Connect(function()
+		ToolController.SetEquippedTool(nil)
+	end)
+end
+
+-- 🔁 Detect tools added/removed from character
+local function setupToolDetection(char)
+	for _, child in ipairs(char:GetChildren()) do
+		if child:IsA("Tool") then
+			connectToolEvents(child)
+		end
+	end
+
+	char.ChildAdded:Connect(function(child)
+		if child:IsA("Tool") then
+			connectToolEvents(child)
+		end
+	end)
+
+	char.ChildRemoved:Connect(function(child)
+		if child:IsA("Tool") then
+			ToolController.SetEquippedTool(nil)
+		end
+	end)
+end
+
+-- 👤 Character listener
+player.CharacterAdded:Connect(setupToolDetection)
+if player.Character then
+	setupToolDetection(player.Character)
+end
+
+-- 🕹️ Route all input through controllers
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	M1InputClient.OnInputBegan(input, gameProcessed)
+	DashClient.OnInputBegan(input, gameProcessed)
+	BlockClient.OnInputBegan(input, gameProcessed)
+	MovementClient.OnInputBegan(input, gameProcessed)
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+	M1InputClient.OnInputEnded(input, gameProcessed)
+	DashClient.OnInputEnded(input, gameProcessed)
+	BlockClient.OnInputEnded(input, gameProcessed)
+	MovementClient.OnInputEnded(input, gameProcessed)
+end)
+
+print("[InputController] Initialized")
