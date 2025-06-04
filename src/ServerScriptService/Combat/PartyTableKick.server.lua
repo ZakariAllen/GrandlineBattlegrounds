@@ -14,6 +14,9 @@ local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local Config = require(ReplicatedStorage.Modules.Config.Config)
+
+local DEBUG = Config.GameSettings.DebugEnabled
 
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
@@ -44,53 +47,85 @@ local function playAnimation(humanoid, animId)
 end
 
 StartEvent.OnServerEvent:Connect(function(player)
+    if DEBUG then print("[PartyTableKick] StartEvent from", player.Name) end
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-    if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
+    if not humanoid then
+        if DEBUG then print("[PartyTableKick] No humanoid") end
+        return
+    end
+    if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
+        if DEBUG then print("[PartyTableKick] Player stunned or locked") end
+        return
+    end
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Black Leg" then return end
+    if not tool or tool.Name ~= "Black Leg" then
+        if DEBUG then print("[PartyTableKick] Invalid tool") end
+        return
+    end
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
+    if DEBUG then print("[PartyTableKick] Animation triggered") end
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
-    if typeof(targets) ~= "table" then return end
+    if DEBUG then print("[PartyTableKick] HitEvent from", player.Name) end
+    if typeof(targets) ~= "table" then
+        if DEBUG then print("[PartyTableKick] Invalid targets") end
+        return
+    end
 
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not hrp then return end
+    if not humanoid or not hrp then
+        if DEBUG then print("[PartyTableKick] Missing humanoid or HRP") end
+        return
+    end
 
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Black Leg" then return end
+    if not tool or tool.Name ~= "Black Leg" then
+        if DEBUG then print("[PartyTableKick] Invalid tool during hit") end
+        return
+    end
 
     local cfg = AbilityConfig.BlackLeg.PartyTableKick
 
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
-        if not enemyHumanoid then continue end
-        if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
+        if not enemyHumanoid then
+            if DEBUG then print("[PartyTableKick] Target has no humanoid") end
+            continue
+        end
+        if not StunService:CanBeHitBy(player, enemyPlayer) then
+            if DEBUG then print("[PartyTableKick] Cannot hit", enemyPlayer.Name) end
+            continue
+        end
 
         local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, cfg.DamagePerHit, false)
         if blockResult == "Perfect" then
+            if DEBUG then print("[PartyTableKick] Perfect block by", enemyPlayer.Name) end
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
             playAnimation(humanoid, AnimationData.Stun.PerfectBlock)
             BlockEvent:FireClient(enemyPlayer, false)
             continue
         elseif blockResult == "Damaged" then
+            if DEBUG then print("[PartyTableKick] Block damaged", enemyPlayer.Name) end
             continue
         elseif blockResult == "Broken" then
+            if DEBUG then print("[PartyTableKick] Block broken", enemyPlayer.Name) end
             StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
             BlockEvent:FireClient(enemyPlayer, false)
             continue
         end
 
         enemyHumanoid:TakeDamage(cfg.DamagePerHit)
+        if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration
         StunService:ApplyStun(enemyHumanoid, stunDur, isFinal, player)
 
         if isFinal then
+            if DEBUG then print("[PartyTableKick] Final hit on", enemyPlayer.Name) end
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
                 local dir = hrp.CFrame.LookVector
@@ -117,4 +152,5 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
         end)
     end
+    if DEBUG then print("[PartyTableKick] Hit sequence complete") end
 end)
