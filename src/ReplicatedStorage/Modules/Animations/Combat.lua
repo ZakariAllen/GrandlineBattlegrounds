@@ -15,10 +15,10 @@ Animation.M1 = {
 
 	BlackLeg = {
 		Combo = {
-			[1] = "rbxassetid://114337771474418",
-			[2] = "rbxassetid://70946907908283",
-			[3] = "rbxassetid://114337771474418",
-			[4] = "rbxassetid://70946907908283",
+			[1] = "rbxassetid://89499329718727",
+			[2] = "rbxassetid://126344683553001",
+			[3] = "rbxassetid://89499329718727",
+			[4] = "rbxassetid://126344683553001",
 			[5] = "rbxassetid://84882475157331",
 		},
 		Knockback = "rbxassetid://130846337993501"

@@ -18,7 +18,6 @@ local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
--- Explicitly require the MovesConfig ModuleScript to avoid folder require issues
 local MovesFolder = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Combat"):WaitForChild("Moves")
 local Moves = require(MovesFolder:WaitForChild("MovesConfig"))
 if DEBUG then
