@@ -22,7 +22,21 @@ function ToolController.GetEquippedTool()
 end
 
 function ToolController.GetEquippedStyleKey()
-	return equippedStyleKey
+        return equippedStyleKey
+end
+
+-- 💤 Temporarily stop the idle stance animation
+function ToolController.PauseStance()
+        if activeStance and activeStance.IsPlaying then
+                activeStance:Stop()
+        end
+end
+
+-- ▶️ Resume the idle stance animation if it exists
+function ToolController.ResumeStance()
+        if activeStance and not activeStance.IsPlaying then
+                activeStance:Play()
+        end
 end
 
 -- 🛠️ Equipping logic
