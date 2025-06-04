@@ -71,24 +71,24 @@ end
                 * a string/number representing a custom animation id to play
 ]]
 function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
-	local targetPlayer = getPlayer(targetHumanoid)
-	local attackerPlayer = getPlayer(attacker)
-	if not targetPlayer or not attackerPlayer then return end
+        local targetPlayer = getPlayer(targetHumanoid)
+        local attackerPlayer = getPlayer(attacker)
+        if not targetPlayer or not attackerPlayer then return end
 
-	if self:WasRecentlyHit(targetPlayer) then return end
-	HitReservations[targetPlayer] = tick()
+        if self:WasRecentlyHit(targetPlayer) then return end
+        HitReservations[targetPlayer] = tick()
 
-	local existing = StunnedPlayers[targetPlayer]
-	if existing then
-		if existing.Conn then existing.Conn:Disconnect() end
-		StunnedPlayers[targetPlayer] = nil
-	end
+        local existing = StunnedPlayers[targetPlayer]
+        if existing then
+                if existing.Conn then existing.Conn:Disconnect() end
+                StunnedPlayers[targetPlayer] = nil
+        end
 
-	if ActiveAnimations[targetPlayer] then
-		ActiveAnimations[targetPlayer]:Stop()
-		ActiveAnimations[targetPlayer]:Destroy()
-		ActiveAnimations[targetPlayer] = nil
-	end
+        if ActiveAnimations[targetPlayer] then
+                ActiveAnimations[targetPlayer]:Stop()
+                ActiveAnimations[targetPlayer]:Destroy()
+                ActiveAnimations[targetPlayer] = nil
+        end
 
     targetHumanoid.WalkSpeed = 0
     targetHumanoid.JumpPower = 0
@@ -102,19 +102,31 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
         hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
     end
 
-	if not skipAnim then
-		local animator = targetHumanoid:FindFirstChildOfClass("Animator")
-		local stunAnimId = CombatAnimations.Stun.Default
-		if animator and stunAnimId then
-			local anim = Instance.new("Animation")
-			anim.AnimationId = stunAnimId
-			local track = animator:LoadAnimation(anim)
-			track.Priority = Enum.AnimationPriority.Action
-			track.Looped = false
-			track:Play()
-			ActiveAnimations[targetPlayer] = track
-		end
-	end
+        local skipAnim = false
+        local stunAnimId
+        if typeof(animOrSkip) == "boolean" then
+                skipAnim = animOrSkip
+        elseif typeof(animOrSkip) == "string" or typeof(animOrSkip) == "number" then
+                stunAnimId = animOrSkip
+        end
+        stunAnimId = stunAnimId or CombatAnimations.Stun.Default
+
+        if not skipAnim then
+                local animator = targetHumanoid:FindFirstChildOfClass("Animator")
+                if animator and stunAnimId then
+                        local anim = Instance.new("Animation")
+                        if tostring(stunAnimId):match("^rbxassetid://") then
+                                anim.AnimationId = tostring(stunAnimId)
+                        else
+                                anim.AnimationId = "rbxassetid://" .. tostring(stunAnimId)
+                        end
+                        local track = animator:LoadAnimation(anim)
+                        track.Priority = Enum.AnimationPriority.Action
+                        track.Looped = false
+                        track:Play()
+                        ActiveAnimations[targetPlayer] = track
+                end
+        end
         local conn
         conn = RunService.Heartbeat:Connect(function()
                 if targetHumanoid and targetHumanoid.Parent then

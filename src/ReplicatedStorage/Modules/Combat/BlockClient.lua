@@ -11,6 +11,7 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
+local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
 -- ✅ Fixed remote path
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
@@ -51,22 +52,16 @@ end
 
 -- Sync from server when block state is forcibly ended (broken or cancelled)
 BlockEvent.OnClientEvent:Connect(function(active)
-    isBlocking = active
-    if active then
-        -- Avoid starting the animation twice if we already began locally
-        if not blockTrack then
-            playBlockAnimation()
         isBlocking = active
         if active then
-                playBlockAnimation()
+                -- Avoid starting the animation twice if we already began locally
+                if not blockTrack then
+                        playBlockAnimation()
+                end
         else
                 lastBlockEnd = tick()
                 stopBlockAnimation()
         end
-    else
-        lastBlockEnd = tick()
-        stopBlockAnimation()
-    end
 end)
 
 -- Checks if the current tool allows blocking
@@ -87,9 +82,14 @@ end
 
 -- Input began: handle F key press
 function BlockClient.OnInputBegan(input, gameProcessed)
-	if gameProcessed then return end
-	if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
-	if input.KeyCode ~= Enum.KeyCode.F then return end
+        if gameProcessed then return end
+        if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+        if input.KeyCode ~= Enum.KeyCode.F then return end
+
+        -- Don't attempt to block if we're stunned or locked
+        if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then
+                return
+        end
 
 	if isBlocking then return end
 
