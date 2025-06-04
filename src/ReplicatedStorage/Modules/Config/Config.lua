@@ -7,8 +7,9 @@ Config.GameSettings = {
 	DefaultWalkSpeed = 10,
 	DefaultJumpPower = 50,
 
-	JumpCooldown = 1.25,
-	DebugEnabled = true, -- Global debug toggle
+        JumpCooldown = 1.25,
+        DebugEnabled = true, -- Global debug toggle
+        AttackerLockoutDuration = 0, -- Remove extra delay after hits
 }
 
 return Config
