@@ -1,4 +1,4 @@
-local Moves = {}
+local Init = {}
 local folder = script.Parent
 for _, obj in ipairs(folder:GetChildren()) do
     if obj:IsA("ModuleScript") and obj ~= script then
@@ -8,5 +8,6 @@ for _, obj in ipairs(folder:GetChildren()) do
         end
     end
 end
-return Moves
+return Init
 
+a
