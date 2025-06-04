@@ -37,9 +37,9 @@ function StunService:WasRecentlyHit(targetPlayer)
 end
 
 function StunService:CanBeHitBy(attacker, target)
-	-- Only allow attacking stunned targets if you're the one who stunned them
-	if not attacker or not target then return false end
-	return true
+        -- Currently all attackers may hit a stunned target
+        if not attacker or not target then return false end
+        return true
 end
 
 function StunService:ApplyStun(targetHumanoid, duration, skipAnim, attacker)
