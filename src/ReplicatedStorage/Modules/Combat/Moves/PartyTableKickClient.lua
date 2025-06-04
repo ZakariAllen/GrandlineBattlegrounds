@@ -102,7 +102,12 @@ local function performMove()
 end
 
 function PartyTableKick.OnInputBegan(input, gp)
-    if gp or input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then
+    if DEBUG then
+        local codeName = input.KeyCode and input.KeyCode.Name or input.UserInputType.Name
+        print("[PartyTableKickClient] OnInputBegan:", codeName, "GP:", gp)
+    end
+    -- Ignore gameProcessed so the move still triggers even if a GUI consumed the input
+    if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then
         if DEBUG then print("[PartyTableKickClient] Input blocked") end
         return
     end
