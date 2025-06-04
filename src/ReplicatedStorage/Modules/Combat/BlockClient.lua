@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
+local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 
 -- ✅ Fixed remote path
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
@@ -19,12 +20,43 @@ local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 local isBlocking = false
 local lastBlockEnd = 0
 local blockCooldown = CombatConfig.Blocking.BlockCooldown or 2
+local blockTrack: AnimationTrack? = nil
+
+local function playBlockAnimation()
+        local char = player.Character
+        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+        local animId = CombatAnimations.Blocking.BlockHold
+        if not humanoid or not animId then return end
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if not animator then return end
+
+        local anim = Instance.new("Animation")
+        anim.AnimationId = animId
+        local track = animator:LoadAnimation(anim)
+        track.Priority = Enum.AnimationPriority.Action
+        track.Looped = true
+        track:Play()
+        blockTrack = track
+        ToolController.PauseStance()
+end
+
+local function stopBlockAnimation()
+        if blockTrack then
+                blockTrack:Stop()
+                blockTrack:Destroy()
+                blockTrack = nil
+        end
+        ToolController.ResumeStance()
+end
 
 -- Sync from server when block state is forcibly ended (broken or cancelled)
 BlockEvent.OnClientEvent:Connect(function(active)
         isBlocking = active
-        if not active then
+        if active then
+                playBlockAnimation()
+        else
                 lastBlockEnd = tick()
+                stopBlockAnimation()
         end
 end)
 
@@ -63,8 +95,9 @@ function BlockClient.OnInputBegan(input, gameProcessed)
 		return
 	end
 
-	isBlocking = true
-	BlockEvent:FireServer(true)
+        isBlocking = true
+        playBlockAnimation()
+        BlockEvent:FireServer(true)
 end
 
 -- Input ended: stop blocking
@@ -74,9 +107,10 @@ function BlockClient.OnInputEnded(input, gameProcessed)
 
 	if not isBlocking then return end
 
-	isBlocking = false
-	lastBlockEnd = tick()
-	BlockEvent:FireServer(false)
+        isBlocking = false
+        lastBlockEnd = tick()
+        stopBlockAnimation()
+        BlockEvent:FireServer(false)
 end
 
 function BlockClient.IsBlocking()
