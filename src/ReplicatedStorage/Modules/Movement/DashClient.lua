@@ -13,6 +13,8 @@ local DashConfig = require(ReplicatedStorage.Modules.Movement.DashConfig)
 local MovementAnimations = require(ReplicatedStorage.Modules.Animations.Movement)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
 
 local lastDashTime = 0
 local DASH_KEY = Enum.KeyCode.Q
@@ -93,10 +95,16 @@ function DashClient.OnInputBegan(input, gameProcessed)
 	local direction, dashVector = getDashInputAndVector()
 	if not direction or not dashVector then return end
 
-	lastDashTime = tick()
-	playDashAnimation(direction)
+        lastDashTime = tick()
+        playDashAnimation(direction)
 
-	local _, humanoid, _, hrp = getCharacterComponents()
+        local _, humanoid, _, hrp = getCharacterComponents()
+        if hrp then
+                if DashConfig.SoundId and DashConfig.SoundId ~= "" then
+                        SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
+                end
+                DashVFX:PlayDashEffect(direction, hrp)
+        end
 	local dashSettings = DashConfig.Settings[direction] or DashConfig.Settings["Forward"]
 	local duration = dashSettings.Duration
 	local distance = dashSettings.Distance
