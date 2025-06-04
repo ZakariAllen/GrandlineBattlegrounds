@@ -48,13 +48,16 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
 			comboIndex = 1
 		end
 
-		lastClick = now
-		isAwaitingServer = true
-		CombatConfig._lastUsedComboIndex = comboIndex
+                lastClick = now
+                isAwaitingServer = true
+                CombatConfig._lastUsedComboIndex = comboIndex
 
-		-- 📨 Fire to server
-		M1Event:FireServer(comboIndex, styleKey)
-		print("[M1InputClient] ComboIndex:", comboIndex)
+                -- 📨 Fire to server
+                M1Event:FireServer(comboIndex, styleKey)
+                print("[M1InputClient] ComboIndex:", comboIndex)
+
+                -- Temporarily lock other actions during hit delay
+                StunStatusClient.LockFor(CombatConfig.M1.DelayBetweenHits)
 
 		-- 🎬 Local animation
 		M1AnimationClient.Play(styleKey, comboIndex)
