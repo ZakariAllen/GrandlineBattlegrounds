@@ -98,11 +98,12 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	local hrp = char:FindFirstChild("HumanoidRootPart")
 	if not humanoid or not hrp then return end
 
-	local tool = char:FindFirstChildOfClass("Tool")
-	local styleKey = (tool and tool.Name or "Basic Combat"):gsub(" ", "")
-	local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or Config.GameSettings.DefaultM1Damage
+        local tool = char:FindFirstChildOfClass("Tool")
+        local styleKey = (tool and tool.Name or "Basic Combat"):gsub(" ", "")
+        local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or CombatConfig.M1.DefaultM1Damage
 
-	local hitLanded = false
+        local hitLanded = false
+        local blockHit = false
 	local animSet = AnimationData.M1[styleKey]
 
 	for _, enemyPlayer in ipairs(targetPlayers) do
@@ -115,14 +116,29 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 
                local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
                 if blockResult == "Perfect" then
+                        blockHit = true
                         StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, enemyPlayer)
                         BlockEvent:FireClient(enemyPlayer, false)
+                        local soundId = SoundConfig.Blocking.PerfectBlock
+                        if soundId then
+                                SoundUtils:PlaySpatialSound(soundId, hrp)
+                        end
                         continue
                 elseif blockResult == "Damaged" then
+                        blockHit = true
+                        local soundId = SoundConfig.Blocking.Block
+                        if soundId then
+                                SoundUtils:PlaySpatialSound(soundId, hrp)
+                        end
                         continue
                 elseif blockResult == "Broken" then
+                        blockHit = true
                         StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), AnimationData.Stun.BlockBreak, player)
                         BlockEvent:FireClient(enemyPlayer, false)
+                        local soundId = SoundConfig.Blocking.BlockBreak
+                        if soundId then
+                                SoundUtils:PlaySpatialSound(soundId, hrp)
+                        end
                         continue
                 end
 
@@ -159,7 +175,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 		end
 
 		-- ✨ VFX & Hit SFX
-		task.delay(Config.GameSettings.HitSoundDelay, function()
+                task.delay(CombatConfig.M1.HitSoundDelay, function()
 			local hitSfx = SoundConfig.Combat[styleKey] and SoundConfig.Combat[styleKey].Hit
 			if hitSfx then
 				SoundUtils:PlaySpatialSound(hitSfx, hrp)
@@ -169,8 +185,8 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	end
 
 	-- ❌ Miss sound
-	if not hitLanded then
-		task.delay(Config.GameSettings.MissSoundDelay, function()
+        if not hitLanded and not blockHit then
+                task.delay(CombatConfig.M1.MissSoundDelay, function()
 			local missSfx = SoundConfig.Combat[styleKey] and SoundConfig.Combat[styleKey].Miss
 			if missSfx then
 				SoundUtils:PlaySpatialSound(missSfx, hrp)
