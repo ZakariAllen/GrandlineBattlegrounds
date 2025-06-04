@@ -5,6 +5,7 @@ local BlockClient = {}
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
@@ -24,6 +25,8 @@ local isBlocking = false
 local lastBlockEnd = 0
 local blockCooldown = CombatConfig.Blocking.BlockCooldown or 2
 local blockTrack: AnimationTrack? = nil
+local blockHeld = false
+local retryConn: RBXScriptConnection? = nil
 
 local function playBlockAnimation()
         local char = player.Character
@@ -79,7 +82,28 @@ local function HasValidBlockingTool()
                 return false
         end
 
-        return ToolController.IsValidCombatTool()
+       return ToolController.IsValidCombatTool()
+end
+
+local function attemptBlock()
+       if not blockHeld or isBlocking then return end
+       if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
+       local now = tick()
+       if now - lastBlockEnd < blockCooldown then return end
+       if not HasValidBlockingTool() then return end
+
+       isBlocking = true
+       if not MovementClient then
+               MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+       end
+       MovementClient.StopSprint()
+       playBlockAnimation()
+       BlockEvent:FireServer(true)
+
+       if retryConn then
+               retryConn:Disconnect()
+               retryConn = nil
+       end
 end
 
 -- Input began: handle F key press
@@ -88,44 +112,38 @@ function BlockClient.OnInputBegan(input, gameProcessed)
         if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
         if input.KeyCode ~= Enum.KeyCode.F then return end
 
-        -- Don't attempt to block if we're stunned or locked
-        if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then
-                return
-        end
+       blockHeld = true
 
-	if isBlocking then return end
-
-	local now = tick()
-	if now - lastBlockEnd < blockCooldown then
-		warn("[BlockClient] Block is on cooldown")
-		return
-	end
-
-	if not HasValidBlockingTool() then
-		warn("[BlockClient] Invalid tool for blocking")
-		return
-	end
-
-        isBlocking = true
-        if not MovementClient then
-                MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
-        end
-        MovementClient.StopSprint()
-        playBlockAnimation()
-        BlockEvent:FireServer(true)
+       attemptBlock()
+       if not isBlocking and not retryConn then
+               retryConn = RunService.RenderStepped:Connect(function()
+                       attemptBlock()
+                       if not blockHeld or isBlocking then
+                               if retryConn then
+                                       retryConn:Disconnect()
+                                       retryConn = nil
+                               end
+                       end
+               end)
+       end
 end
 
 -- Input ended: stop blocking
 function BlockClient.OnInputEnded(input, gameProcessed)
-	if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
-	if input.KeyCode ~= Enum.KeyCode.F then return end
+        if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+        if input.KeyCode ~= Enum.KeyCode.F then return end
+       blockHeld = false
+       if retryConn then
+               retryConn:Disconnect()
+               retryConn = nil
+       end
 
-	if not isBlocking then return end
+       if not isBlocking then return end
 
-        isBlocking = false
-        lastBlockEnd = tick()
-        stopBlockAnimation()
-        BlockEvent:FireServer(false)
+       isBlocking = false
+       lastBlockEnd = tick()
+       stopBlockAnimation()
+       BlockEvent:FireServer(false)
 end
 
 function BlockClient.IsBlocking()
