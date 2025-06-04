@@ -34,8 +34,11 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
                return
        end
 
-        -- Always forward dashVector to the DashModule (module handles all logic now)
-        DashModule.ExecuteDash(player, direction, dashVector)
+       -- Always forward dashVector to the DashModule (module handles all logic now)
+       DashModule.ExecuteDash(player, direction, dashVector)
+
+       -- Notify all clients so they can play VFX/SFX for this dash
+       DashEvent:FireAllClients(player, direction)
 end)
 
 print("[DashServer] Ready")

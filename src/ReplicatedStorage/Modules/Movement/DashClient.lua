@@ -157,8 +157,23 @@ function DashClient.OnInputBegan(input, gameProcessed)
 	end
 
 	-- Notify server for validation (state only)
-	DashEvent:FireServer(direction, dashVector)
+        DashEvent:FireServer(direction, dashVector)
 end
+
+-- Play dash VFX/SFX when another player dashes
+DashEvent.OnClientEvent:Connect(function(dashPlayer, direction)
+        if dashPlayer == player then return end
+        if typeof(direction) ~= "string" then return end
+
+        local char = dashPlayer.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        if DashConfig.SoundId and DashConfig.SoundId ~= "" then
+                SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
+        end
+        DashVFX:PlayDashEffect(direction, hrp)
+end)
 
 function DashClient.OnInputEnded() end
 
