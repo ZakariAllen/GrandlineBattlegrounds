@@ -56,6 +56,12 @@ BlockEvent.OnClientEvent:Connect(function(active)
         -- Avoid starting the animation twice if we already began locally
         if not blockTrack then
             playBlockAnimation()
+        isBlocking = active
+        if active then
+                playBlockAnimation()
+        else
+                lastBlockEnd = tick()
+                stopBlockAnimation()
         end
     else
         lastBlockEnd = tick()
