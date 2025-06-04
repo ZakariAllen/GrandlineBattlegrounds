@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
+local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 
 -- ✅ Fixed remote path
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
@@ -19,16 +20,28 @@ local isBlocking = false
 local lastBlockEnd = 0
 local blockCooldown = CombatConfig.Blocking.BlockCooldown or 2
 
+-- Sync from server when block state is forcibly ended (broken or cancelled)
+BlockEvent.OnClientEvent:Connect(function(active)
+        isBlocking = active
+        if not active then
+                lastBlockEnd = tick()
+        end
+end)
+
 -- Checks if the current tool allows blocking
 local function HasValidBlockingTool()
-	local tool = ToolController.GetEquippedTool()
-	if not tool then return false end
+        local tool = ToolController.GetEquippedTool()
+        if not tool then return false end
 
-	local styleKey = ToolController.GetEquippedStyleKey()
-	if not styleKey then return false end
+        local styleKey = ToolController.GetEquippedStyleKey()
+        if not styleKey then return false end
 
-	local stats = CombatConfig.ToolStats[styleKey]
-	return stats and stats.AllowsBlocking ~= false
+        local stats = ToolConfig.ToolStats[styleKey]
+        if stats and stats.AllowsBlocking == false then
+                return false
+        end
+
+        return ToolController.IsValidCombatTool()
 end
 
 -- Input began: handle F key press

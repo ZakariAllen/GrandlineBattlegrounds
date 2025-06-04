@@ -9,9 +9,10 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 -- 🧠 Block state
-local BlockingPlayers = {}   -- [player] = true/false
-local BlockHP = {}           -- [player] = number
+local BlockingPlayers = {}    -- [player] = true/false
+local BlockHP = {}            -- [player] = number
 local PerfectBlockTimers = {} -- [player] = tick()
+local BlockCooldowns = {}     -- [player] = time
 
 -- ✅ Public access
 function BlockService.IsBlocking(player)
@@ -27,27 +28,47 @@ function BlockService.GetPerfectBlockStunDuration()
 end
 
 function BlockService.GetBlockBreakStunDuration()
-	return CombatConfig.Blocking.BlockBreakStunDuration or 4
+        return CombatConfig.Blocking.BlockBreakStunDuration or 4
+end
+
+function BlockService.IsOnCooldown(player)
+        local t = BlockCooldowns[player]
+        return t and tick() < t
 end
 
 -- 🛡️ Called when player starts blocking
 function BlockService.StartBlocking(player)
-	BlockHP[player] = CombatConfig.Blocking.BlockHP
-	BlockingPlayers[player] = true
-	PerfectBlockTimers[player] = tick()
+        if BlockService.IsOnCooldown(player) then
+                return false
+        end
+
+        BlockHP[player] = CombatConfig.Blocking.BlockHP
+        BlockingPlayers[player] = true
+        PerfectBlockTimers[player] = tick()
+        return true
 end
 
 -- ❌ Called when player releases block or is stunned out
 function BlockService.StopBlocking(player)
-	BlockingPlayers[player] = nil
-	BlockHP[player] = nil
-	PerfectBlockTimers[player] = nil
+        if BlockingPlayers[player] then
+                BlockCooldowns[player] = tick() + (CombatConfig.Blocking.BlockCooldown or 2)
+        end
+
+        BlockingPlayers[player] = nil
+        BlockHP[player] = nil
+        PerfectBlockTimers[player] = nil
 end
 
 -- ⚔️ Handles damage application to a blocking player
 -- Returns: "Perfect", "Damaged", "Broken", or nil (not blocking)
-function BlockService.ApplyBlockDamage(player, damage)
-	if not BlockingPlayers[player] then return nil end
+-- @param isBlockBreaker boolean? whether the attack ignores blocking
+function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
+       if not BlockingPlayers[player] then return nil end
+
+       if isBlockBreaker then
+               BlockService.StopBlocking(player)
+               return "Broken"
+       end
 
 	local hp = BlockHP[player] or 0
 	local timeSinceStart = tick() - (PerfectBlockTimers[player] or 0)
@@ -55,15 +76,15 @@ function BlockService.ApplyBlockDamage(player, damage)
 	-- 🌀 Perfect block window
 	if timeSinceStart <= CombatConfig.Blocking.PerfectBlockWindow then
 		-- Reflect to attacker happens in CombatService
-		BlockService.StopBlocking(player)
-		return "Perfect"
+                BlockService.StopBlocking(player)
+                return "Perfect"
 	end
 
 	-- 🩸 Block damage
 	hp -= damage
 	if hp <= 0 then
-		BlockService.StopBlocking(player)
-		return "Broken"
+                BlockService.StopBlocking(player)
+                return "Broken"
 	else
 		BlockHP[player] = hp
 		return "Damaged"
@@ -72,7 +93,8 @@ end
 
 -- 🧹 Cleanup if player leaves or dies
 local function cleanup(player)
-	BlockService.StopBlocking(player)
+        BlockService.StopBlocking(player)
+        BlockCooldowns[player] = nil
 end
 
 Players.PlayerRemoving:Connect(cleanup)

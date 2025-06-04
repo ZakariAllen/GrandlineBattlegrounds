@@ -19,6 +19,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local M1Event = CombatRemotes:WaitForChild("M1Event")
 local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
+local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 -- 🧠 State
 local comboTimestamps = {} -- [player] = { LastClick = time, CooldownEnd = time }
@@ -109,16 +110,19 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 		if not enemyHumanoid then continue end
 		if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
 
-		local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage)
-		if blockResult == "Perfect" then
-			StunService:ApplyStun(enemyHumanoid, BlockService.GetPerfectBlockStunDuration(), false, player)
-			continue
-		elseif blockResult == "Damaged" then
-			continue
-		elseif blockResult == "Broken" then
-			StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
-			continue
-		end
+               local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
+                if blockResult == "Perfect" then
+                        StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
+                        PlayAnimation(humanoid, AnimationData.Stun.PerfectBlock, "Knockback")
+                        BlockEvent:FireClient(enemyPlayer, false)
+                        continue
+                elseif blockResult == "Damaged" then
+                        continue
+                elseif blockResult == "Broken" then
+                        StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
+                        BlockEvent:FireClient(enemyPlayer, false)
+                        continue
+                end
 
 		-- ✅ Deal damage and apply stun
 		enemyHumanoid:TakeDamage(damage)
