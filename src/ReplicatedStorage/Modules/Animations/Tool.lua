@@ -6,7 +6,7 @@ Animation.BasicCombat = {
 }
 
 Animation.BlackLeg = {
-	EquipStance = "rbxassetid://94764490164095"
+	EquipStance = "rbxassetid://74913824144457"
 }
 
 return Animation
