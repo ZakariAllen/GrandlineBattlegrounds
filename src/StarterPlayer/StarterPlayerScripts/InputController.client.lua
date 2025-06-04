@@ -21,9 +21,9 @@ local Stun = Remotes:WaitForChild("Stun") -- Confirmed no "Remotes" suffix in fo
 
 local StunStatusEvent = Stun:WaitForChild("StunStatusRequestEvent")
 
+-- Update stun status using the provided helper instead of overwriting the API
 StunStatusEvent.OnClientEvent:Connect(function(data)
-	StunStatusClient.IsStunned = data.Stunned
-	StunStatusClient.IsAttackerLocked = data.AttackerLock
+        StunStatusClient.SetStatus(data.Stunned, data.AttackerLock)
 end)
 
 -- 🔗 Tool event connection
