@@ -20,6 +20,7 @@ local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 
 local KEY = Enum.KeyCode.E
 local active = false
+local held = false
 
 local function getCharacter()
     local player = Players.LocalPlayer
@@ -52,7 +53,7 @@ local function performMove()
 
     local startTime = tick()
     while tick() - startTime < cfg.Startup do
-        if not cfg.HyperArmor and StunStatusClient.IsStunned() then
+        if not held or (not cfg.HyperArmor and StunStatusClient.IsStunned()) then
             active = false
             if track then track:Stop() track:Destroy() end
             return
@@ -62,17 +63,25 @@ local function performMove()
 
     local interval = cfg.Duration / math.max(cfg.Hits - 1, 1)
     for i = 1, cfg.Hits do
-        if StunStatusClient.IsStunned() then
+        if not held or StunStatusClient.IsStunned() then
             active = false
             if track then track:Stop() track:Destroy() end
             return
         end
-        HitboxClient.CastHitbox(cfg.HitboxOffset, cfg.HitboxSize, cfg.HitboxDuration, HitEvent, {i == cfg.Hits})
+        HitboxClient.CastHitbox(cfg.HitboxOffset, cfg.HitboxSize, cfg.HitboxDuration, HitEvent, {i == cfg.Hits}, "Cylinder")
         if SoundConfig.Combat.BlackLeg and SoundConfig.Combat.BlackLeg.Hit and hrp then
             SoundUtils:PlaySpatialSound(SoundConfig.Combat.BlackLeg.Hit, hrp)
         end
         if i < cfg.Hits then
-            task.wait(interval)
+            local waitStart = tick()
+            while tick() - waitStart < interval do
+                if not held or StunStatusClient.IsStunned() then
+                    active = false
+                    if track then track:Stop() track:Destroy() end
+                    return
+                end
+                RunService.RenderStepped:Wait()
+            end
         end
     end
     active = false
@@ -87,10 +96,15 @@ function PartyTableKick.OnInputBegan(input, gp)
     if style ~= "BlackLeg" then return end
     if not ToolController.IsValidCombatTool() then return end
 
+    held = true
     active = true
     task.spawn(performMove)
 end
 
-function PartyTableKick.OnInputEnded() end
+function PartyTableKick.OnInputEnded(input)
+    if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
+    held = false
+    active = false
+end
 
 return PartyTableKick

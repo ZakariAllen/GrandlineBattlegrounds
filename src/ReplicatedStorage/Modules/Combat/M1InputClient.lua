@@ -56,8 +56,9 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                 M1Event:FireServer(comboIndex, styleKey)
                 print("[M1InputClient] ComboIndex:", comboIndex)
 
-                -- Temporarily lock other actions during hit delay
-                StunStatusClient.LockFor(CombatConfig.M1.DelayBetweenHits)
+                -- Temporarily lock other actions during the attack
+                local lockDur = CombatConfig.M1.DelayBetweenHits + CombatConfig.M1.HitDelay
+                StunStatusClient.LockFor(lockDur)
 
 		-- 🎬 Local animation
 		M1AnimationClient.Play(styleKey, comboIndex)
