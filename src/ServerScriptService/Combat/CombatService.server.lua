@@ -9,6 +9,8 @@ local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 
+print("[CombatService] Loaded")
+
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)

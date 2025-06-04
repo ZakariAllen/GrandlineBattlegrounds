@@ -26,5 +26,7 @@ end)
 
 -- 🔁 Clean up on leave
 Players.PlayerRemoving:Connect(function(player)
-	hasSpawned[player] = nil
+        hasSpawned[player] = nil
 end)
+
+print("[DeathHandler] Initialized")

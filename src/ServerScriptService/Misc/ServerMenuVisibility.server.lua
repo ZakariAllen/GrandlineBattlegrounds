@@ -68,8 +68,10 @@ PlayerLeftMenu.OnServerEvent:Connect(function(player)
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-	if menuConns[player] then
-		menuConns[player]:Disconnect()
-		menuConns[player] = nil
-	end
+        if menuConns[player] then
+                menuConns[player]:Disconnect()
+                menuConns[player] = nil
+        end
 end)
+
+print("[ServerMenuVisibility] Initialized")
