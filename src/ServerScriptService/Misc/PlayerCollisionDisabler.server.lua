@@ -35,7 +35,9 @@ end)
 
 -- ✅ For any characters already present (e.g., in Studio or on hot reload)
 for _, player in ipairs(Players:GetPlayers()) do
-	if player.Character then
-		setCollisionGroupRecursive(player.Character)
-	end
+        if player.Character then
+                setCollisionGroupRecursive(player.Character)
+        end
 end
+
+print("[PlayerCollisionDisabler] Initialized")

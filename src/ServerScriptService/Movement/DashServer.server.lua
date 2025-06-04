@@ -37,3 +37,5 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
         -- Always forward dashVector to the DashModule (module handles all logic now)
         DashModule.ExecuteDash(player, direction, dashVector)
 end)
+
+print("[DashServer] Ready")

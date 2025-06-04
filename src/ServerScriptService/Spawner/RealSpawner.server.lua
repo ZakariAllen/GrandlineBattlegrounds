@@ -75,3 +75,5 @@ local function spawnPlayerWithTool(player, toolName)
 end
 
 SpawnRequestEvent.OnServerEvent:Connect(spawnPlayerWithTool)
+
+print("[RealSpawner] Initialized")
