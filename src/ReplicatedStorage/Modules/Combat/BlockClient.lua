@@ -51,6 +51,11 @@ end
 
 -- Sync from server when block state is forcibly ended (broken or cancelled)
 BlockEvent.OnClientEvent:Connect(function(active)
+    isBlocking = active
+    if active then
+        -- Avoid starting the animation twice if we already began locally
+        if not blockTrack then
+            playBlockAnimation()
         isBlocking = active
         if active then
                 playBlockAnimation()
@@ -58,6 +63,10 @@ BlockEvent.OnClientEvent:Connect(function(active)
                 lastBlockEnd = tick()
                 stopBlockAnimation()
         end
+    else
+        lastBlockEnd = tick()
+        stopBlockAnimation()
+    end
 end)
 
 -- Checks if the current tool allows blocking
