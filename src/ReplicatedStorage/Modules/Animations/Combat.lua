@@ -32,8 +32,12 @@ Animation.Stun = {
 }
 
 Animation.Blocking = {
-	BlockHold = "rbxassetid://120302594310426",
+        BlockHold = "rbxassetid://120302594310426",
 
+}
+
+Animation.SpecialMoves = {
+        PartyTableKick = "rbxassetid://117127943494978",
 }
 
 return Animation

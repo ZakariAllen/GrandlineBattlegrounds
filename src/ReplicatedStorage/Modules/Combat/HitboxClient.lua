@@ -38,7 +38,9 @@ local function createWeldedHitbox(hrp, offsetCFrame, size, duration)
 end
 
 -- ✅ Main cast function (runs hit detection client-side)
-function HitboxClient.CastHitbox(offsetCFrame, size, duration)
+-- Optional remoteEvent and extraArgs allow reusing this hitbox logic for
+-- other attacks. If remoteEvent is nil, the default HitConfirmEvent is used.
+function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs)
 	local player = Players.LocalPlayer
 	local char = player.Character
 	if not char then return end
@@ -61,10 +63,10 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration)
 		if tick() - startTime > duration then
 			connection:Disconnect()
 
-			local targets = {}
-			for humanoid in alreadyHit do
-				table.insert(targets, humanoid)
-			end
+                        local targets = {}
+                        for humanoid in pairs(alreadyHit) do
+                                table.insert(targets, humanoid)
+                        end
 
 			if #targets > 0 then
 				local playerTargets = {}
@@ -76,11 +78,15 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration)
 					end
 				end
 
-				if #playerTargets > 0 then
-					local comboIndex = CombatConfig._lastUsedComboIndex or 1
-					local isFinal = comboIndex == CombatConfig.M1.ComboHits
-					HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
-				end
+                                if #playerTargets > 0 then
+                                        if remoteEvent then
+                                                remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
+                                        else
+                                                local comboIndex = CombatConfig._lastUsedComboIndex or 1
+                                                local isFinal = comboIndex == CombatConfig.M1.ComboHits
+                                                HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
+                                        end
+                                end
 			end
 			return
 		end

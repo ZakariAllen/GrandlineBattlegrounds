@@ -14,6 +14,7 @@ local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local Moves = require(ReplicatedStorage.Modules.Combat.Moves)
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -69,17 +70,27 @@ end
 
 -- 🕹️ Route all input through controllers
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	M1InputClient.OnInputBegan(input, gameProcessed)
-	DashClient.OnInputBegan(input, gameProcessed)
-	BlockClient.OnInputBegan(input, gameProcessed)
-	MovementClient.OnInputBegan(input, gameProcessed)
+        M1InputClient.OnInputBegan(input, gameProcessed)
+        DashClient.OnInputBegan(input, gameProcessed)
+        BlockClient.OnInputBegan(input, gameProcessed)
+        MovementClient.OnInputBegan(input, gameProcessed)
+        for _, move in ipairs(Moves) do
+                if move.OnInputBegan then
+                        move.OnInputBegan(input, gameProcessed)
+                end
+        end
 end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
-	M1InputClient.OnInputEnded(input, gameProcessed)
-	DashClient.OnInputEnded(input, gameProcessed)
-	BlockClient.OnInputEnded(input, gameProcessed)
-	MovementClient.OnInputEnded(input, gameProcessed)
+        M1InputClient.OnInputEnded(input, gameProcessed)
+        DashClient.OnInputEnded(input, gameProcessed)
+        BlockClient.OnInputEnded(input, gameProcessed)
+        MovementClient.OnInputEnded(input, gameProcessed)
+        for _, move in ipairs(Moves) do
+                if move.OnInputEnded then
+                        move.OnInputEnded(input, gameProcessed)
+                end
+        end
 end)
 
 print("[InputController] Initialized")
