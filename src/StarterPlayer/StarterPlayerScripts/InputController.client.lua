@@ -18,9 +18,9 @@ local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
--- Explicitly require the init ModuleScript to avoid folder require issues
+-- Load client combat moves from MovesConfig
 local MovesFolder = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Combat"):WaitForChild("Moves")
-local Moves = require(MovesFolder:WaitForChild("init"))
+local Moves = require(MovesFolder:WaitForChild("MovesConfig"))
 if DEBUG then
     print("[InputController] Loaded moves:", #Moves)
 end
