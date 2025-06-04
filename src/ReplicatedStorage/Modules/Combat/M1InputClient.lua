@@ -56,22 +56,23 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                 M1Event:FireServer(comboIndex, styleKey)
                 print("[M1InputClient] ComboIndex:", comboIndex)
 
-                -- Temporarily lock other actions during the attack
-                local lockDur = CombatConfig.M1.DelayBetweenHits + CombatConfig.M1.HitDelay
+                -- Temporarily lock other actions only for the base delay
+                -- so follow-up attacks can start exactly at DelayBetweenHits
+                local lockDur = CombatConfig.M1.DelayBetweenHits
                 StunStatusClient.LockFor(lockDur)
 
 		-- 🎬 Local animation
 		M1AnimationClient.Play(styleKey, comboIndex)
 
 		-- 🧊 Trigger hitbox
-		task.delay(CombatConfig.M1.HitDelay, function()
-			if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
-			HitboxClient.CastHitbox(
-				CombatConfig.M1.HitboxOffset,
-				CombatConfig.M1.HitboxSize,
-				CombatConfig.M1.HitboxDuration
-			)
-		end)
+                task.delay(CombatConfig.M1.HitDelay, function()
+                        if StunStatusClient.IsStunned() then return end
+                        HitboxClient.CastHitbox(
+                                CombatConfig.M1.HitboxOffset,
+                                CombatConfig.M1.HitboxSize,
+                                CombatConfig.M1.HitboxDuration
+                        )
+                end)
 
 		-- ⏱️ Combo advance / cooldown
 		task.delay(CombatConfig.M1.DelayBetweenHits, function()
