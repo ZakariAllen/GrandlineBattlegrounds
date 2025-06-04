@@ -16,12 +16,16 @@ local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Co
 local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
 
 -- ✅ Create visual debug hitbox (attached to HRP)
-local function createWeldedHitbox(hrp, offsetCFrame, size, duration)
-	local part = Instance.new("Part")
-	part.Size = size
-	part.CFrame = hrp.CFrame * offsetCFrame
-	part.Anchored = false
-	part.CanCollide = false
+local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
+        local part = Instance.new("Part")
+        part.Size = size
+        part.CFrame = hrp.CFrame * offsetCFrame
+        if shape == "Cylinder" then
+                part.Shape = Enum.PartType.Cylinder
+                part.Orientation = Vector3.new(0, 0, 90)
+        end
+        part.Anchored = false
+        part.CanCollide = false
 	part.Transparency = Config.GameSettings.DebugEnabled and 0.6 or 1
 	part.Material = Enum.Material.ForceField
 	part.BrickColor = BrickColor.new("Bright red")
@@ -40,7 +44,7 @@ end
 -- ✅ Main cast function (runs hit detection client-side)
 -- Optional remoteEvent and extraArgs allow reusing this hitbox logic for
 -- other attacks. If remoteEvent is nil, the default HitConfirmEvent is used.
-function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs)
+function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs, shape)
 	local player = Players.LocalPlayer
 	local char = player.Character
 	if not char then return end
@@ -48,7 +52,7 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
 	local hrp = char:FindFirstChild("HumanoidRootPart")
 	if not hrp then return end
 
-	local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration)
+        local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
 	if not hitbox then return end
 
 	local alreadyHit = {}
@@ -91,17 +95,31 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
 			return
 		end
 
-		local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
-		for _, part in ipairs(parts) do
-			local model = part:FindFirstAncestorOfClass("Model")
-			local humanoid = model and model:FindFirstChildOfClass("Humanoid")
-			local otherPlayer = model and Players:GetPlayerFromCharacter(model)
+                local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
+                for _, part in ipairs(parts) do
+                        local model = part:FindFirstAncestorOfClass("Model")
+                        local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+                        local otherPlayer = model and Players:GetPlayerFromCharacter(model)
 
-			if humanoid and otherPlayer and otherPlayer ~= player then
-				alreadyHit[humanoid] = true
-			end
-		end
-	end)
+                        if humanoid and otherPlayer and otherPlayer ~= player then
+                                if shape == "Cylinder" then
+                                        local root = model:FindFirstChild("HumanoidRootPart")
+                                        if root then
+                                                local center = hitbox.CFrame.Position
+                                                local dx = root.Position.X - center.X
+                                                local dz = root.Position.Z - center.Z
+                                                local radius = hitbox.Size.X * 0.5
+                                                local height = hitbox.Size.Y
+                                                if math.sqrt(dx*dx + dz*dz) <= radius and math.abs(root.Position.Y - center.Y) <= height * 0.5 then
+                                                        alreadyHit[humanoid] = true
+                                                end
+                                        end
+                                else
+                                        alreadyHit[humanoid] = true
+                                end
+                        end
+                end
+        end)
 end
 
 return HitboxClient
