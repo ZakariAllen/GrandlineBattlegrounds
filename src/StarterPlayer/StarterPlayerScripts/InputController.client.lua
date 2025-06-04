@@ -14,7 +14,8 @@ local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
-local Moves = require(ReplicatedStorage.Modules.Combat.Moves)
+-- Moves folder uses an `init` module so require that explicitly
+local Moves = require(ReplicatedStorage.Modules.Combat.Moves.init)
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
