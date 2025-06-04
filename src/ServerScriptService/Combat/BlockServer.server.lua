@@ -7,6 +7,7 @@ local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
+local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 
 local function hasValidTool(player)
        local char = player.Character
@@ -29,6 +30,12 @@ end
 
 BlockEvent.OnServerEvent:Connect(function(player, start)
         if start then
+                if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
+                        BlockEvent:FireClient(player, false)
+                        BlockService.StopBlocking(player)
+                        return
+                end
+
                 if hasValidTool(player) and BlockService.StartBlocking(player) then
                         BlockEvent:FireClient(player, true)
                 else
