@@ -21,6 +21,7 @@ local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KEY = Enum.KeyCode.E
 local active = false
 local held = false
+local lastUse = 0
 
 local function getCharacter()
     local player = Players.LocalPlayer
@@ -95,9 +96,12 @@ function PartyTableKick.OnInputBegan(input, gp)
     local style = ToolController.GetEquippedStyleKey()
     if style ~= "BlackLeg" then return end
     if not ToolController.IsValidCombatTool() then return end
+    local cfg = AbilityConfig.BlackLeg.PartyTableKick
+    if tick() - lastUse < (cfg.Cooldown or 0) then return end
 
     held = true
     active = true
+    lastUse = tick()
     task.spawn(performMove)
 end
 
