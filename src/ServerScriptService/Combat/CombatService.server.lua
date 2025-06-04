@@ -61,7 +61,8 @@ M1Event.OnServerEvent:Connect(function(player, comboIndex, styleKey)
 	if not char then return end
 	local humanoid = char:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
-	if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
+       if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
+       if BlockService.IsBlocking(player) or BlockService.IsInStartup(player) then return end
 
 	local now = tick()
 	comboTimestamps[player] = comboTimestamps[player] or { LastClick = 0, CooldownEnd = 0 }

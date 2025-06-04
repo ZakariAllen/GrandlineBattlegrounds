@@ -13,10 +13,15 @@ local BlockingPlayers = {}    -- [player] = true/false
 local BlockHP = {}            -- [player] = number
 local PerfectBlockTimers = {} -- [player] = tick()
 local BlockCooldowns = {}     -- [player] = time
+local BlockStartup = {}       -- [player] = true
 
 -- ✅ Public access
 function BlockService.IsBlocking(player)
-	return BlockingPlayers[player] == true
+        return BlockingPlayers[player] == true
+end
+
+function BlockService.IsInStartup(player)
+       return BlockStartup[player] == true
 end
 
 function BlockService.GetBlockHP(player)
@@ -38,25 +43,38 @@ end
 
 -- 🛡️ Called when player starts blocking
 function BlockService.StartBlocking(player)
-        if BlockService.IsOnCooldown(player) then
-                return false
-        end
+       if BlockService.IsOnCooldown(player) then
+               return false
+       end
+       if BlockingPlayers[player] or BlockStartup[player] then
+               return false
+       end
 
-        BlockHP[player] = CombatConfig.Blocking.BlockHP
-        BlockingPlayers[player] = true
-        PerfectBlockTimers[player] = tick()
-        return true
+       BlockStartup[player] = true
+       local startup = CombatConfig.Blocking.StartupTime or 0.1
+       task.delay(startup, function()
+               if BlockStartup[player] then
+                       BlockStartup[player] = nil
+                       BlockHP[player] = CombatConfig.Blocking.BlockHP
+                       BlockingPlayers[player] = true
+                       PerfectBlockTimers[player] = tick()
+               end
+       end)
+       return true
 end
 
 -- ❌ Called when player releases block or is stunned out
 function BlockService.StopBlocking(player)
-        if BlockingPlayers[player] then
-                BlockCooldowns[player] = tick() + (CombatConfig.Blocking.BlockCooldown or 2)
-        end
+       if BlockingPlayers[player] or BlockStartup[player] then
+               if BlockingPlayers[player] then
+                       BlockCooldowns[player] = tick() + (CombatConfig.Blocking.BlockCooldown or 2)
+               end
+       end
 
-        BlockingPlayers[player] = nil
-        BlockHP[player] = nil
-        PerfectBlockTimers[player] = nil
+       BlockingPlayers[player] = nil
+       BlockStartup[player] = nil
+       BlockHP[player] = nil
+       PerfectBlockTimers[player] = nil
 end
 
 -- ⚔️ Handles damage application to a blocking player

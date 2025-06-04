@@ -26,11 +26,12 @@ CombatConfig.M1 = {
 }
 
 CombatConfig.Blocking = {
-	BlockHP = 12,
-	PerfectBlockWindow = 0.3,
-	BlockBreakStunDuration = 4,
-	PerfectBlockStunDuration = 6,
-	BlockCooldown = 2,
+        BlockHP = 12,
+        StartupTime = 0.1,
+        PerfectBlockWindow = 0.3,
+        BlockBreakStunDuration = 4,
+        PerfectBlockStunDuration = 6,
+        BlockCooldown = 2,
 }
 
 return CombatConfig

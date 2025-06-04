@@ -12,6 +12,7 @@ local DashEvent = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Moveme
 local DashConfig = require(ReplicatedStorage.Modules.Movement.DashConfig)
 local MovementAnimations = require(ReplicatedStorage.Modules.Animations.Movement)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
@@ -89,8 +90,8 @@ function DashClient.OnInputBegan(input, gameProcessed)
 	if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
 	if input.KeyCode ~= DASH_KEY then return end
 
-	if tick() - lastDashTime < DashConfig.Cooldown then return end
-	if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
+       if tick() - lastDashTime < DashConfig.Cooldown then return end
+       if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
 
 	local direction, dashVector = getDashInputAndVector()
 	if not direction or not dashVector then return end
