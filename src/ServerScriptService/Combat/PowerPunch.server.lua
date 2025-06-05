@@ -72,7 +72,7 @@ StartEvent.OnServerEvent:Connect(function(player)
     VFXEvent:FireAllClients(player)
 end)
 
-HitEvent.OnServerEvent:Connect(function(player, targets)
+HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     if DEBUG then print("[PowerPunch] HitEvent from", player.Name) end
     if typeof(targets) ~= "table" then return end
 
@@ -112,9 +112,9 @@ HitEvent.OnServerEvent:Connect(function(player, targets)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
-            local dir = hrp.CFrame.LookVector
+            local kbDir = typeof(dir) == "Vector3" and dir or hrp.CFrame.LookVector
             local knockback = CombatConfig.M1
-            local velocity = dir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
+            local velocity = kbDir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
             velocity = Vector3.new(velocity.X, knockback.KnockbackLift, velocity.Z)
 
             local bv = Instance.new("BodyVelocity")
@@ -124,7 +124,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets)
             bv.Parent = enemyRoot
             Debris:AddItem(bv, knockback.KnockbackDuration)
 
-            enemyRoot.CFrame = CFrame.new(enemyRoot.Position, enemyRoot.Position - dir)
+            enemyRoot.CFrame = CFrame.new(enemyRoot.Position, enemyRoot.Position - kbDir)
 
             local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
             if knockbackAnim then

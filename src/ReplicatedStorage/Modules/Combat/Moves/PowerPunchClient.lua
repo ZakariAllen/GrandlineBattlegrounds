@@ -92,12 +92,13 @@ local function performMove()
     end
 
     -- Cast the hitbox while movement is still locked
+    local dir = hrp.CFrame.LookVector
     local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.PowerPunch.Offset,
         MoveHitboxConfig.PowerPunch.Size,
         MoveHitboxConfig.PowerPunch.Duration,
         HitEvent,
-        {true},
+        {dir},
         MoveHitboxConfig.PowerPunch.Shape,
         true,
         5

@@ -152,7 +152,9 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             if DEBUG then print("[PartyTableKick] Final hit on", enemyPlayer.Name) end
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
-                local dir = hrp.CFrame.LookVector
+                local rel = enemyRoot.Position - hrp.Position
+                rel = Vector3.new(rel.X, 0, rel.Z)
+                local dir = rel.Magnitude > 0 and rel.Unit or hrp.CFrame.LookVector
                 local knockback = CombatConfig.M1
                 local velocity = dir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
                 velocity = Vector3.new(velocity.X, knockback.KnockbackLift, velocity.Z)
