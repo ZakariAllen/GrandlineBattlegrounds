@@ -20,6 +20,7 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -126,6 +127,8 @@ function PowerPunch.OnInputBegan(input, gp)
     local style = ToolController.GetEquippedStyleKey()
     if style ~= "BasicCombat" then return end
     if not ToolController.IsValidCombatTool() then return end
+
+    if StaminaService.GetStamina(Players.LocalPlayer) < 20 then return end
 
     if tick() - lastUse < (PowerPunchConfig.Cooldown or 0) then return end
 

@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
+local RunService = game:GetService("RunService")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
@@ -12,6 +13,7 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
@@ -23,6 +25,7 @@ local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 local activeTracks = {}
 local activeLoopSounds = {}
+local activeDrain = {}
 
 local function playAnimation(humanoid, animId)
     if not animId or not humanoid then return end
@@ -79,6 +82,11 @@ StartEvent.OnServerEvent:Connect(function(player)
         if DEBUG then print("[PartyTableKick] Invalid tool") end
         return
     end
+    if not StaminaService.Consume(player, 10) then
+        if DEBUG then print("[PartyTableKick] Not enough stamina") end
+        return
+    end
+    activeDrain[player] = tick()
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
     if DEBUG then print("[PartyTableKick] Animation triggered") end
     local hrp = char:FindFirstChild("HumanoidRootPart")
@@ -199,5 +207,12 @@ StopEvent.OnServerEvent:Connect(function(player)
     if sound then
         sound:Destroy()
         activeLoopSounds[player] = nil
+    end
+    activeDrain[player] = nil
+end)
+
+RunService.Heartbeat:Connect(function(dt)
+    for player, last in pairs(activeDrain) do
+        StaminaService.Consume(player, 3 * dt)
     end
 end)

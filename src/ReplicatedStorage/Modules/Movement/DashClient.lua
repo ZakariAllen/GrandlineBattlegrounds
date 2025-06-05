@@ -16,6 +16,7 @@ local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
 local lastDashTime = 0
 local DASH_KEY = Enum.KeyCode.Q
@@ -86,12 +87,13 @@ local function playDashAnimation(direction)
 end
 
 function DashClient.OnInputBegan(input, gameProcessed)
-	if gameProcessed then return end
-	if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
-	if input.KeyCode ~= DASH_KEY then return end
+    if gameProcessed then return end
+    if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+    if input.KeyCode ~= DASH_KEY then return end
 
-       if tick() - lastDashTime < DashConfig.Cooldown then return end
-       if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
+    if tick() - lastDashTime < DashConfig.Cooldown then return end
+    if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
+    if StaminaService.GetStamina(player) < 10 then return end
 
 	local direction, dashVector = getDashInputAndVector()
 	if not direction or not dashVector then return end

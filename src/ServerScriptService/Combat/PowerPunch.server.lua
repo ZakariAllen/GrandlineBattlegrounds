@@ -11,6 +11,7 @@ local PowerPunchConfig = require(ReplicatedStorage.Modules.Config.PowerPunchConf
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
@@ -68,6 +69,7 @@ StartEvent.OnServerEvent:Connect(function(player)
     if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool or tool.Name ~= "Basic Combat" then return end
+    if not StaminaService.Consume(player, 20) then return end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerPunch)
     VFXEvent:FireAllClients(player)
 end)
