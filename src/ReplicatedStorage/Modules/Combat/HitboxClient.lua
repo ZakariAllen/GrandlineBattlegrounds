@@ -44,7 +44,7 @@ end
 -- ✅ Main cast function (runs hit detection client-side)
 -- Optional remoteEvent and extraArgs allow reusing this hitbox logic for
 -- other attacks. If remoteEvent is nil, the default HitConfirmEvent is used.
-function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs, shape)
+function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs, shape, fireOnMiss)
 	local player = Players.LocalPlayer
 	local char = player.Character
 	if not char then return end
@@ -72,28 +72,26 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
                                 table.insert(targets, humanoid)
                         end
 
-			if #targets > 0 then
-				local playerTargets = {}
-				for _, humanoid in ipairs(targets) do
-					local model = humanoid.Parent
-					local enemyPlayer = Players:GetPlayerFromCharacter(model)
-					if enemyPlayer then
-						table.insert(playerTargets, enemyPlayer)
-					end
-				end
-
-                                if #playerTargets > 0 then
-                                        if remoteEvent then
-                                                remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
-                                        else
-                                                local comboIndex = CombatConfig._lastUsedComboIndex or 1
-                                                local isFinal = comboIndex == CombatConfig.M1.ComboHits
-                                                HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
-                                        end
+                        local playerTargets = {}
+                        for _, humanoid in ipairs(targets) do
+                                local model = humanoid.Parent
+                                local enemyPlayer = Players:GetPlayerFromCharacter(model)
+                                if enemyPlayer then
+                                        table.insert(playerTargets, enemyPlayer)
                                 end
-			end
-			return
-		end
+                        end
+
+                        if #playerTargets > 0 or fireOnMiss then
+                                if remoteEvent then
+                                        remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
+                                else
+                                        local comboIndex = CombatConfig._lastUsedComboIndex or 1
+                                        local isFinal = comboIndex == CombatConfig.M1.ComboHits
+                                        HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
+                                end
+                        end
+                       return
+               end
 
                 local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
                 for _, part in ipairs(parts) do

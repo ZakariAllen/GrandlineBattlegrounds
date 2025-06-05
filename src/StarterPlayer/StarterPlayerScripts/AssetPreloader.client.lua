@@ -13,6 +13,7 @@ local Animations = Modules:WaitForChild("Animations")
 local MovementModules = Modules:WaitForChild("Movement")
 
 local SoundConfig = require(Cfg:WaitForChild("SoundConfig"))
+local MoveSoundConfig = require(Cfg:WaitForChild("MoveSoundConfig"))
 local DashConfig = require(MovementModules:WaitForChild("DashConfig"))
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
 local CombatAnimations = require(Animations:WaitForChild("Combat"))
@@ -41,6 +42,18 @@ for _, category in pairs(SoundConfig) do
                         table.insert(assets, sound)
                 end
         end
+end
+
+-- 🔊 Preload move-specific sound IDs
+for _, move in pairs(MoveSoundConfig) do
+       for _, soundId in pairs(move) do
+               if isValidAssetId(soundId) then
+                       local sound = Instance.new("Sound")
+                       sound.SoundId = soundId
+                       sound.Parent = PlayerGui
+                       table.insert(assets, sound)
+               end
+       end
 end
 
 -- Dash sound from DashConfig

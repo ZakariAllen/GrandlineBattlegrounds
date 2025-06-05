@@ -12,7 +12,7 @@ local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
-local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
+local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
@@ -89,6 +89,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
     end
 
     local cfg = PartyTableKickConfig
+    local hitLanded = false
 
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character
@@ -120,6 +121,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
 
         enemyHumanoid:TakeDamage(cfg.DamagePerHit)
+        hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration
         StunService:ApplyStun(enemyHumanoid, stunDur, isFinal, player)
@@ -145,12 +147,20 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
 
         task.delay(0.05, function()
-            local hitSfx = SoundConfig.Combat.BlackLeg and SoundConfig.Combat.BlackLeg.Hit
+            local hitSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Hit
             if hitSfx then
                 SoundUtils:PlaySpatialSound(hitSfx, hrp)
             end
             HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
         end)
+    end
+    if not hitLanded then
+        local missSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Miss
+        if missSfx then
+            task.delay(0.05, function()
+                SoundUtils:PlaySpatialSound(missSfx, hrp)
+            end)
+        end
     end
     if DEBUG then print("[PartyTableKick] Hit sequence complete") end
 end)
