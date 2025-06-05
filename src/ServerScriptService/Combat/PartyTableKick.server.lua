@@ -16,6 +16,7 @@ local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
+local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
@@ -120,6 +121,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
 
     local cfg = PartyTableKickConfig
     local hitLanded = false
+    local blockHit = false
 
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character
@@ -136,17 +138,32 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, cfg.DamagePerHit, false)
         if blockResult == "Perfect" then
             if DEBUG then print("[PartyTableKick] Perfect block by", enemyPlayer.Name) end
+            blockHit = true
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
             playAnimation(humanoid, AnimationData.Stun.PerfectBlock)
             BlockEvent:FireClient(enemyPlayer, false)
+            local soundId = SoundConfig.Blocking.PerfectBlock
+            if soundId then
+                SoundUtils:PlaySpatialSound(soundId, hrp)
+            end
             continue
         elseif blockResult == "Damaged" then
             if DEBUG then print("[PartyTableKick] Block damaged", enemyPlayer.Name) end
+            blockHit = true
+            local soundId = SoundConfig.Blocking.Block
+            if soundId then
+                SoundUtils:PlaySpatialSound(soundId, hrp)
+            end
             continue
         elseif blockResult == "Broken" then
             if DEBUG then print("[PartyTableKick] Block broken", enemyPlayer.Name) end
+            blockHit = true
             StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
             BlockEvent:FireClient(enemyPlayer, false)
+            local soundId = SoundConfig.Blocking.BlockBreak
+            if soundId then
+                SoundUtils:PlaySpatialSound(soundId, hrp)
+            end
             continue
         end
 
@@ -189,7 +206,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
     end
-    if not hitLanded then
+    if not hitLanded and not blockHit then
         local missSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Miss
         if missSfx then
             SoundUtils:PlaySpatialSound(missSfx, hrp)
