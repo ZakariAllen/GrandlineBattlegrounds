@@ -56,6 +56,8 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
 
     -- Server controls physics during knockback
     root:SetNetworkOwner(nil)
+    -- Mark knockback active so other systems don't zero velocity
+    root:SetAttribute("KnockbackActive", true)
 
     local speed = distance / duration
     local knockVelocity = Vector3.new(direction.X * speed, lift, direction.Z * speed)
@@ -70,6 +72,7 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     task.delay(duration, function()
         if root.Parent then
             root:SetNetworkOwner(originalOwner or playerOwner)
+            root:SetAttribute("KnockbackActive", nil)
         end
     end)
 end
