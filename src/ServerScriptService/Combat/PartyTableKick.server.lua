@@ -22,6 +22,7 @@ local DEBUG = Config.GameSettings.DebugEnabled
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 local activeTracks = {}
+local activeLoopSounds = {}
 
 local function playAnimation(humanoid, animId)
     if not animId or not humanoid then return end
@@ -80,6 +81,12 @@ StartEvent.OnServerEvent:Connect(function(player)
     end
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
     if DEBUG then print("[PartyTableKick] Animation triggered") end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local loopId = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Loop
+    if hrp and loopId then
+        local sound = SoundUtils:PlayLoopingSpatialSound(loopId, hrp)
+        activeLoopSounds[player] = sound
+    end
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
@@ -187,5 +194,10 @@ StopEvent.OnServerEvent:Connect(function(player)
     if humanoid then
         stopAnimation(humanoid)
         if DEBUG then print("[PartyTableKick] Animation stopped for", player.Name) end
+    end
+    local sound = activeLoopSounds[player]
+    if sound then
+        sound:Destroy()
+        activeLoopSounds[player] = nil
     end
 end)

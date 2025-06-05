@@ -74,7 +74,8 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                                 MoveHitboxConfig.M1.Duration,
                                 nil,
                                 nil,
-                                MoveHitboxConfig.M1.Shape
+                                MoveHitboxConfig.M1.Shape,
+                                true -- ensure miss is reported to server
                         )
                 end)
 

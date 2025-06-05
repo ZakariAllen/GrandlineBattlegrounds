@@ -18,8 +18,7 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
-local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -30,7 +29,6 @@ local held = false
 local lastUse = 0
 
 local currentTrack
-local currentSound
 local currentHumanoid
 local prevWalkSpeed
 
@@ -60,10 +58,6 @@ local function cleanup()
         currentTrack:Destroy()
         currentTrack = nil
     end
-    if currentSound then
-        currentSound:Destroy()
-        currentSound = nil
-    end
     if currentHumanoid and prevWalkSpeed then
         currentHumanoid.WalkSpeed = prevWalkSpeed
     end
@@ -88,14 +82,6 @@ local function performMove()
     if DEBUG then print("[PartyTableKickClient] Animation started") end
     StartEvent:FireServer()
     if DEBUG then print("[PartyTableKickClient] StartEvent fired") end
-
-    local loopSound
-    if hrp and MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Loop then
-        loopSound = SoundUtils:PlayLoopingSpatialSound(MoveSoundConfig.PartyTableKick.Loop, hrp)
-    end
-
-    currentSound = loopSound
-
     local function endMove()
         if not active then return end
         active = false

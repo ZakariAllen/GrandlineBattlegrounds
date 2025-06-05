@@ -91,12 +91,7 @@ local function performMove()
         RunService.RenderStepped:Wait()
     end
 
-    humanoid.WalkSpeed = prevWalkSpeed
-    humanoid.JumpPower = prevJumpPower
-    prevWalkSpeed = nil
-    prevJumpPower = nil
-    currentHumanoid = nil
-
+    -- Cast the hitbox while movement is still locked
     local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.PowerPunch.Offset,
         MoveHitboxConfig.PowerPunch.Size,
@@ -113,6 +108,13 @@ local function performMove()
     end
 
     task.wait(cfg.Endlag)
+
+    -- Restore movement after endlag finishes
+    humanoid.WalkSpeed = prevWalkSpeed
+    humanoid.JumpPower = prevJumpPower
+    prevWalkSpeed = nil
+    prevJumpPower = nil
+    currentHumanoid = nil
     active = false
 end
 
