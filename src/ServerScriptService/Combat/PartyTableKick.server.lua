@@ -8,7 +8,8 @@ local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 
-local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
+local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PartyTableKickConfig = AbilityConfig.BlackLeg.PartyTableKick
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)

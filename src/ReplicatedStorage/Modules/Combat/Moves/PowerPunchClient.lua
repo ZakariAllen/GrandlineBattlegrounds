@@ -13,7 +13,8 @@ local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
 local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local PowerPunchConfig = require(ReplicatedStorage.Modules.Config.PowerPunchConfig)
+local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PowerPunchConfig = AbilityConfig.BasicCombat.PowerPunch
 local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)

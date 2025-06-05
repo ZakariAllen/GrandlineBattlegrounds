@@ -7,7 +7,8 @@ local StartEvent = CombatRemotes:WaitForChild("PowerPunchStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
 local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
-local PowerPunchConfig = require(ReplicatedStorage.Modules.Config.PowerPunchConfig)
+local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PowerPunchConfig = AbilityConfig.BasicCombat.PowerPunch
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
@@ -114,6 +115,9 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
+            -- Ensure the server controls physics during knockback
+            enemyRoot:SetNetworkOwner(nil)
+
             local kbDir = typeof(dir) == "Vector3" and dir or hrp.CFrame.LookVector
             local knockback = CombatConfig.M1
             local velocity = kbDir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
