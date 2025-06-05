@@ -6,8 +6,7 @@ local PartyTableKickConfig = {
     Startup = 0.4,
     HyperArmor = false,
     GuardBreak = false,
-    HitboxSize = Vector3.new(4,5,4),
-    HitboxOffset = CFrame.new(0,0,0),
+    Endlag = 1,
     HitboxDuration = 0.1,
     Cooldown = 5,
 }

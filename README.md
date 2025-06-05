@@ -13,5 +13,5 @@ that module to tweak hitboxes without editing the move scripts themselves.
 ## Move Settings
 
 Each move also has a dedicated configuration module for things like duration,
-hyper armor, guard break and hit count. For example, Party Table Kick's values
+endlag, hyper armor, guard break and hit count. For example, Party Table Kick's values
 can be edited in `ReplicatedStorage/Modules/Config/PartyTableKickConfig.lua`.
