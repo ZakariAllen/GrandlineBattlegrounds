@@ -57,23 +57,11 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     -- Server controls physics during knockback
     root:SetNetworkOwner(nil)
 
-    local velocity = direction * (distance / duration)
-    local impulse = Vector3.new(velocity.X, lift, velocity.Z) * root.AssemblyMass
+    local speed = distance / duration
+    local knockVelocity = Vector3.new(direction.X * speed, lift, direction.Z * speed)
 
-    -- Reset existing motion and apply impulse for a snappy feel
-    root.AssemblyLinearVelocity = Vector3.zero
-    root:ApplyImpulse(impulse)
-
-    -- Maintain the force for the duration using VectorForce
-    local attachment = Instance.new("Attachment")
-    attachment.Parent = root
-    local vf = Instance.new("VectorForce")
-    vf.Attachment0 = attachment
-    vf.Force = impulse / duration
-    vf.RelativeTo = Enum.ActuatorRelative.World
-    vf.Parent = root
-    Debris:AddItem(vf, duration)
-    Debris:AddItem(attachment, duration)
+    -- Directly set velocity instead of applying physical forces
+    root.AssemblyLinearVelocity = knockVelocity
 
     -- Face away from the attacker
     root.CFrame = CFrame.new(root.Position, root.Position - direction)
