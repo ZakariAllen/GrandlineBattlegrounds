@@ -119,8 +119,6 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             local velocity = kbDir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
             velocity = Vector3.new(velocity.X, knockback.KnockbackLift, velocity.Z)
 
-            enemyRoot:SetNetworkOwner(nil)
-
             local bv = Instance.new("BodyVelocity")
             bv.Velocity = velocity
             bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
