@@ -10,6 +10,7 @@ local PlayerGui = player:WaitForChild("PlayerGui")
 
 local screenGui
 local healthBar
+local baseSize
 local connection
 
 -- Clone the existing PlayerGUI from ReplicatedStorage.Assets
@@ -30,6 +31,9 @@ local function ensureGui()
 
     local guiFrame = screenGui:WaitForChild("GUI")
     healthBar = guiFrame:WaitForChild("HealthBarBGMiddle"):WaitForChild("HealthBar")
+    if not baseSize then
+        baseSize = healthBar.Size
+    end
 end
 
 function PlayerGuiManager.Show()
@@ -54,8 +58,15 @@ function PlayerGuiManager.BindHumanoid(humanoid)
     ensureGui()
 
     local function update()
-        local ratio = humanoid.Health / humanoid.MaxHealth
-        healthBar.Size = UDim2.new(math.clamp(ratio, 0, 1), 0, 1, 0)
+        if not baseSize then return end
+
+        local ratio = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+        healthBar.Size = UDim2.new(
+            baseSize.X.Scale * ratio,
+            baseSize.X.Offset * ratio,
+            baseSize.Y.Scale,
+            baseSize.Y.Offset
+        )
     end
 
     update()
