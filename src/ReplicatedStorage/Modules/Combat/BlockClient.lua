@@ -20,6 +20,7 @@ local MovementClient
 -- ✅ Fixed remote path
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
+local BlockVFXEvent = CombatRemotes:WaitForChild("BlockVFX")
 
 -- State
 local isBlocking = false
@@ -29,6 +30,7 @@ local blockTrack: AnimationTrack? = nil
 local blockHeld = false
 local retryConn: RBXScriptConnection? = nil
 local activeVFX: Instance? = nil
+local otherVFX = {}
 
 local function playBlockAnimation()
         local char = player.Character
@@ -78,6 +80,28 @@ BlockEvent.OnClientEvent:Connect(function(active)
                 lastBlockEnd = tick()
                 stopBlockAnimation()
         end
+end)
+
+-- Show or hide block VFX for other players
+BlockVFXEvent.OnClientEvent:Connect(function(blockPlayer, active)
+       if blockPlayer == player then return end
+       if typeof(active) ~= "boolean" then return end
+       local char = blockPlayer.Character
+       local hrp = char and char:FindFirstChild("HumanoidRootPart")
+       if not hrp then return end
+
+       local vfx = otherVFX[blockPlayer]
+       if active then
+               if not vfx then
+                       vfx = BlockVFX.Create(hrp)
+                       otherVFX[blockPlayer] = vfx
+               end
+       else
+               if vfx then
+                       BlockVFX.Remove(vfx)
+                       otherVFX[blockPlayer] = nil
+               end
+       end
 end)
 
 -- Checks if the current tool allows blocking
