@@ -12,6 +12,7 @@ AbilityConfig.BlackLeg = {
         Endlag = 1,
         HitboxDuration = 0.1,
         Cooldown = 5,
+        KnockbackDirection = "AwayFromAttacker",
     },
 }
 
@@ -26,6 +27,7 @@ AbilityConfig.BasicCombat = {
         HitboxDuration = 0.5,
         HitboxDistance = 5,
         Cooldown = 4,
+        KnockbackDirection = "HitboxVelocityDirection",
     },
 }
 
