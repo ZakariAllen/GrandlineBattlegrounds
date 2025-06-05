@@ -36,6 +36,8 @@ ensureEvent(combat, "JumpCooldownEvent")
 ensureEvent(combat, "PartyTableKickStart")
 ensureEvent(combat, "PartyTableKickHit")
 ensureEvent(combat, "PartyTableKickStop")
+ensureEvent(combat, "PowerPunchStart")
+ensureEvent(combat, "PowerPunchHit")
 
 -- Movement events
 local movement = ensureFolder(remotes, "Movement")
