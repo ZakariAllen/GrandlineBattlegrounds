@@ -161,20 +161,16 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             end
         end
 
-        task.delay(0.05, function()
-            local hitSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Hit
-            if hitSfx then
-                SoundUtils:PlaySpatialSound(hitSfx, hrp)
-            end
-            HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
-        end)
+        local hitSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Hit
+        if hitSfx then
+            SoundUtils:PlaySpatialSound(hitSfx, hrp)
+        end
+        HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
     end
     if not hitLanded then
         local missSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Miss
         if missSfx then
-            task.delay(0.05, function()
-                SoundUtils:PlaySpatialSound(missSfx, hrp)
-            end)
+            SoundUtils:PlaySpatialSound(missSfx, hrp)
         end
     end
     if DEBUG then print("[PartyTableKick] Hit sequence complete") end
