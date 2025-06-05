@@ -1,6 +1,6 @@
 local PartyTableKickConfig = {
     Hits = 10,
-    Duration = 2.75,
+    Duration = 2.4,
     DamagePerHit = 3,
     StunDuration = 0.75,
     Startup = 1,

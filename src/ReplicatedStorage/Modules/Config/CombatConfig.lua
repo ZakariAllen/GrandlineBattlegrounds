@@ -22,11 +22,11 @@ CombatConfig.M1 = {
 
 	HitSoundDelay = 0.05,
 	MissSoundDelay = 0.05,
-	DefaultM1Damage = 5,
+	DefaultM1Damage = 1,
 }
 
 CombatConfig.Blocking = {
-        BlockHP = 12,
+        BlockHP = 35,
         StartupTime = 0.1,
         PerfectBlockWindow = 0.3,
         BlockBreakStunDuration = 4,
