@@ -5,9 +5,15 @@ local Workspace = game:GetService("Workspace")
 local COLLISION_GROUP = "Players"
 
 -- ✅ Register the collision group if not present
-local registeredGroups = PhysicsService:GetRegisteredCollisionGroups()
-if not table.find(registeredGroups, COLLISION_GROUP) then
-	PhysicsService:RegisterCollisionGroup(COLLISION_GROUP)
+local groupExists = false
+for _, group in ipairs(PhysicsService:GetCollisionGroups()) do
+        if group.name == COLLISION_GROUP then
+                groupExists = true
+                break
+        end
+end
+if not groupExists then
+        PhysicsService:RegisterCollisionGroup(COLLISION_GROUP)
 end
 
 -- ✅ Disable collision within the group
