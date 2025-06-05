@@ -158,6 +158,11 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
                 Debris:AddItem(bv, knockback.KnockbackDuration)
 
                 enemyRoot.CFrame = CFrame.new(enemyRoot.Position, enemyRoot.Position - dir)
+
+                local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
+                if knockbackAnim then
+                    playAnimation(enemyHumanoid, knockbackAnim)
+                end
             end
         end
 

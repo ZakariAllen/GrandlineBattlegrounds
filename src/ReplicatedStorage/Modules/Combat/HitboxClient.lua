@@ -131,6 +131,8 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
                         end
                 end
         end)
+
+        return hitbox
 end
 
 return HitboxClient
