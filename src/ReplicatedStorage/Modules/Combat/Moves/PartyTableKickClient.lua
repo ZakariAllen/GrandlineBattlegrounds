@@ -16,6 +16,7 @@ local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConf
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
+local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
@@ -56,6 +57,9 @@ local function performMove()
         return
     end
 
+    local prevSpeed = humanoid.WalkSpeed
+    humanoid.WalkSpeed = 3
+
     local animId = Animations.SpecialMoves.PartyTableKick
     local track = playAnimation(animator, animId)
     if DEBUG then print("[PartyTableKickClient] Animation started") end
@@ -68,6 +72,7 @@ local function performMove()
             if DEBUG then print("[PartyTableKickClient] Startup cancelled") end
             active = false
             if track then track:Stop() track:Destroy() end
+            humanoid.WalkSpeed = prevSpeed
             return
         end
         RunService.RenderStepped:Wait()
@@ -79,6 +84,7 @@ local function performMove()
             if DEBUG then print("[PartyTableKickClient] Move interrupted") end
             active = false
             if track then track:Stop() track:Destroy() end
+            humanoid.WalkSpeed = prevSpeed
             return
         end
         HitboxClient.CastHitbox(
@@ -98,6 +104,7 @@ local function performMove()
                 if not held or StunStatusClient.IsStunned() then
                     active = false
                     if track then track:Stop() track:Destroy() end
+                    humanoid.WalkSpeed = prevSpeed
                     return
                 end
                 RunService.RenderStepped:Wait()
@@ -106,6 +113,7 @@ local function performMove()
     end
     active = false
     if track then track:Stop() track:Destroy() end
+    humanoid.WalkSpeed = prevSpeed
     if DEBUG then print("[PartyTableKickClient] Move finished") end
 end
 
@@ -146,6 +154,11 @@ function PartyTableKick.OnInputBegan(input, gp)
     held = true
     active = true
     lastUse = tick()
+
+    MovementClient.StopSprint()
+    local lockTime = cfg.Startup + cfg.Duration + (cfg.Endlag or 0)
+    StunStatusClient.LockFor(lockTime)
+
     task.spawn(performMove)
 end
 
