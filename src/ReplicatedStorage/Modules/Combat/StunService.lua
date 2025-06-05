@@ -140,7 +140,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
                                -- Preserve applied knockback forces by not
                                -- zeroing horizontal velocity when a knockback force is present
                                if not hrp:FindFirstChildOfClass("BodyVelocity")
-                                       and not hrp:FindFirstChildOfClass("VectorForce") then
+                                       and not hrp:FindFirstChildOfClass("VectorForce")
+                                       and not hrp:GetAttribute("KnockbackActive") then
                                        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
                                end
                                 hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
