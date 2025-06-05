@@ -1,7 +1,7 @@
 local MoveSoundConfig = {
     PartyTableKick = {
-        Hit = "rbxassetid://1234567890",
-        Miss = "rbxassetid://0987654321",
+        Hit = "rbxassetid://122809552011508",
+        Miss = "rbxassetid://135883654541622",
         Loop = "rbxassetid://118537831520752",
     }
 }
