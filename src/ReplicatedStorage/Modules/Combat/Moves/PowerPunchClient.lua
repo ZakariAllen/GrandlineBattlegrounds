@@ -50,8 +50,8 @@ local function playAnimation(animator, animId)
     return track
 end
 
-local function playVFX(hrp)
-    if not hrp then return end
+local function playVFX(parentPart)
+    if not parentPart then return end
     local emitter = Instance.new("ParticleEmitter")
     emitter.Texture = "rbxassetid://14049479051"
     emitter.LightEmission = 1
@@ -63,7 +63,7 @@ local function playVFX(hrp)
         NumberSequenceKeypoint.new(0, 2),
         NumberSequenceKeypoint.new(1, 0)
     })
-    emitter.Parent = hrp
+    emitter.Parent = parentPart
     emitter:Emit(12)
     Debris:AddItem(emitter, 1)
 end
@@ -97,9 +97,7 @@ local function performMove()
     prevJumpPower = nil
     currentHumanoid = nil
 
-    playVFX(hrp)
-    
-    HitboxClient.CastHitbox(
+    local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.PowerPunch.Offset,
         MoveHitboxConfig.PowerPunch.Size,
         MoveHitboxConfig.PowerPunch.Duration,
@@ -109,6 +107,10 @@ local function performMove()
         true,
         5
     )
+
+    if hitbox then
+        playVFX(hitbox)
+    end
 
     task.wait(cfg.Endlag)
     active = false
