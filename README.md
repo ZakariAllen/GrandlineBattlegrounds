@@ -12,7 +12,7 @@ that module to tweak hitboxes without editing the move scripts themselves.
 
 ## Move Settings
 
-Each move also has a dedicated configuration module for things like duration,
-endlag, hyper armor, guard break and hit count. For example, Party Table Kick's values
-can be edited in `ReplicatedStorage/Modules/Config/PartyTableKickConfig.lua`.
-The Power Punch move uses `ReplicatedStorage/Modules/Config/PowerPunchConfig.lua` for its settings.
+Move settings such as damage, stun duration and cooldown are defined in
+`ReplicatedStorage/Modules/Config/AbilityConfig.lua` under each combat style.
+For example, Party Table Kick's values live at `AbilityConfig.BlackLeg.PartyTableKick`
+and Power Punch uses `AbilityConfig.BasicCombat.PowerPunch`.

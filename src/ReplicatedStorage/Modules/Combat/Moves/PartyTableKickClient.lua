@@ -12,7 +12,8 @@ local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
+local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PartyTableKickConfig = AbilityConfig.BlackLeg.PartyTableKick
 local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
