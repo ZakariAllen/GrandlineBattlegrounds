@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Debris = game:GetService("Debris")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
@@ -17,6 +16,7 @@ local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -52,14 +52,6 @@ local function playAnimation(humanoid, animId)
             activeTracks[humanoid] = nil
         end
     end)
-end
-
-local function stopAnimation(humanoid)
-    local current = activeTracks[humanoid]
-    if current and current.IsPlaying then
-        current:Stop(0.05)
-    end
-    activeTracks[humanoid] = nil
 end
 
 StartEvent.OnServerEvent:Connect(function(player)
@@ -114,28 +106,18 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, true, player)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
-        if enemyRoot then
-            -- Ensure the server controls physics during knockback
-            enemyRoot:SetNetworkOwner(nil)
+        local knockback = CombatConfig.M1
+        local kbDir = KnockbackService.ComputeDirection(
+            PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+            hrp,
+            enemyRoot,
+            typeof(dir) == "Vector3" and dir or nil
+        )
+        KnockbackService.ApplyKnockback(enemyHumanoid, kbDir, knockback.KnockbackDistance, knockback.KnockbackDuration, knockback.KnockbackLift)
 
-            local kbDir = typeof(dir) == "Vector3" and dir or hrp.CFrame.LookVector
-            local knockback = CombatConfig.M1
-            local velocity = kbDir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
-            velocity = Vector3.new(velocity.X, knockback.KnockbackLift, velocity.Z)
-
-            local bv = Instance.new("BodyVelocity")
-            bv.Velocity = velocity
-            bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-            bv.P = 1500
-            bv.Parent = enemyRoot
-            Debris:AddItem(bv, knockback.KnockbackDuration)
-
-            enemyRoot.CFrame = CFrame.new(enemyRoot.Position, enemyRoot.Position - kbDir)
-
-            local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
-            if knockbackAnim then
-                playAnimation(enemyHumanoid, knockbackAnim)
-            end
+        local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
+        if knockbackAnim then
+            playAnimation(enemyHumanoid, knockbackAnim)
         end
     end
 

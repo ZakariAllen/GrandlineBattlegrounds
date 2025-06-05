@@ -14,7 +14,8 @@ CombatConfig.M1 = {
 
 	KnockbackDistance = 25,
 	KnockbackDuration = 0.4,
-	KnockbackLift = 3,
+        KnockbackLift = 3,
+        KnockbackDirection = "AttackerFacingDirection",
 
 	HitboxSize = Vector3.new(4, 5, 4),
 	HitboxOffset = CFrame.new(0, 0, -2.4),
