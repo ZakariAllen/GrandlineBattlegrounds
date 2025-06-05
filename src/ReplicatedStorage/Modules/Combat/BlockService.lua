@@ -8,6 +8,18 @@ local Players = game:GetService("Players")
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
+-- Remotes
+local success, remotes = pcall(function()
+    return ReplicatedStorage:WaitForChild("Remotes")
+end)
+local VFXEvent
+if success and remotes then
+    local combatFolder = remotes:FindFirstChild("Combat")
+    if combatFolder then
+        VFXEvent = combatFolder:FindFirstChild("BlockVFX")
+    end
+end
+
 -- 🧠 Block state
 local BlockingPlayers = {}    -- [player] = true/false
 local BlockHP = {}            -- [player] = number
@@ -71,10 +83,16 @@ function BlockService.StopBlocking(player)
                end
        end
 
+       local hadBlock = BlockingPlayers[player] or BlockStartup[player]
+
        BlockingPlayers[player] = nil
        BlockStartup[player] = nil
        BlockHP[player] = nil
        PerfectBlockTimers[player] = nil
+
+       if hadBlock and VFXEvent then
+               VFXEvent:FireAllClients(player, false)
+       end
 end
 
 -- ⚔️ Handles damage application to a blocking player

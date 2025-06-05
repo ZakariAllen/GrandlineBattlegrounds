@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
+local BlockVFXEvent = CombatRemotes:WaitForChild("BlockVFX")
 
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
@@ -38,6 +39,7 @@ BlockEvent.OnServerEvent:Connect(function(player, start)
 
                 if hasValidTool(player) and BlockService.StartBlocking(player) then
                         BlockEvent:FireClient(player, true)
+                        BlockVFXEvent:FireAllClients(player, true)
                 else
                         BlockEvent:FireClient(player, false)
                 end
