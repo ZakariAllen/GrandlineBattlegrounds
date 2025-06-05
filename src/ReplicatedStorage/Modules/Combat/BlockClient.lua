@@ -86,13 +86,13 @@ end)
 BlockVFXEvent.OnClientEvent:Connect(function(blockPlayer, active)
        if blockPlayer == player then return end
        if typeof(active) ~= "boolean" then return end
+
        local char = blockPlayer.Character
        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-       if not hrp then return end
-
        local vfx = otherVFX[blockPlayer]
+
        if active then
-               if not vfx then
+               if hrp and not vfx then
                        vfx = BlockVFX.Create(hrp)
                        otherVFX[blockPlayer] = vfx
                end
