@@ -1,9 +1,9 @@
 local PartyTableKickConfig = {
-    Hits = 14,
+    Hits = 10,
     Duration = 2.75,
     DamagePerHit = 3,
-    StunDuration = 0.5,
-    Startup = 0.4,
+    StunDuration = 0.75,
+    Startup = 1,
     HyperArmor = false,
     GuardBreak = false,
     Endlag = 1,
