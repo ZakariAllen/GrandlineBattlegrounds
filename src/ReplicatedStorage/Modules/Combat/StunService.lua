@@ -137,11 +137,12 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
                         targetHumanoid.Jump = false
                         if hrp then
                                 local v = hrp.AssemblyLinearVelocity
-                                -- Preserve applied knockback forces by not
-                                -- zeroing horizontal velocity when a BodyVelocity is present
-                                if not hrp:FindFirstChildOfClass("BodyVelocity") then
-                                        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
-                                end
+                               -- Preserve applied knockback forces by not
+                               -- zeroing horizontal velocity when a knockback force is present
+                               if not hrp:FindFirstChildOfClass("BodyVelocity")
+                                       and not hrp:FindFirstChildOfClass("VectorForce") then
+                                       hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+                               end
                                 hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
                         end
                 end
