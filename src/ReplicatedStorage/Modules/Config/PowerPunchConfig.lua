@@ -5,8 +5,8 @@ local PowerPunchConfig = {
     HyperArmor = true,
     GuardBreak = true,
     Endlag = 1.5,
-    HitboxDuration = 0.25,
-    Cooldown = 5,
-}
+    HitboxDuration = 0.5,
+    HitboxDistance = 5,
+    Cooldown = 4,
 
 return PowerPunchConfig
