@@ -8,6 +8,5 @@ local PowerPunchConfig = {
     HitboxDuration = 0.5,
     HitboxDistance = 5,
     Cooldown = 4,
-}
 
 return PowerPunchConfig
