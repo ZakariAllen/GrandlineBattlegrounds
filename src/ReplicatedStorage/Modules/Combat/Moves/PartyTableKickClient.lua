@@ -18,6 +18,7 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
@@ -154,6 +155,10 @@ function PartyTableKick.OnInputBegan(input, gp)
     end
     if not ToolController.IsValidCombatTool() then
         if DEBUG then print("[PartyTableKickClient] Invalid combat tool") end
+        return
+    end
+    if StaminaService.GetStamina(Players.LocalPlayer) < 10 then
+        if DEBUG then print("[PartyTableKickClient] Not enough stamina") end
         return
     end
     local cfg = PartyTableKickConfig

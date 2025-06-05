@@ -104,6 +104,10 @@ local function spawnAndFollow(toolName)
         local hrp = char:WaitForChild("HumanoidRootPart")
 
         PlayerGuiManager.BindHumanoid(humanoid)
+        local stam = player:FindFirstChild("Stamina") or player:WaitForChild("Stamina", 5)
+        if stam then
+                PlayerGuiManager.BindStamina(stam)
+        end
         PlayerGuiManager.Show()
 
 	local camera = workspace.CurrentCamera
