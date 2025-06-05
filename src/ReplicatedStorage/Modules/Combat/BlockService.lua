@@ -9,16 +9,9 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 -- Remotes
-local success, remotes = pcall(function()
-    return ReplicatedStorage:WaitForChild("Remotes")
-end)
-local VFXEvent
-if success and remotes then
-    local combatFolder = remotes:FindFirstChild("Combat")
-    if combatFolder then
-        VFXEvent = combatFolder:FindFirstChild("BlockVFX")
-    end
-end
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local combatFolder = remotes:WaitForChild("Combat")
+local VFXEvent = combatFolder:WaitForChild("BlockVFX")
 
 -- 🧠 Block state
 local BlockingPlayers = {}    -- [player] = true/false
