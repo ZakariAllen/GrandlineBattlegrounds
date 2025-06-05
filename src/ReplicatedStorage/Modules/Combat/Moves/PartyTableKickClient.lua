@@ -17,7 +17,7 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
-local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
+local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
@@ -66,12 +66,18 @@ local function performMove()
     StartEvent:FireServer()
     if DEBUG then print("[PartyTableKickClient] StartEvent fired") end
 
+    local loopSound
+    if hrp and MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Loop then
+        loopSound = SoundUtils:PlayLoopingSpatialSound(MoveSoundConfig.PartyTableKick.Loop, hrp)
+    end
+
     local startTime = tick()
     while tick() - startTime < cfg.Startup do
         if not held or (not cfg.HyperArmor and StunStatusClient.IsStunned()) then
             if DEBUG then print("[PartyTableKickClient] Startup cancelled") end
             active = false
             if track then track:Stop() track:Destroy() end
+            if loopSound then loopSound:Destroy() end
             humanoid.WalkSpeed = prevSpeed
             return
         end
@@ -84,6 +90,7 @@ local function performMove()
             if DEBUG then print("[PartyTableKickClient] Move interrupted") end
             active = false
             if track then track:Stop() track:Destroy() end
+            if loopSound then loopSound:Destroy() end
             humanoid.WalkSpeed = prevSpeed
             return
         end
@@ -93,17 +100,16 @@ local function performMove()
             MoveHitboxConfig.PartyTableKick.Duration,
             HitEvent,
             {i == cfg.Hits},
-            MoveHitboxConfig.PartyTableKick.Shape
+            MoveHitboxConfig.PartyTableKick.Shape,
+            true
         )
-        if SoundConfig.Combat.BlackLeg and SoundConfig.Combat.BlackLeg.Hit and hrp then
-            SoundUtils:PlaySpatialSound(SoundConfig.Combat.BlackLeg.Hit, hrp)
-        end
         if i < cfg.Hits then
             local waitStart = tick()
             while tick() - waitStart < interval do
                 if not held or StunStatusClient.IsStunned() then
                     active = false
                     if track then track:Stop() track:Destroy() end
+                    if loopSound then loopSound:Destroy() end
                     humanoid.WalkSpeed = prevSpeed
                     return
                 end
@@ -113,6 +119,7 @@ local function performMove()
     end
     active = false
     if track then track:Stop() track:Destroy() end
+    if loopSound then loopSound:Destroy() end
     humanoid.WalkSpeed = prevSpeed
     if DEBUG then print("[PartyTableKickClient] Move finished") end
 end

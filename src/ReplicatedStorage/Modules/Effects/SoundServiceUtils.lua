@@ -34,4 +34,26 @@ function SoundServiceUtils:PlaySpatialSound(soundId: string, parent: Instance)
 	end)
 end
 
+function SoundServiceUtils:PlayLoopingSpatialSound(soundId: string, parent: Instance)
+       if typeof(soundId) ~= "string" or not parent or not parent:IsA("Instance") then return nil end
+
+       if not soundId:match("^rbxassetid://") then
+               soundId = "rbxassetid://" .. soundId
+       end
+
+       local sound = Instance.new("Sound")
+       sound.SoundId = soundId
+       sound.Volume = DEFAULT_VOLUME
+       sound.RollOffMode = Enum.RollOffMode.Linear
+       sound.RollOffMaxDistance = MAX_HEARING_DISTANCE
+       sound.RollOffMinDistance = MIN_HEARING_DISTANCE
+       sound.EmitterSize = DEFAULT_EMITTER_SIZE
+       sound.Looped = true
+       sound.Parent = parent
+
+       sound:Play()
+
+       return sound
+end
+
 return SoundServiceUtils
