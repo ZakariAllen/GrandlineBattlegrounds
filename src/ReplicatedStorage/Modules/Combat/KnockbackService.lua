@@ -52,6 +52,7 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     lift = lift or 3
 
     local playerOwner = Players:GetPlayerFromCharacter(humanoid.Parent)
+    local originalOwner = root:GetNetworkOwner()
 
     -- Server controls physics during knockback
     root:SetNetworkOwner(nil)
@@ -80,7 +81,7 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     -- Restore network ownership after knockback duration
     task.delay(duration, function()
         if root.Parent then
-            root:SetNetworkOwner(playerOwner)
+            root:SetNetworkOwner(originalOwner or playerOwner)
         end
     end)
 end
