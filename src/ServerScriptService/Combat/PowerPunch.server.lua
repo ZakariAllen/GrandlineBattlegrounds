@@ -114,6 +114,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
+            enemyRoot:SetNetworkOwner(nil)
             local kbDir = typeof(dir) == "Vector3" and dir or hrp.CFrame.LookVector
             local knockback = CombatConfig.M1
             local velocity = kbDir * (knockback.KnockbackDistance / knockback.KnockbackDuration)
