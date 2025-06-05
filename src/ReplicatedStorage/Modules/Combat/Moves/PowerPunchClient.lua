@@ -102,7 +102,7 @@ local function performMove()
         {dir},
         MoveHitboxConfig.PowerPunch.Shape,
         true,
-        5
+        PowerPunchConfig.HitboxDistance
     )
 
     if hitbox then
