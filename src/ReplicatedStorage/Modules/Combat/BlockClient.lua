@@ -13,6 +13,7 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local BlockVFX = require(ReplicatedStorage.Modules.Effects.BlockVFX)
 -- Lazy reference to avoid circular require with MovementClient
 local MovementClient
 
@@ -27,10 +28,12 @@ local blockCooldown = CombatConfig.Blocking.BlockCooldown or 2
 local blockTrack: AnimationTrack? = nil
 local blockHeld = false
 local retryConn: RBXScriptConnection? = nil
+local activeVFX: Instance? = nil
 
 local function playBlockAnimation()
         local char = player.Character
         local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
         local animId = CombatAnimations.Blocking.BlockHold
         if not humanoid or not animId then return end
         local animator = humanoid:FindFirstChildOfClass("Animator")
@@ -44,6 +47,10 @@ local function playBlockAnimation()
         track:Play()
         blockTrack = track
         ToolController.PauseStance()
+
+        if hrp and not activeVFX then
+                activeVFX = BlockVFX.Create(hrp)
+        end
 end
 
 local function stopBlockAnimation()
@@ -51,6 +58,10 @@ local function stopBlockAnimation()
                 blockTrack:Stop()
                 blockTrack:Destroy()
                 blockTrack = nil
+        end
+        if activeVFX then
+                BlockVFX.Remove(activeVFX)
+                activeVFX = nil
         end
         ToolController.ResumeStance()
 end
