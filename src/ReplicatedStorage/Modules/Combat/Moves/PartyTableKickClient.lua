@@ -11,7 +11,8 @@ local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
+local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -47,7 +48,7 @@ local function playAnimation(animator, animId)
 end
 
 local function performMove()
-    local cfg = AbilityConfig.BlackLeg.PartyTableKick
+    local cfg = PartyTableKickConfig
     local char, humanoid, animator, hrp = getCharacter()
     if not char or not hrp or not humanoid then
         if DEBUG then print("[PartyTableKickClient] Invalid character state") end
@@ -80,7 +81,14 @@ local function performMove()
             if track then track:Stop() track:Destroy() end
             return
         end
-        HitboxClient.CastHitbox(cfg.HitboxOffset, cfg.HitboxSize, cfg.HitboxDuration, HitEvent, {i == cfg.Hits}, "Cylinder")
+        HitboxClient.CastHitbox(
+            MoveHitboxConfig.PartyTableKick.Offset,
+            MoveHitboxConfig.PartyTableKick.Size,
+            MoveHitboxConfig.PartyTableKick.Duration,
+            HitEvent,
+            {i == cfg.Hits},
+            MoveHitboxConfig.PartyTableKick.Shape
+        )
         if SoundConfig.Combat.BlackLeg and SoundConfig.Combat.BlackLeg.Hit and hrp then
             SoundUtils:PlaySpatialSound(SoundConfig.Combat.BlackLeg.Hit, hrp)
         end
@@ -128,7 +136,7 @@ function PartyTableKick.OnInputBegan(input, gp)
         if DEBUG then print("[PartyTableKickClient] Invalid combat tool") end
         return
     end
-    local cfg = AbilityConfig.BlackLeg.PartyTableKick
+    local cfg = PartyTableKickConfig
     if tick() - lastUse < (cfg.Cooldown or 0) then
         if DEBUG then print("[PartyTableKickClient] On cooldown") end
         return

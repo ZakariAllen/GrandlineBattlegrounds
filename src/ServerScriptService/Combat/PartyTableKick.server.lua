@@ -6,7 +6,7 @@ local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
+local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
@@ -88,7 +88,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         return
     end
 
-    local cfg = AbilityConfig.BlackLeg.PartyTableKick
+    local cfg = PartyTableKickConfig
 
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character

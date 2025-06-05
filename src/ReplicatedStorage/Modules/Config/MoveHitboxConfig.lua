@@ -1,0 +1,17 @@
+local MoveHitboxConfig = {}
+
+MoveHitboxConfig.M1 = {
+    Size = Vector3.new(4, 5, 4),
+    Offset = CFrame.new(0, 0, -2.4),
+    Duration = 0.1,
+    Shape = "Block",
+}
+
+MoveHitboxConfig.PartyTableKick = {
+    Size = Vector3.new(4, 5, 4),
+    Offset = CFrame.new(0, 0, 0),
+    Duration = 0.1,
+    Shape = "Cylinder",
+}
+
+return MoveHitboxConfig
