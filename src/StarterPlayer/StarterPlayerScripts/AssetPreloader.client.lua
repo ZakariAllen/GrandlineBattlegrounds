@@ -72,6 +72,15 @@ if isValidAssetId(DashVFX.WIND_TEXTURE) then
         table.insert(assets, pe)
 end
 
+-- Power Punch VFX texture
+local POWER_PUNCH_TEXTURE = "rbxassetid://14049479051"
+if isValidAssetId(POWER_PUNCH_TEXTURE) then
+        local pe = Instance.new("ParticleEmitter")
+        pe.Texture = POWER_PUNCH_TEXTURE
+        pe.Parent = PlayerGui
+        table.insert(assets, pe)
+end
+
 -- 🎞️ Helper: Recursively collect animation IDs
 local function collectAnimationsFrom(tbl)
 	for _, v in pairs(tbl) do
