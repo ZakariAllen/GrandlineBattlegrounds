@@ -5,6 +5,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PowerPunchStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
+local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
 local PowerPunchConfig = require(ReplicatedStorage.Modules.Config.PowerPunchConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
@@ -68,6 +69,7 @@ StartEvent.OnServerEvent:Connect(function(player)
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool or tool.Name ~= "Basic Combat" then return end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerPunch)
+    VFXEvent:FireAllClients(player)
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets)

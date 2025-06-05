@@ -44,7 +44,7 @@ end
 -- ✅ Main cast function (runs hit detection client-side)
 -- Optional remoteEvent and extraArgs allow reusing this hitbox logic for
 -- other attacks. If remoteEvent is nil, the default HitConfirmEvent is used.
-function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs, shape, fireOnMiss)
+function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extraArgs, shape, fireOnMiss, travelDistance)
 	local player = Players.LocalPlayer
 	local char = player.Character
 	if not char then return end
@@ -53,7 +53,15 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
 	if not hrp then return end
 
         local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
-	if not hitbox then return end
+        if not hitbox then return end
+
+        local originCF = hitbox.CFrame
+        local dir = hrp.CFrame.LookVector
+        if travelDistance and travelDistance ~= 0 then
+                local weld = hitbox:FindFirstChildOfClass("WeldConstraint")
+                if weld then weld:Destroy() end
+                hitbox.Anchored = true
+        end
 
 	local alreadyHit = {}
 	local overlapParams = OverlapParams.new()
@@ -63,9 +71,14 @@ function HitboxClient.CastHitbox(offsetCFrame, size, duration, remoteEvent, extr
 	local startTime = tick()
 	local connection
 
-	connection = RunService.RenderStepped:Connect(function()
-		if tick() - startTime > duration then
-			connection:Disconnect()
+        connection = RunService.RenderStepped:Connect(function()
+                local elapsed = tick() - startTime
+                if travelDistance and travelDistance ~= 0 then
+                        local progress = math.clamp(elapsed / duration, 0, 1)
+                        hitbox.CFrame = originCF + dir * travelDistance * progress
+                end
+                if elapsed > duration then
+                        connection:Disconnect()
 
                         local targets = {}
                         for humanoid in pairs(alreadyHit) do

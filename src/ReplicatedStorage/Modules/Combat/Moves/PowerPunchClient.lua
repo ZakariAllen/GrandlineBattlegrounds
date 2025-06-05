@@ -5,10 +5,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
 
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PowerPunchStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
+local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
 local PowerPunchConfig = require(ReplicatedStorage.Modules.Config.PowerPunchConfig)
@@ -24,6 +26,9 @@ local DEBUG = Config.GameSettings.DebugEnabled
 local KEY = Enum.KeyCode.R
 local active = false
 local lastUse = 0
+local prevWalkSpeed
+local prevJumpPower
+local currentHumanoid
 
 local function getCharacter()
     local player = Players.LocalPlayer
@@ -45,6 +50,24 @@ local function playAnimation(animator, animId)
     return track
 end
 
+local function playVFX(hrp)
+    if not hrp then return end
+    local emitter = Instance.new("ParticleEmitter")
+    emitter.Texture = "rbxassetid://14049479051"
+    emitter.LightEmission = 1
+    emitter.Speed = NumberRange.new(0)
+    emitter.Lifetime = NumberRange.new(0.4)
+    emitter.Rate = 0
+    emitter.Enabled = false
+    emitter.Size = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 2),
+        NumberSequenceKeypoint.new(1, 0)
+    })
+    emitter.Parent = hrp
+    emitter:Emit(12)
+    Debris:AddItem(emitter, 1)
+end
+
 local function performMove()
     local cfg = PowerPunchConfig
     local char, humanoid, animator, hrp = getCharacter()
@@ -54,6 +77,12 @@ local function performMove()
         return
     end
 
+    currentHumanoid = humanoid
+    prevWalkSpeed = humanoid.WalkSpeed
+    prevJumpPower = humanoid.JumpPower
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
+
     playAnimation(animator, Animations.SpecialMoves.PowerPunch)
     StartEvent:FireServer()
 
@@ -62,6 +91,14 @@ local function performMove()
         RunService.RenderStepped:Wait()
     end
 
+    humanoid.WalkSpeed = prevWalkSpeed
+    humanoid.JumpPower = prevJumpPower
+    prevWalkSpeed = nil
+    prevJumpPower = nil
+    currentHumanoid = nil
+
+    playVFX(hrp)
+    
     HitboxClient.CastHitbox(
         MoveHitboxConfig.PowerPunch.Offset,
         MoveHitboxConfig.PowerPunch.Size,
@@ -69,7 +106,8 @@ local function performMove()
         HitEvent,
         {true},
         MoveHitboxConfig.PowerPunch.Shape,
-        true
+        true,
+        5
     )
 
     task.wait(cfg.Endlag)
@@ -100,5 +138,14 @@ end
 function PowerPunch.OnInputEnded()
     -- move cannot be cancelled
 end
+
+VFXEvent.OnClientEvent:Connect(function(punchPlayer)
+    if typeof(punchPlayer) ~= "Instance" then return end
+    local char = punchPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        playVFX(hrp)
+    end
+end)
 
 return PowerPunch
