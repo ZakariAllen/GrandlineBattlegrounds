@@ -197,6 +197,8 @@ function PartyTableKick.OnInputEnded(input)
     else
         StopEvent:FireServer()
     end
+    -- Reduce attacker lock to just the endlag duration when the move is released early
+    StunStatusClient.ReduceLockTo(PartyTableKickConfig.Endlag or 0)
     if DEBUG then print("[PartyTableKickClient] Input ended") end
 end
 
