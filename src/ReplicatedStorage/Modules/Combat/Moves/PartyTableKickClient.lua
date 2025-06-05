@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
+local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
 local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
@@ -27,6 +28,11 @@ local KEY = Enum.KeyCode.E
 local active = false
 local held = false
 local lastUse = 0
+
+local currentTrack
+local currentSound
+local currentHumanoid
+local prevWalkSpeed
 
 local function getCharacter()
     local player = Players.LocalPlayer
@@ -48,6 +54,22 @@ local function playAnimation(animator, animId)
     return track
 end
 
+local function cleanup()
+    if currentTrack then
+        currentTrack:Stop()
+        currentTrack:Destroy()
+        currentTrack = nil
+    end
+    if currentSound then
+        currentSound:Destroy()
+        currentSound = nil
+    end
+    if currentHumanoid and prevWalkSpeed then
+        currentHumanoid.WalkSpeed = prevWalkSpeed
+    end
+    StopEvent:FireServer()
+end
+
 local function performMove()
     local cfg = PartyTableKickConfig
     local char, humanoid, animator, hrp = getCharacter()
@@ -57,11 +79,12 @@ local function performMove()
         return
     end
 
-    local prevSpeed = humanoid.WalkSpeed
+    currentHumanoid = humanoid
+    prevWalkSpeed = humanoid.WalkSpeed
     humanoid.WalkSpeed = 3
 
     local animId = Animations.SpecialMoves.PartyTableKick
-    local track = playAnimation(animator, animId)
+    currentTrack = playAnimation(animator, animId)
     if DEBUG then print("[PartyTableKickClient] Animation started") end
     StartEvent:FireServer()
     if DEBUG then print("[PartyTableKickClient] StartEvent fired") end
@@ -71,14 +94,19 @@ local function performMove()
         loopSound = SoundUtils:PlayLoopingSpatialSound(MoveSoundConfig.PartyTableKick.Loop, hrp)
     end
 
+    currentSound = loopSound
+
+    local function endMove()
+        if not active then return end
+        active = false
+        cleanup()
+    end
+
     local startTime = tick()
     while tick() - startTime < cfg.Startup do
         if not held or (not cfg.HyperArmor and StunStatusClient.IsStunned()) then
             if DEBUG then print("[PartyTableKickClient] Startup cancelled") end
-            active = false
-            if track then track:Stop() track:Destroy() end
-            if loopSound then loopSound:Destroy() end
-            humanoid.WalkSpeed = prevSpeed
+            endMove()
             return
         end
         RunService.RenderStepped:Wait()
@@ -88,10 +116,7 @@ local function performMove()
     for i = 1, cfg.Hits do
         if not held or StunStatusClient.IsStunned() then
             if DEBUG then print("[PartyTableKickClient] Move interrupted") end
-            active = false
-            if track then track:Stop() track:Destroy() end
-            if loopSound then loopSound:Destroy() end
-            humanoid.WalkSpeed = prevSpeed
+            endMove()
             return
         end
         HitboxClient.CastHitbox(
@@ -107,20 +132,14 @@ local function performMove()
             local waitStart = tick()
             while tick() - waitStart < interval do
                 if not held or StunStatusClient.IsStunned() then
-                    active = false
-                    if track then track:Stop() track:Destroy() end
-                    if loopSound then loopSound:Destroy() end
-                    humanoid.WalkSpeed = prevSpeed
+                    endMove()
                     return
                 end
                 RunService.RenderStepped:Wait()
             end
         end
     end
-    active = false
-    if track then track:Stop() track:Destroy() end
-    if loopSound then loopSound:Destroy() end
-    humanoid.WalkSpeed = prevSpeed
+    endMove()
     if DEBUG then print("[PartyTableKickClient] Move finished") end
 end
 
@@ -172,7 +191,12 @@ end
 function PartyTableKick.OnInputEnded(input)
     if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
     held = false
-    active = false
+    if active then
+        cleanup()
+        active = false
+    else
+        StopEvent:FireServer()
+    end
     if DEBUG then print("[PartyTableKickClient] Input ended") end
 end
 

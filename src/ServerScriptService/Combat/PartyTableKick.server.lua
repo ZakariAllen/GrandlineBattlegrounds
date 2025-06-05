@@ -5,6 +5,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
+local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 
 local PartyTableKickConfig = require(ReplicatedStorage.Modules.Config.PartyTableKickConfig)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
@@ -44,6 +45,20 @@ local function playAnimation(humanoid, animId)
     track:Play()
 
     activeTracks[humanoid] = track
+
+    track.Stopped:Connect(function()
+        if activeTracks[humanoid] == track then
+            activeTracks[humanoid] = nil
+        end
+    end)
+end
+
+local function stopAnimation(humanoid)
+    local current = activeTracks[humanoid]
+    if current and current.IsPlaying then
+        current:Stop(0.05)
+    end
+    activeTracks[humanoid] = nil
 end
 
 StartEvent.OnServerEvent:Connect(function(player)
@@ -163,4 +178,13 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
     end
     if DEBUG then print("[PartyTableKick] Hit sequence complete") end
+end)
+
+StopEvent.OnServerEvent:Connect(function(player)
+    local char = player.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        stopAnimation(humanoid)
+        if DEBUG then print("[PartyTableKick] Animation stopped for", player.Name) end
+    end
 end)
