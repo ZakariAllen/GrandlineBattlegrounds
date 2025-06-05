@@ -33,6 +33,8 @@ local MenuLogic       = require(MenuCfgs:WaitForChild("MenuLogic"))
 local LoadingManager  = require(MenuCfgs:WaitForChild("LoadingManager"))
 local CameraManager   = require(MenuCfgs:WaitForChild("CameraManager"))
 local MenuGlobalCfg   = require(MenuCfgs:WaitForChild("MenuGlobalCfg"))
+local PlayerGuiManager = require(ReplicatedStorage.Modules.Client.PlayerGuiManager)
+PlayerGuiManager.Hide()
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -98,8 +100,11 @@ local function spawnAndFollow(toolName)
 		return
 	end
 
-	local humanoid = char:WaitForChild("Humanoid")
-	local hrp = char:WaitForChild("HumanoidRootPart")
+        local humanoid = char:WaitForChild("Humanoid")
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        PlayerGuiManager.BindHumanoid(humanoid)
+        PlayerGuiManager.Show()
 
 	local camera = workspace.CurrentCamera
 	camera.CameraSubject = humanoid
@@ -125,10 +130,11 @@ end
 
 -- 🎬 Initialize main menu
 local function initMainMenu()
-	print("[MainMenuClient] Initializing Main Menu")
-	CameraManager.ApplyMenuCamera()
-	setButtonsEnabled(true)
-	PlayerEnteredMenu:FireServer()
+        print("[MainMenuClient] Initializing Main Menu")
+        CameraManager.ApplyMenuCamera()
+        PlayerGuiManager.Hide()
+        setButtonsEnabled(true)
+        PlayerEnteredMenu:FireServer()
 
 	MenuLogic.ShowMainMenu(function(toolName)
 		spawnAndFollow(toolName)
@@ -137,8 +143,9 @@ end
 
 -- ⏮ Return to menu
 ReturnToMenuEvent.OnClientEvent:Connect(function()
-	showTransitionScreen("Returning to menu...")
-	setButtonsEnabled(false)
+        showTransitionScreen("Returning to menu...")
+        PlayerGuiManager.Hide()
+        setButtonsEnabled(false)
 
 	local duration = MenuGlobalCfg.TransitionScreen and MenuGlobalCfg.TransitionScreen.Duration or 1
 	task.delay(duration, function()
