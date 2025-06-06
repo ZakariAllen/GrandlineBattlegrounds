@@ -106,7 +106,8 @@ function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
        -- 🌀 Perfect block window takes priority even against block breakers
        if timeSinceStart <= CombatConfig.Blocking.PerfectBlockWindow then
                -- Reflect to attacker happens in CombatService
-               BlockService.StopBlocking(player)
+               -- Do not stop blocking on a perfect block so the player remains
+               -- in a blocking state
                return "Perfect"
        end
 

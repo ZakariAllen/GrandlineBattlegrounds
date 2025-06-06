@@ -144,7 +144,6 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             blockHit = true
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
             playAnimation(humanoid, AnimationData.Stun.PerfectBlock)
-            BlockEvent:FireClient(enemyPlayer, false)
             local soundId = SoundConfig.Blocking.PerfectBlock
             if soundId then
                 SoundUtils:PlaySpatialSound(soundId, hrp)

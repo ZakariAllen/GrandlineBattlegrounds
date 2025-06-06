@@ -135,7 +135,6 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if blockResult == "Perfect" then
             if DEBUG then print("[PowerPunch] Perfect block by", enemyPlayer.Name) end
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, enemyPlayer)
-            BlockEvent:FireClient(enemyPlayer, false)
             continue
         elseif blockResult == "Damaged" then
             if DEBUG then print("[PowerPunch] Block damaged", enemyPlayer.Name) end
