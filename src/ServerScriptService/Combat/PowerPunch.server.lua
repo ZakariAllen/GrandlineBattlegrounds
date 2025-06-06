@@ -15,6 +15,7 @@ local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
+local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
@@ -131,8 +132,40 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             continue
         elseif blockResult == "Broken" then
             if DEBUG then print("[PowerPunch] Block broken", enemyPlayer.Name) end
-            StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
             BlockEvent:FireClient(enemyPlayer, false)
+
+            -- Play block break sound
+            local soundId = SoundConfig.Blocking.BlockBreak
+            if soundId then
+                SoundUtils:PlaySpatialSound(soundId, hrp)
+            end
+
+            -- Apply stun but skip the default animation so knockback anim plays
+            StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), true, player, true)
+
+            -- Apply knockback even though the hit was blocked
+            local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+            if enemyRoot then
+                local knockback = CombatConfig.M1
+                if DEBUG then
+                    print("[PowerPunch] Knockback params", PowerPunchConfig.KnockbackDirection)
+                end
+                KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
+                    DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+                    AttackerRoot = hrp,
+                    TargetRoot = enemyRoot,
+                    Distance = knockback.KnockbackDistance,
+                    Duration = knockback.KnockbackDuration,
+                    Lift = knockback.KnockbackLift,
+                })
+
+                local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
+                if knockbackAnim then
+                    playAnimation(enemyHumanoid, knockbackAnim)
+                    if DEBUG then print("[PowerPunch] Knockback animation played for", enemyPlayer.Name) end
+                end
+            end
+
             continue
         end
 
