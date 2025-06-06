@@ -40,6 +40,8 @@ ensureEvent(combat, "PartyTableKickStop")
 ensureEvent(combat, "PowerPunchStart")
 ensureEvent(combat, "PowerPunchHit")
 ensureEvent(combat, "PowerPunchVFX")
+ensureEvent(combat, "PowerKickStart")
+ensureEvent(combat, "PowerKickHit")
 
 -- Movement events
 local movement = ensureFolder(remotes, "Movement")

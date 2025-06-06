@@ -14,6 +14,17 @@ AbilityConfig.BlackLeg = {
         Cooldown = 12,
         KnockbackDirection = "AwayFromAttacker",
     },
+    PowerKick = {
+        Damage = 50,
+        StunDuration = 2.0,
+        Startup = 0.4,
+        HyperArmor = false,
+        GuardBreak = true,
+        PerfectBlockable = true,
+        Endlag = 0.5,
+        HitboxDuration = 0.2,
+        Cooldown = 12,
+    },
 }
 
 AbilityConfig.BasicCombat = {
@@ -23,6 +34,7 @@ AbilityConfig.BasicCombat = {
         Startup = 1.0,
         HyperArmor = true,
         GuardBreak = true,
+        PerfectBlockable = true,
         Endlag = 0.7,
         HitboxDuration = 0.2,
         HitboxDistance = 8,
