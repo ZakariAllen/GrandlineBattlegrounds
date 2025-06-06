@@ -172,7 +172,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration
-        StunService:ApplyStun(enemyHumanoid, stunDur, isFinal, player)
+        StunService:ApplyStun(enemyHumanoid, stunDur, isFinal, player, isFinal)
 
         if isFinal then
             if DEBUG then print("[PartyTableKick] Final hit on", enemyPlayer.Name) end
