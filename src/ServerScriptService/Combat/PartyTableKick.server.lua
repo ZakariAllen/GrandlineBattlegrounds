@@ -150,7 +150,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             end
             activeDrain[player] = nil
             StaminaService.ResumeRegen(player)
-            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
+            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, player)
             playAnimation(humanoid, AnimationData.Stun.PerfectBlock)
             local soundId = SoundConfig.Blocking.PerfectBlock
             if soundId then
