@@ -4,7 +4,7 @@ AbilityConfig.BlackLeg = {
     PartyTableKick = {
         Hits = 10,
         Duration = 2.4,
-        DamagePerHit = 5,
+        DamagePerHit = 15,
         StunDuration = 0.75,
         Startup = 1.3,
         HyperArmor = false,
@@ -18,7 +18,7 @@ AbilityConfig.BlackLeg = {
 
 AbilityConfig.BasicCombat = {
     PowerPunch = {
-        Damage = 15,
+        Damage = 120,
         StunDuration = 2.0,
         Startup = 1.0,
         HyperArmor = true,

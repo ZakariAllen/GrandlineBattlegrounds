@@ -28,10 +28,10 @@ CombatConfig.M1 = {
 
 CombatConfig.Blocking = {
     -- Time between pressing block and the block becoming active
-    StartupTime = 0.2,
-        PerfectBlockWindow = 0.3,
+    StartupTime = 0.1,
+        PerfectBlockWindow = 0.15,
         BlockBreakStunDuration = 4,
-        PerfectBlockStunDuration = 6,
+        PerfectBlockStunDuration = 4,
         BlockCooldown = 2,
 }
 
