@@ -21,6 +21,8 @@ local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 
+local DEBUG = Config.GameSettings.DebugEnabled
+
 local StunService = {}
 
 local StunnedPlayers = {}
@@ -34,6 +36,9 @@ local function sendStatus(player)
             Stunned = StunnedPlayers[player] ~= nil,
             AttackerLock = AttackerLockouts[player] ~= nil and tick() < (AttackerLockouts[player] or 0)
         }
+        if DEBUG then
+            print("[StunService] Sending status to", player.Name, data)
+        end
         StunStatusEvent:FireClient(player, data)
     end
 end
@@ -81,6 +86,10 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         local targetPlayer = getPlayer(targetHumanoid)
         local attackerPlayer = getPlayer(attacker)
         if not targetPlayer or not attackerPlayer then return end
+
+        if DEBUG then
+            print("[StunService] ApplyStun", targetPlayer.Name, "duration", duration, "attacker", attackerPlayer.Name)
+        end
 
        BlockService.StopBlocking(targetPlayer)
 
@@ -159,6 +168,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                if not KnockbackService.IsKnockbackActive(hrp)
                                        and not hrp:GetAttribute("StunPreserveVelocity") then
                                        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+                               elseif DEBUG then
+                                       print("[StunService] Preserving velocity for", targetPlayer.Name)
                                end
                                 hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
                         end
@@ -177,8 +188,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         }
         sendStatus(targetPlayer)
 
-	task.delay(duration, function()
-		local data = StunnedPlayers[targetPlayer]
+        task.delay(duration, function()
+                local data = StunnedPlayers[targetPlayer]
                 if data and tick() >= data.EndsAt then
                         if data.Conn then data.Conn:Disconnect() end
                         StunnedPlayers[targetPlayer] = nil
@@ -187,6 +198,10 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                 if data.PreserveVelocity then
                                         data.HRP:SetAttribute("StunPreserveVelocity", nil)
                                 end
+                        end
+
+                        if DEBUG then
+                            print("[StunService] Stun ended for", targetPlayer.Name)
                         end
 
                         targetHumanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
@@ -204,11 +219,17 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
         local unlockTime = tick() + lockoutDuration
         AttackerLockouts[attackerPlayer] = unlockTime
+        if DEBUG then
+            print("[StunService] Locking attacker", attackerPlayer.Name, "for", lockoutDuration)
+        end
         sendStatus(attackerPlayer)
 
-	task.delay(lockoutDuration, function()
+        task.delay(lockoutDuration, function()
                 if AttackerLockouts[attackerPlayer] and tick() >= unlockTime then
                         AttackerLockouts[attackerPlayer] = nil
+                        if DEBUG then
+                            print("[StunService] Attacker lock ended for", attackerPlayer.Name)
+                        end
                         sendStatus(attackerPlayer)
                 end
         end)
