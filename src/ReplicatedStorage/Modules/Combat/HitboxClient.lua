@@ -37,7 +37,9 @@ local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
 	weld.Part1 = part
 	weld.Parent = part
 
-	Debris:AddItem(part, duration or 0.25)
+        -- Give the hitbox a small lifetime buffer so it isn't destroyed
+        -- before the final RenderStepped update completes
+        Debris:AddItem(part, (duration or 0.25) + 0.1)
 	return part
 end
 
@@ -86,11 +88,15 @@ function HitboxClient.CastHitbox(
 
         connection = RunService.RenderStepped:Connect(function()
                 local elapsed = tick() - startTime
+                local progress = math.clamp(elapsed / duration, 0, 1)
                 if travelDistance and travelDistance ~= 0 then
-                        local progress = math.clamp(elapsed / duration, 0, 1)
                         hitbox.CFrame = originCF + dir * travelDistance * progress
                 end
-                if elapsed > duration then
+                if elapsed >= duration then
+                        -- Ensure the hitbox reaches its final position
+                        if travelDistance and travelDistance ~= 0 then
+                                hitbox.CFrame = originCF + dir * travelDistance
+                        end
                         connection:Disconnect()
 
                         local targets = {}
