@@ -31,6 +31,7 @@ local blockHeld = false
 local retryConn: RBXScriptConnection? = nil
 local activeVFX: Instance? = nil
 local otherVFX = {}
+local blockDisabledUntil = 0
 
 -- Plays the block hold animation. When skipVFX is true the visual effect is not
 -- spawned yet, allowing us to wait for server confirmation before showing it.
@@ -142,6 +143,7 @@ local function attemptBlock()
        if not blockHeld or isBlocking then return end
        if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
        local now = tick()
+       if now < blockDisabledUntil then return end
        if now - lastBlockEnd < blockCooldown then return end
        if not HasValidBlockingTool() then return end
 
@@ -202,7 +204,16 @@ function BlockClient.OnInputEnded(input, gameProcessed)
 end
 
 function BlockClient.IsBlocking()
-	return isBlocking
+        return isBlocking
+end
+
+-- Prevent starting a block for the given duration (in seconds)
+function BlockClient.DisableFor(duration)
+        if typeof(duration) ~= "number" or duration <= 0 then return end
+        local endTime = tick() + duration
+        if endTime > blockDisabledUntil then
+                blockDisabledUntil = endTime
+        end
 end
 
 return BlockClient

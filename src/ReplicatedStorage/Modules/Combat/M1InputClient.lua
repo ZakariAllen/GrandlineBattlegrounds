@@ -62,8 +62,11 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                 local lockDur = CombatConfig.M1.DelayBetweenHits
                 StunStatusClient.LockFor(lockDur)
 
-		-- 🎬 Local animation
-		M1AnimationClient.Play(styleKey, comboIndex)
+                -- 🎬 Local animation
+                local animLength = M1AnimationClient.Play(styleKey, comboIndex)
+                if animLength then
+                        BlockClient.DisableFor(animLength)
+                end
 
 		-- 🧊 Trigger hitbox
                 task.delay(CombatConfig.M1.HitDelay, function()
