@@ -6,36 +6,36 @@ DashConfig.SoundId = "rbxassetid://72014632956520"  -- Replace with your dash SF
 
 DashConfig.Settings = {
 	Forward = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	Backward = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	Left = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	Right = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	ForwardLeft = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	ForwardRight = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	BackwardLeft = {
-		Distance = 20,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 	BackwardRight = {
-		Distance = 25,
-		Duration = 0.25,
+		Distance = 15,
+		Duration = 0.15,
 	},
 }
 
