@@ -10,6 +10,16 @@ local DEBUG = Config.GameSettings.DebugEnabled
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
+-- Track when a TextBox (like the chat bar) is focused so inputs aren't
+-- processed while the player is typing.
+local typingInChat = false
+UserInputService.TextBoxFocused:Connect(function()
+    typingInChat = true
+end)
+UserInputService.TextBoxFocusReleased:Connect(function()
+    typingInChat = false
+end)
+
 -- 🔁 Client Modules
 local M1InputClient = require(ReplicatedStorage.Modules.Combat.M1InputClient)
 local DashClient = require(ReplicatedStorage.Modules.Movement.DashClient) -- updated path: Movement folder
@@ -81,7 +91,7 @@ end
 
 -- 🕹️ Route all input through controllers
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        local typing = UserInputService:GetFocusedTextBox() ~= nil
+        local typing = typingInChat or UserInputService:GetFocusedTextBox() ~= nil
         gameProcessed = gameProcessed or typing
         if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
                 print("[InputController] InputBegan:", input.KeyCode.Name, "GP:", gameProcessed)
@@ -98,7 +108,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
-        local typing = UserInputService:GetFocusedTextBox() ~= nil
+        local typing = typingInChat or UserInputService:GetFocusedTextBox() ~= nil
         gameProcessed = gameProcessed or typing
         if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
                 print("[InputController] InputEnded:", input.KeyCode.Name, "GP:", gameProcessed)
