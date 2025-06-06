@@ -143,7 +143,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if blockResult == "Perfect" then
             if DEBUG then print("[PowerPunch] Perfect block by", enemyPlayer.Name) end
             stopAnimation(humanoid)
-            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, enemyPlayer)
+            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, player)
             local soundId = SoundConfig.Blocking.PerfectBlock
             if soundId then
                 SoundUtils:PlaySpatialSound(soundId, hrp)
