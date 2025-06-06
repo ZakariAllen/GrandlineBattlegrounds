@@ -6,7 +6,10 @@ local MoveSoundConfig = {
     },
     PowerPunch = {
         Hit = "rbxassetid://9117969717",
-    }
+    },
+    PowerKick = {
+        Hit = "rbxassetid://118765157785806",
+    },
 }
 
 return MoveSoundConfig

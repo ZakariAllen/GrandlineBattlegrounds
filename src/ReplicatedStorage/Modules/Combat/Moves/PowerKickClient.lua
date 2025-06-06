@@ -65,7 +65,7 @@ local function performMove()
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
-    playAnimation(animator, Animations.SpecialMoves.PowerPunch)
+    playAnimation(animator, Animations.SpecialMoves.PowerKick)
     StartEvent:FireServer()
 
     local startTime = tick()
