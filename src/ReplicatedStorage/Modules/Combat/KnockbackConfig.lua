@@ -5,6 +5,7 @@ local KnockbackConfig = {}
 KnockbackConfig.Type = {
     AttackerFacingDirection = "AttackerFacingDirection",
     HitboxVelocityDirection = "HitboxVelocityDirection",
+    HitboxTravelDirection = "HitboxTravelDirection",
     AwayFromAttacker = "AwayFromAttacker",
 }
 
@@ -20,6 +21,11 @@ KnockbackConfig.Params = {
         Duration = 0.4,
         Lift = 3,
     },
+    [KnockbackConfig.Type.HitboxTravelDirection] = {
+        Distance = 25,
+        Duration = 0.4,
+        Lift = 3,
+    },
     [KnockbackConfig.Type.AwayFromAttacker] = {
         Distance = 25,
         Duration = 0.4,
@@ -28,7 +34,8 @@ KnockbackConfig.Params = {
 }
 
 function KnockbackConfig.GetDirection(directionType, attackerRoot, targetRoot, hitboxDir)
-    if directionType == KnockbackConfig.Type.HitboxVelocityDirection then
+    if directionType == KnockbackConfig.Type.HitboxVelocityDirection
+        or directionType == KnockbackConfig.Type.HitboxTravelDirection then
         if typeof(hitboxDir) == "Vector3" and hitboxDir.Magnitude > 0 then
             return hitboxDir.Unit
         end

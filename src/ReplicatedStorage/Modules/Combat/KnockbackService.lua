@@ -14,7 +14,11 @@ KnockbackService.DirectionType = KnockbackConfig.Type
 
 -- Backwards compatible helper
 function KnockbackService.ComputeDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
-    return KnockbackConfig.GetDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
+    local dir = KnockbackConfig.GetDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
+    if DEBUG then
+        print("[KnockbackService] ComputeDirection", directionType, dir, "hitboxDir", hitboxDir)
+    end
+    return dir
 end
 
 -- Utility to check active knockback forces on a root part

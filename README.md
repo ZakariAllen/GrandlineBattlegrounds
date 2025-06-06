@@ -17,6 +17,13 @@ Move settings such as damage, stun duration and cooldown are defined in
 For example, Party Table Kick's values live at `AbilityConfig.BlackLeg.PartyTableKick`
 and Power Punch uses `AbilityConfig.BasicCombat.PowerPunch`.
 
+### Knockback Types
+
+`ReplicatedStorage.Modules.Combat.KnockbackConfig` defines different
+knockback direction modes. A new mode called `HitboxTravelDirection`
+uses the velocity of the hitbox that triggered the attack. Currently
+only Power Punch is configured to use this mode.
+
 ## Development Setup
 
 This project uses [Rojo](https://github.com/rojo-rbx/rojo) to build place files. The recommended way to install Rojo is with [Aftman](https://github.com/LPGhatguy/aftman).
