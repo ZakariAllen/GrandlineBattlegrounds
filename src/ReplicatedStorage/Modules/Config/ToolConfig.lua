@@ -9,8 +9,8 @@ ToolConfig.ValidCombatTools = {
 }
 
 ToolConfig.ToolStats = {
-        BasicCombat = { M1Damage = 3, AllowsBlocking = true },
-        BlackLeg = { M1Damage = 4, AllowsBlocking = true },
+        BasicCombat = { M1Damage = 5, AllowsBlocking = true },
+        BlackLeg = { M1Damage = 5, AllowsBlocking = true },
         -- Add more tools here
 }
 
