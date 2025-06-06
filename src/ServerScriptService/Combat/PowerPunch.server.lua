@@ -106,16 +106,18 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, true, player, true)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
-        local knockback = CombatConfig.M1
-        KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-            DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
-            AttackerRoot = hrp,
-            TargetRoot = enemyRoot,
-            HitboxDirection = typeof(dir) == "Vector3" and dir or nil,
-            Distance = knockback.KnockbackDistance,
-            Duration = knockback.KnockbackDuration,
-            Lift = knockback.KnockbackLift,
-        })
+        if enemyRoot then
+            local knockback = CombatConfig.M1
+            KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
+                DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+                AttackerRoot = hrp,
+                TargetRoot = enemyRoot,
+                HitboxDirection = typeof(dir) == "Vector3" and dir or nil,
+                Distance = knockback.KnockbackDistance,
+                Duration = knockback.KnockbackDuration,
+                Lift = knockback.KnockbackLift,
+            })
+        end
 
         local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
         if knockbackAnim then
