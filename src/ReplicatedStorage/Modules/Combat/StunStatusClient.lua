@@ -1,6 +1,11 @@
 --ReplicatedStorage.Modules.Combat.StunStatusClient
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Config = require(ReplicatedStorage.Modules.Config.Config)
+
 local StunStatusClient = {}
+
+local DEBUG = Config.GameSettings.DebugEnabled
 
 -- Internal state
 local isStunned = false
@@ -30,11 +35,17 @@ end
 function StunStatusClient.SetStatus(stunned, locked)
         isStunned = stunned
         serverLocked = locked
+        if DEBUG then
+            print("[StunStatusClient] Status update", stunned, locked)
+        end
 end
 
 function StunStatusClient.LockFor(duration)
         if typeof(duration) ~= "number" or duration <= 0 then return end
         localLockUntil = math.max(localLockUntil, tick() + duration)
+        if DEBUG then
+            print("[StunStatusClient] Local lock for", duration)
+        end
 end
 
 -- Force the local lock to end after the given duration if it would
@@ -44,6 +55,9 @@ function StunStatusClient.ReduceLockTo(duration)
     local newEnd = tick() + duration
     if newEnd < localLockUntil then
         localLockUntil = newEnd
+        if DEBUG then
+            print("[StunStatusClient] Reduced lock to", duration)
+        end
     end
 end
 

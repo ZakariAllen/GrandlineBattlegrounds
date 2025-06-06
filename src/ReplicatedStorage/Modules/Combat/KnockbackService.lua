@@ -4,6 +4,9 @@ local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
 local KnockbackConfig = require(script.Parent.KnockbackConfig)
+local Config = require(game:GetService("ReplicatedStorage").Modules.Config.Config)
+
+local DEBUG = Config.GameSettings.DebugEnabled
 
 local KnockbackService = {}
 
@@ -37,7 +40,17 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     local root = humanoid.Parent and humanoid.Parent:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    direction = typeof(direction) == "Vector3" and direction.Unit or root.CFrame.LookVector
+    if DEBUG then
+        print("[KnockbackService] Applying knockback to", humanoid.Parent.Name,
+            "dir", direction, "distance", distance, "duration", duration, "lift", lift)
+    end
+
+    direction = typeof(direction) == "Vector3" and direction or root.CFrame.LookVector
+    if direction.Magnitude == 0 then
+        direction = root.CFrame.LookVector
+    else
+        direction = direction.Unit
+    end
     distance = distance or 25
     duration = duration or 0.4
     lift = lift or 3
@@ -74,6 +87,9 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     task.delay(duration, function()
         if root.Parent then
             root:SetAttribute("KnockbackActive", nil)
+            if DEBUG then
+                print("[KnockbackService] Knockback ended for", humanoid.Parent.Name)
+            end
         end
     end)
 end
@@ -91,6 +107,9 @@ function KnockbackService.ApplyDirectionalKnockback(humanoid, options)
     local distance = options.Distance or params.Distance
     local duration = options.Duration or params.Duration
     local lift = options.Lift or params.Lift
+    if DEBUG then
+        print("[KnockbackService] Dir computed", dir, "distance", distance, "duration", duration, "lift", lift)
+    end
     KnockbackService.ApplyKnockback(humanoid, dir, distance, duration, lift)
 end
 

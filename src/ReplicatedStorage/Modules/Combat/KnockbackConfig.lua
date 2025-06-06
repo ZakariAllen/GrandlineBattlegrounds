@@ -43,12 +43,18 @@ function KnockbackConfig.GetDirection(directionType, attackerRoot, targetRoot, h
     end
 
     if attackerRoot then
-        return attackerRoot.CFrame.LookVector
-    elseif targetRoot then
-        return targetRoot.CFrame.LookVector
-    else
-        return Vector3.new(0, 0, -1)
+        local look = attackerRoot.CFrame.LookVector
+        if look.Magnitude > 0 then
+            return look.Unit
+        end
     end
+    if targetRoot then
+        local look = targetRoot.CFrame.LookVector
+        if look.Magnitude > 0 then
+            return look.Unit
+        end
+    end
+    return Vector3.new(0, 0, -1)
 end
 
 return KnockbackConfig
