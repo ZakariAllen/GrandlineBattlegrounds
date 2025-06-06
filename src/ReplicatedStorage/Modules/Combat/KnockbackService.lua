@@ -59,6 +59,12 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
 
     humanoid.PlatformStand = false
     root.Anchored = false
+
+    local previousOwner = nil
+    if root.GetNetworkOwner then
+        previousOwner = root:GetNetworkOwner()
+    end
+
     root:SetNetworkOwner(nil)
     clearForces(root)
 
@@ -80,6 +86,15 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     task.delay(duration, function()
         if root.Parent then
             root:SetAttribute("KnockbackActive", nil)
+            if previousOwner then
+                root:SetNetworkOwner(previousOwner)
+            else
+                local char = humanoid.Parent
+                local player = char and Players:GetPlayerFromCharacter(char)
+                if player then
+                    root:SetNetworkOwner(player)
+                end
+            end
             if DEBUG then
                 print("[KnockbackService] Knockback ended for", humanoid.Parent.Name)
             end
