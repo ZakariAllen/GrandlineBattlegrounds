@@ -12,6 +12,8 @@ local currentTrack: AnimationTrack? = nil
 local currentAnimId: string? = nil
 
 -- ✅ Plays a new M1 animation and cancels the previous one
+-- Plays the requested M1 animation and returns its length in seconds if
+-- successfully started.
 function M1AnimationClient.Play(styleKey: string, comboIndex: number)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -49,14 +51,16 @@ function M1AnimationClient.Play(styleKey: string, comboIndex: number)
 	local animation = Instance.new("Animation")
 	animation.AnimationId = animId
 
-	local track = animator:LoadAnimation(animation)
-	track.Priority = Enum.AnimationPriority.Action
-	track:Play()
+        local track = animator:LoadAnimation(animation)
+        track.Priority = Enum.AnimationPriority.Action
+        track:Play()
 
-	currentTrack = track
-	currentAnimId = animId
+        currentTrack = track
+        currentAnimId = animId
 
-	print("[M1AnimationClient] Played animation:", animId)
+        print("[M1AnimationClient] Played animation:", animId)
+
+        return track.Length
 end
 
 return M1AnimationClient
