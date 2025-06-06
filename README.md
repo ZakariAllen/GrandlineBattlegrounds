@@ -24,6 +24,13 @@ knockback direction modes. A mode called `HitboxTravelDirection`
 uses the velocity of the hitbox that triggered the attack. No moves
 currently use this mode.
 
+## Hit Effect Settings
+
+The hit highlight shown when a character is damaged is configured in
+`ReplicatedStorage/Modules/Config/HitEffectConfig.lua`. These values are loaded
+through the main `Config` module and accessible as `Config.HitEffect`.
+
+
 ## Development Setup
 
 This project uses [Rojo](https://github.com/rojo-rbx/rojo) to build place files. The recommended way to install Rojo is with [Aftman](https://github.com/LPGhatguy/aftman).
