@@ -48,7 +48,7 @@ local SoundConfig = {
                 },
 
                 -- 🎼 Main menu music (single track)
-                MainMenuMusic = { Id = "rbxassetid://73680974075134", Pitch = 0.8 }
+                MainMenuMusic = { Id = "rbxassetid://73680974075134", Pitch = 0.9 }
         }
 }
 
