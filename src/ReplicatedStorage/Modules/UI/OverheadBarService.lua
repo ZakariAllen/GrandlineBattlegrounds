@@ -13,6 +13,9 @@ local blockTemplate = assets:WaitForChild("BlockBar")
 
 local barInfo = {} --[player] = {healthFrame, healthBase, blockGui, blockFrame, blockBase}
 
+-- Forward declare to allow usage before definition
+local onCharacterAdded
+
 local function updateHealth(player, humanoid)
     local info = barInfo[player]
     if not info then return end
@@ -54,10 +57,15 @@ function OverheadBarService.SetBlockActive(player, active)
     end
 end
 
-local function onCharacterAdded(player, char)
+function onCharacterAdded(player, char)
     local hrp = char:WaitForChild("HumanoidRootPart", 5)
     local humanoid = char:WaitForChild("Humanoid", 5)
     if not hrp or not humanoid then return end
+
+    -- Hide the default Roblox health bar so only the custom bar is visible
+    pcall(function()
+        humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+    end)
 
     local healthGui = healthTemplate:Clone()
     healthGui.Name = "HealthBillboard"
