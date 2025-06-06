@@ -16,3 +16,18 @@ Move settings such as damage, stun duration and cooldown are defined in
 `ReplicatedStorage/Modules/Config/AbilityConfig.lua` under each combat style.
 For example, Party Table Kick's values live at `AbilityConfig.BlackLeg.PartyTableKick`
 and Power Punch uses `AbilityConfig.BasicCombat.PowerPunch`.
+
+## Development Setup
+
+This project uses [Rojo](https://github.com/rojo-rbx/rojo) to build place files. The recommended way to install Rojo is with [Aftman](https://github.com/LPGhatguy/aftman).
+
+1. Download the Aftman binary for your platform from the [GitHub releases page](https://github.com/LPGhatguy/aftman/releases) and run `./aftman self-install`.
+2. In this repository, run `aftman install` to install the tools listed in `aftman.toml` (including Rojo).
+
+After installation you can build the project with:
+
+```sh
+rojo build default.project.json -o game.rbxlx
+```
+
+This is the same command used in tests to verify that the project compiles correctly.
