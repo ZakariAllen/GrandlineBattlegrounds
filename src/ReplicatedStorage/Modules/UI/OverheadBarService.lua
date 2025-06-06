@@ -62,6 +62,11 @@ function onCharacterAdded(player, char)
     local humanoid = char:WaitForChild("Humanoid", 5)
     if not hrp or not humanoid then return end
 
+    -- Hide the default Roblox health bar so only the custom bar is visible
+    pcall(function()
+        humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+    end)
+
     local healthGui = healthTemplate:Clone()
     healthGui.Name = "HealthBillboard"
     healthGui.Adornee = hrp
