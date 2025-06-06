@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
+local OverheadBarService = require(ReplicatedStorage.Modules.UI.OverheadBarService)
 
 -- Remotes
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -64,6 +65,8 @@ function BlockService.StartBlocking(player)
                        BlockHP[player] = PlayerStats.BlockHP
                        BlockingPlayers[player] = true
                        PerfectBlockTimers[player] = tick()
+                       OverheadBarService.SetBlockActive(player, true)
+                       OverheadBarService.UpdateBlock(player, PlayerStats.BlockHP)
                end
        end)
        return true
@@ -87,6 +90,8 @@ function BlockService.StopBlocking(player)
        if VFXEvent then
                VFXEvent:FireAllClients(player, false)
        end
+       OverheadBarService.SetBlockActive(player, false)
+       OverheadBarService.UpdateBlock(player, 0)
 end
 
 -- ⚔️ Handles damage application to a blocking player
@@ -111,14 +116,15 @@ function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
 	end
 
 	-- 🩸 Block damage
-	hp -= damage
-	if hp <= 0 then
+        hp -= damage
+        if hp <= 0 then
                 BlockService.StopBlocking(player)
                 return "Broken"
-	else
-		BlockHP[player] = hp
-		return "Damaged"
-	end
+        else
+                BlockHP[player] = hp
+                OverheadBarService.UpdateBlock(player, hp)
+                return "Damaged"
+        end
 end
 
 -- 🧹 Cleanup if player leaves or dies
