@@ -8,7 +8,7 @@ MoveHitboxConfig.M1 = {
 }
 
 MoveHitboxConfig.PartyTableKick = {
-    Size = Vector3.new(7, 6, 6),
+    Size = Vector3.new(7, 8, 8),
     Offset = CFrame.new(0, 0, 0),
     Duration = 0.1,
     Shape = "Cylinder",
@@ -17,7 +17,7 @@ MoveHitboxConfig.PartyTableKick = {
 MoveHitboxConfig.PowerPunch = {
     Size = Vector3.new(4, 5, 5.5),
     Offset = CFrame.new(0, 0, -3.5),
-    Duration = 0.5,
+    Duration = 0.2,
     Shape = "Block",
 }
 
