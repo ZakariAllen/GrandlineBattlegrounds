@@ -20,9 +20,9 @@ and Power Punch uses `AbilityConfig.BasicCombat.PowerPunch`.
 ### Knockback Types
 
 `ReplicatedStorage.Modules.Combat.KnockbackConfig` defines different
-knockback direction modes. A new mode called `HitboxTravelDirection`
-uses the velocity of the hitbox that triggered the attack. Currently
-only Power Punch is configured to use this mode.
+knockback direction modes. A mode called `HitboxTravelDirection`
+uses the velocity of the hitbox that triggered the attack. No moves
+currently use this mode.
 
 ## Development Setup
 

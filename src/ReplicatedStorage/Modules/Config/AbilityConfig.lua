@@ -27,7 +27,7 @@ AbilityConfig.BasicCombat = {
         HitboxDuration = 0.5,
         HitboxDistance = 5,
         Cooldown = 4,
-        KnockbackDirection = "HitboxTravelDirection",
+        KnockbackDirection = "AttackerFacingDirection",
     },
 }
 
