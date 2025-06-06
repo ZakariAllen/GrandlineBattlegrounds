@@ -13,6 +13,8 @@ local PlayerGui = player:WaitForChild("PlayerGui")
 local screenGui
 local healthBar
 local staminaBar
+local healthText
+local staminaText
 local baseSize
 local staminaBase
 local connection
@@ -35,8 +37,15 @@ local function ensureGui()
     screenGui.Enabled = false
 
     local guiFrame = screenGui:WaitForChild("GUI")
-    healthBar = guiFrame:WaitForChild("HealthBarBGMiddle"):WaitForChild("HealthBar")
-    staminaBar = guiFrame:WaitForChild("StamBarBGMiddle"):WaitForChild("StamBar")
+
+    local hpFrame = guiFrame:WaitForChild("HP")
+    local stamFrame = guiFrame:WaitForChild("Stam")
+
+    healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
+    staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
+
+    healthText = hpFrame:FindFirstChild("Value")
+    staminaText = stamFrame:FindFirstChild("Value")
     if not baseSize then
         baseSize = healthBar.Size
     end
@@ -76,6 +85,10 @@ function PlayerGuiManager.BindHumanoid(humanoid)
             baseSize.Y.Scale,
             baseSize.Y.Offset
         )
+
+        if healthText then
+            healthText.Text = string.format("%d / %d", math.floor(humanoid.Health), math.floor(humanoid.MaxHealth))
+        end
     end
 
     update()
@@ -105,6 +118,10 @@ function PlayerGuiManager.BindStamina(staminaValue)
             staminaBase.Y.Scale,
             staminaBase.Y.Offset
         )
+
+        if staminaText then
+            staminaText.Text = string.format("%d / %d", math.floor(staminaValue.Value), math.floor(max))
+        end
     end
 
     update()
