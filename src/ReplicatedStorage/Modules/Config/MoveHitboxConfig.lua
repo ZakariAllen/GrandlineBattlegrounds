@@ -21,4 +21,11 @@ MoveHitboxConfig.PowerPunch = {
     Shape = "Block",
 }
 
+MoveHitboxConfig.PowerKick = {
+    Size = Vector3.new(6, 6, 6),
+    Offset = CFrame.new(0, 0, -3.5),
+    Duration = 0.2,
+    Shape = "Block",
+}
+
 return MoveHitboxConfig
