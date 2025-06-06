@@ -64,6 +64,9 @@ function HitboxClient.CastHitbox(
 
     local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
     if not hitbox then return end
+    if Config.GameSettings.DebugEnabled then
+        print("[HitboxClient] CastHitbox", offsetCFrame, size, duration, travelDistance)
+    end
 
         local originCF = hitbox.CFrame
         local dir = hrp.CFrame.LookVector
@@ -106,11 +109,17 @@ function HitboxClient.CastHitbox(
 
                         if fireOnHit then
                                 if #playerTargets == 0 and fireOnMiss and remoteEvent then
+                                        if Config.GameSettings.DebugEnabled then
+                                                print("[HitboxClient] Miss -> firing remote with dir", extraArgs)
+                                        end
                                         remoteEvent:FireServer({}, table.unpack(extraArgs or {}))
                                 end
                         else
                                 if #playerTargets > 0 or fireOnMiss then
                                         if remoteEvent then
+                                                if Config.GameSettings.DebugEnabled then
+                                                        print("[HitboxClient] Firing remote with targets", playerTargets, extraArgs)
+                                                end
                                                 remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
                                         else
                                                 local comboIndex = CombatConfig._lastUsedComboIndex or 1
