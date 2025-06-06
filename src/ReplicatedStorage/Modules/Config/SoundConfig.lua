@@ -36,19 +36,20 @@ local SoundConfig = {
 		Back = "rbxassetid://132931539",
 	},
 
-	Music = {
-		-- 🎵 Background music pool (for gameplay rotation)
-		MusicPool = {
-			"rbxassetid://78834849660646", -- Track 1
-			"rbxassetid://78834849660646", -- Track 2
-			"rbxassetid://78834849660646", -- Track 3
-			"rbxassetid://78834849660646", -- Track 4
-			"rbxassetid://78834849660646", -- Track 5
-		},
+        Music = {
+                -- 🎵 Background music pool (for gameplay rotation)
+                -- Each entry includes an asset ID and optional pitch (playback speed)
+                MusicPool = {
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 1
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 2
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 3
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 4
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 5
+                },
 
-		-- 🎼 Main menu music (single track)
-		MainMenuMusic = "rbxassetid://73680974075134"
-	}
+                -- 🎼 Main menu music (single track)
+                MainMenuMusic = { Id = "rbxassetid://73680974075134", Pitch = 1 }
+        }
 }
 
 return SoundConfig
