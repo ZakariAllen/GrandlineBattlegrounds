@@ -40,11 +40,13 @@ local SoundConfig = {
                 -- 🎵 Background music pool (for gameplay rotation)
                 -- Each entry includes an asset ID and optional pitch (playback speed)
                 MusicPool = {
-                        { Id = "rbxassetid://78834849660646", Pitch = 0.8 }, -- Track 1
-                        { Id = "rbxassetid://78834849660646", Pitch = 0.9 }, -- Track 2
-                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 3
-                        { Id = "rbxassetid://78834849660646", Pitch = 1.1 }, -- Track 4
-                        { Id = "rbxassetid://78834849660646", Pitch = 1.2 }, -- Track 5
+                        { Id = "rbxassetid://78834849660646", Pitch = 0.8 }, -- Track 1 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 0.9 }, -- Track 2 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 3 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 1.1 }, -- Track 4 208-B
+                        { Id = "rbxassetid://90253170109596", Pitch = 1.1 }, -- Track 5 Overtaken
+						{ Id = "rbxassetid://90253170109596", Pitch = 0.9 } -- Track 6 Overtaken
+						{ Id = "rbxassetid://90253170109596", Pitch = 1 } -- Track 7 Overtaken
                 },
 
                 -- 🎼 Main menu music (single track)
