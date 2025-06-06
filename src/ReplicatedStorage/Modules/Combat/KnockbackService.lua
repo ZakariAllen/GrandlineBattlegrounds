@@ -59,28 +59,21 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
 
     humanoid.PlatformStand = false
     root.Anchored = false
+    root:SetNetworkOwner(nil)
     clearForces(root)
 
     -- Flag that knockback is active so other systems can recognize it
     root:SetAttribute("KnockbackActive", true)
 
     local velocity = direction * (distance / duration)
-    local mass = root.AssemblyMass > 0 and root.AssemblyMass or 1
-    local impulse = Vector3.new(velocity.X, lift, velocity.Z) * mass
+    velocity = Vector3.new(velocity.X, lift, velocity.Z)
 
-    root.AssemblyLinearVelocity = Vector3.zero
-    root:ApplyImpulse(impulse)
-
-    local attachment = Instance.new("Attachment")
-    attachment.Parent = root
-    local vf = Instance.new("VectorForce")
-    vf.Attachment0 = attachment
-    vf.Force = impulse / duration
-    vf.RelativeTo = Enum.ActuatorRelative.World
-    vf.Parent = root
-
-    Debris:AddItem(vf, duration)
-    Debris:AddItem(attachment, duration)
+    local bv = Instance.new("BodyVelocity")
+    bv.Velocity = velocity
+    bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    bv.P = 1500
+    bv.Parent = root
+    Debris:AddItem(bv, duration)
 
     root.CFrame = CFrame.new(root.Position, root.Position - direction)
 
