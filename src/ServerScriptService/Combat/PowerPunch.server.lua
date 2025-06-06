@@ -107,13 +107,15 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         local knockback = CombatConfig.M1
-        local kbDir = KnockbackService.ComputeDirection(
-            PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
-            hrp,
-            enemyRoot,
-            typeof(dir) == "Vector3" and dir or nil
-        )
-        KnockbackService.ApplyKnockback(enemyHumanoid, kbDir, knockback.KnockbackDistance, knockback.KnockbackDuration, knockback.KnockbackLift)
+        KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
+            DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+            AttackerRoot = hrp,
+            TargetRoot = enemyRoot,
+            HitboxDirection = typeof(dir) == "Vector3" and dir or nil,
+            Distance = knockback.KnockbackDistance,
+            Duration = knockback.KnockbackDuration,
+            Lift = knockback.KnockbackLift,
+        })
 
         local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
         if knockbackAnim then

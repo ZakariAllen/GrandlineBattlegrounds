@@ -19,6 +19,7 @@ end
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
+local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 
 local StunService = {}
 
@@ -150,9 +151,7 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                 local v = hrp.AssemblyLinearVelocity
                                -- Preserve applied knockback forces by not
                                -- zeroing horizontal velocity when a knockback force is present
-                               if not hrp:FindFirstChildOfClass("BodyVelocity")
-                                       and not hrp:FindFirstChildOfClass("VectorForce")
-                                       and not hrp:GetAttribute("KnockbackActive")
+                               if not KnockbackService.IsKnockbackActive(hrp)
                                        and not hrp:GetAttribute("StunPreserveVelocity") then
                                        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
                                end

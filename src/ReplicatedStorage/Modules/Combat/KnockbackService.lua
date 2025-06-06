@@ -1,46 +1,37 @@
 --ReplicatedStorage.Modules.Combat.KnockbackService
 
-local KnockbackService = {}
-
-KnockbackService.DirectionType = {
-    AttackerFacingDirection = "AttackerFacingDirection",
-    HitboxVelocityDirection = "HitboxVelocityDirection",
-    AwayFromAttacker = "AwayFromAttacker",
-}
-
--- Computes the knockback vector based on the direction type.
-function KnockbackService.ComputeDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
-    if directionType == KnockbackService.DirectionType.HitboxVelocityDirection then
-        if typeof(hitboxDir) == "Vector3" and hitboxDir.Magnitude > 0 then
-            return hitboxDir.Unit
-        end
-    elseif directionType == KnockbackService.DirectionType.AwayFromAttacker then
-        if attackerRoot and enemyRoot then
-            local rel = enemyRoot.Position - attackerRoot.Position
-            rel = Vector3.new(rel.X, 0, rel.Z)
-            if rel.Magnitude > 0 then
-                return rel.Unit
-            end
-        end
-    end
-
-    if attackerRoot then
-        return attackerRoot.CFrame.LookVector
-    elseif enemyRoot then
-        return enemyRoot.CFrame.LookVector
-    else
-        return Vector3.new(0, 0, -1)
-    end
-end
-
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
--- Applies a knockback force to the target humanoid's root part
--- direction: Vector3 direction of knockback
--- distance: studs to travel over the duration
--- duration: time in seconds the knockback force is applied
--- lift: upward velocity component
+local KnockbackTypes = require(script.Parent.KnockbackTypes)
+
+local KnockbackService = {}
+
+KnockbackService.DirectionType = KnockbackTypes.Type
+
+-- Backwards compatible helper
+function KnockbackService.ComputeDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
+    return KnockbackTypes.GetDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
+end
+
+-- Utility to check active knockback forces on a root part
+function KnockbackService.IsKnockbackActive(root)
+    if not root then return false end
+    if root:GetAttribute("KnockbackActive") then return true end
+    if root:FindFirstChildOfClass("BodyVelocity") then return true end
+    if root:FindFirstChildOfClass("VectorForce") then return true end
+    return false
+end
+
+local function clearForces(root)
+    for _, child in ipairs(root:GetChildren()) do
+        if child:IsA("BodyMover") or child:IsA("VectorForce") then
+            child:Destroy()
+        end
+    end
+end
+
+-- Applies a knockback impulse and force to the humanoid
 function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration, lift)
     if not humanoid then return end
     local root = humanoid.Parent and humanoid.Parent:FindFirstChild("HumanoidRootPart")
@@ -51,36 +42,22 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     duration = duration or 0.4
     lift = lift or 3
 
-    local playerOwner = Players:GetPlayerFromCharacter(humanoid.Parent)
-    local originalOwner = root:GetNetworkOwner()
 
-    -- Ensure nothing is restricting movement before applying forces
+
     humanoid.PlatformStand = false
     root.Anchored = false
-    for _, child in ipairs(root:GetChildren()) do
-        if child:IsA("BodyMover") or child:IsA("VectorForce") then
-            child:Destroy()
-        end
-    end
+    clearForces(root)
 
-    -- Server controls physics during knockback
-    root:SetNetworkOwner(nil)
-    -- Mark knockback active so other systems don't zero velocity
+    -- Flag that knockback is active so other systems can recognize it
     root:SetAttribute("KnockbackActive", true)
 
-    -- Calculate the impulse needed for the desired distance
     local velocity = direction * (distance / duration)
-    local mass = root.AssemblyMass
-    if mass <= 0 then
-        mass = 1 -- Fallback for rigs with all parts marked Massless
-    end
+    local mass = root.AssemblyMass > 0 and root.AssemblyMass or 1
     local impulse = Vector3.new(velocity.X, lift, velocity.Z) * mass
 
-    -- Reset existing motion and apply impulse for a snappy feel
     root.AssemblyLinearVelocity = Vector3.zero
     root:ApplyImpulse(impulse)
 
-    -- Maintain the force for the duration using VectorForce
     local attachment = Instance.new("Attachment")
     attachment.Parent = root
     local vf = Instance.new("VectorForce")
@@ -88,19 +65,29 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     vf.Force = impulse / duration
     vf.RelativeTo = Enum.ActuatorRelative.World
     vf.Parent = root
+
     Debris:AddItem(vf, duration)
     Debris:AddItem(attachment, duration)
 
-    -- Face away from the attacker
     root.CFrame = CFrame.new(root.Position, root.Position - direction)
 
-    -- Restore network ownership after knockback duration
     task.delay(duration, function()
         if root.Parent then
-            root:SetNetworkOwner(originalOwner or playerOwner)
             root:SetAttribute("KnockbackActive", nil)
         end
     end)
+end
+
+-- Convenience API to compute direction internally
+function KnockbackService.ApplyDirectionalKnockback(humanoid, options)
+    options = options or {}
+    local dir = KnockbackService.ComputeDirection(
+        options.DirectionType,
+        options.AttackerRoot,
+        options.TargetRoot,
+        options.HitboxDirection
+    )
+    KnockbackService.ApplyKnockback(humanoid, dir, options.Distance, options.Duration, options.Lift)
 end
 
 return KnockbackService
