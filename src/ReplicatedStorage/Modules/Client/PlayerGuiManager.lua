@@ -36,10 +36,10 @@ local function ensureGui()
     screenGui.ResetOnSpawn = false
     screenGui.Enabled = false
 
-    local guiFrame = screenGui:WaitForChild("GUI")
-
-    local hpFrame = guiFrame:WaitForChild("HP")
-    local stamFrame = guiFrame:WaitForChild("Stam")
+    -- The HP and stamina frames are now direct children of PlayerGUI rather than
+    -- being contained under an extra "GUI" frame
+    local hpFrame = screenGui:WaitForChild("HP")
+    local stamFrame = screenGui:WaitForChild("Stam")
 
     healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
     staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
