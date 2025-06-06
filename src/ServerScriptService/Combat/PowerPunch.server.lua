@@ -103,7 +103,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         enemyHumanoid:TakeDamage(PowerPunchConfig.Damage)
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
-        StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, true, player)
+        StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, true, player, true)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         local knockback = CombatConfig.M1

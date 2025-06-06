@@ -71,7 +71,12 @@ end
                 * boolean true/false to indicate if the default animation should be skipped
                 * a string/number representing a custom animation id to play
 ]]
-function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
+--[[
+    @param preserveVelocity boolean? When true, horizontal velocity will not be
+    zeroed during the stun. Used for knockback moves so the target continues
+    moving while stunned.
+]]
+function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity)
         local targetPlayer = getPlayer(targetHumanoid)
         local attackerPlayer = getPlayer(attacker)
         if not targetPlayer or not attackerPlayer then return end
@@ -84,6 +89,9 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
         local existing = StunnedPlayers[targetPlayer]
         if existing then
                 if existing.Conn then existing.Conn:Disconnect() end
+                if existing.HRP and existing.PreserveVelocity then
+                        existing.HRP:SetAttribute("StunPreserveVelocity", nil)
+                end
                 StunnedPlayers[targetPlayer] = nil
         end
 
@@ -103,6 +111,9 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
         -- Clear all momentum on hit so gravity takes over
         hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
         hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+        if preserveVelocity then
+            hrp:SetAttribute("StunPreserveVelocity", true)
+        end
     end
 
         local skipAnim = false
@@ -141,7 +152,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
                                -- zeroing horizontal velocity when a knockback force is present
                                if not hrp:FindFirstChildOfClass("BodyVelocity")
                                        and not hrp:FindFirstChildOfClass("VectorForce")
-                                       and not hrp:GetAttribute("KnockbackActive") then
+                                       and not hrp:GetAttribute("KnockbackActive")
+                                       and not hrp:GetAttribute("StunPreserveVelocity") then
                                        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
                                end
                                 hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
@@ -150,16 +162,25 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker)
         end)
 
         local endTime = tick() + duration
-        StunnedPlayers[targetPlayer] = { EndsAt = endTime, Conn = conn, HRP = hrp, PrevAutoRotate = prevAutoRotate }
+        StunnedPlayers[targetPlayer] = {
+            EndsAt = endTime,
+            Conn = conn,
+            HRP = hrp,
+            PrevAutoRotate = prevAutoRotate,
+            PreserveVelocity = preserveVelocity,
+        }
         sendStatus(targetPlayer)
 
 	task.delay(duration, function()
 		local data = StunnedPlayers[targetPlayer]
-		if data and tick() >= data.EndsAt then
+                if data and tick() >= data.EndsAt then
                         if data.Conn then data.Conn:Disconnect() end
                         StunnedPlayers[targetPlayer] = nil
                         if data.HRP then
                                 targetHumanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
+                                if data.PreserveVelocity then
+                                        data.HRP:SetAttribute("StunPreserveVelocity", nil)
+                                end
                         end
 
 			targetHumanoid.WalkSpeed = Config.GameSettings.DefaultWalkSpeed

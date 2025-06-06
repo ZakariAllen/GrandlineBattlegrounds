@@ -59,11 +59,24 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     -- Mark knockback active so other systems don't zero velocity
     root:SetAttribute("KnockbackActive", true)
 
-    local speed = distance / duration
-    local knockVelocity = Vector3.new(direction.X * speed, lift, direction.Z * speed)
+    -- Calculate the impulse needed for the desired distance
+    local velocity = direction * (distance / duration)
+    local impulse = Vector3.new(velocity.X, lift, velocity.Z) * root.AssemblyMass
 
-    -- Directly set velocity instead of applying physical forces
-    root.AssemblyLinearVelocity = knockVelocity
+    -- Reset existing motion and apply impulse for a snappy feel
+    root.AssemblyLinearVelocity = Vector3.zero
+    root:ApplyImpulse(impulse)
+
+    -- Maintain the force for the duration using VectorForce
+    local attachment = Instance.new("Attachment")
+    attachment.Parent = root
+    local vf = Instance.new("VectorForce")
+    vf.Attachment0 = attachment
+    vf.Force = impulse / duration
+    vf.RelativeTo = Enum.ActuatorRelative.World
+    vf.Parent = root
+    Debris:AddItem(vf, duration)
+    Debris:AddItem(attachment, duration)
 
     -- Face away from the attacker
     root.CFrame = CFrame.new(root.Position, root.Position - direction)
