@@ -38,7 +38,7 @@ Animation.Blocking = {
 
 Animation.SpecialMoves = {
     PartyTableKick = "rbxassetid://99204047574669",
-    PowerPunch = "rbxassetid://70382508234278",
+    PowerPunch = "rbxassetid://129154072458138",
 }
 
 return Animation
