@@ -60,6 +60,14 @@ local function playAnimation(humanoid, animId)
     end)
 end
 
+local function stopAnimation(humanoid)
+    local current = activeTracks[humanoid]
+    if current and current.IsPlaying then
+        current:Stop(0.05)
+    end
+    activeTracks[humanoid] = nil
+end
+
 StartEvent.OnServerEvent:Connect(function(player)
     if DEBUG then print("[PowerPunch] StartEvent from", player.Name) end
     local char = player.Character
@@ -134,7 +142,12 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         end
         if blockResult == "Perfect" then
             if DEBUG then print("[PowerPunch] Perfect block by", enemyPlayer.Name) end
+            stopAnimation(humanoid)
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, enemyPlayer)
+            local soundId = SoundConfig.Blocking.PerfectBlock
+            if soundId then
+                SoundUtils:PlaySpatialSound(soundId, hrp)
+            end
             continue
         elseif blockResult == "Damaged" then
             if DEBUG then print("[PowerPunch] Block damaged", enemyPlayer.Name) end

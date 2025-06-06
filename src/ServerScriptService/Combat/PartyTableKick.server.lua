@@ -142,6 +142,14 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         if blockResult == "Perfect" then
             if DEBUG then print("[PartyTableKick] Perfect block by", enemyPlayer.Name) end
             blockHit = true
+            stopAnimation(humanoid)
+            local soundInst = activeLoopSounds[player]
+            if soundInst then
+                soundInst:Destroy()
+                activeLoopSounds[player] = nil
+            end
+            activeDrain[player] = nil
+            StaminaService.ResumeRegen(player)
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
             playAnimation(humanoid, AnimationData.Stun.PerfectBlock)
             local soundId = SoundConfig.Blocking.PerfectBlock
