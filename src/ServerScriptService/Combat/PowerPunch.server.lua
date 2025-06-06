@@ -21,6 +21,11 @@ local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
+if DEBUG then
+    print("[PowerPunch] Server script loaded")
+    print("[PowerPunch] Damage", PowerPunchConfig.Damage, "stun", PowerPunchConfig.StunDuration)
+end
+
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 local activeTracks = {}
@@ -58,53 +63,86 @@ StartEvent.OnServerEvent:Connect(function(player)
     if DEBUG then print("[PowerPunch] StartEvent from", player.Name) end
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-    if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
+    if not humanoid then
+        if DEBUG then print("[PowerPunch] No humanoid") end
+        return
+    end
+    if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
+        if DEBUG then print("[PowerPunch] Player stunned or locked") end
+        return
+    end
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Basic Combat" then return end
-    if not StaminaService.Consume(player, 20) then return end
+    if not tool or tool.Name ~= "Basic Combat" then
+        if DEBUG then print("[PowerPunch] Invalid tool") end
+        return
+    end
+    if not StaminaService.Consume(player, 20) then
+        if DEBUG then print("[PowerPunch] Not enough stamina") end
+        return
+    end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerPunch)
+    if DEBUG then print("[PowerPunch] Animation triggered") end
     VFXEvent:FireAllClients(player)
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     if DEBUG then print("[PowerPunch] HitEvent from", player.Name) end
-    if typeof(targets) ~= "table" then return end
+    if typeof(targets) ~= "table" then
+        if DEBUG then print("[PowerPunch] Invalid targets") end
+        return
+    end
 
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not hrp then return end
+    if not humanoid or not hrp then
+        if DEBUG then print("[PowerPunch] Missing humanoid or HRP") end
+        return
+    end
 
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Basic Combat" then return end
+    if not tool or tool.Name ~= "Basic Combat" then
+        if DEBUG then print("[PowerPunch] Invalid tool during hit") end
+        return
+    end
 
     local hitLanded = false
 
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
-        if not enemyHumanoid then continue end
-        if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
+        if not enemyHumanoid then
+            if DEBUG then print("[PowerPunch] Target has no humanoid") end
+            continue
+        end
+        if not StunService:CanBeHitBy(player, enemyPlayer) then
+            if DEBUG then print("[PowerPunch] Cannot hit", enemyPlayer.Name) end
+            continue
+        end
 
         local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerPunchConfig.Damage, true)
         if blockResult == "Perfect" then
+            if DEBUG then print("[PowerPunch] Perfect block by", enemyPlayer.Name) end
             StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), false, enemyPlayer)
             BlockEvent:FireClient(enemyPlayer, false)
             continue
         elseif blockResult == "Damaged" then
+            if DEBUG then print("[PowerPunch] Block damaged", enemyPlayer.Name) end
             continue
         elseif blockResult == "Broken" then
+            if DEBUG then print("[PowerPunch] Block broken", enemyPlayer.Name) end
             StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), false, player)
             BlockEvent:FireClient(enemyPlayer, false)
             continue
         end
 
         enemyHumanoid:TakeDamage(PowerPunchConfig.Damage)
+        if DEBUG then print("[PowerPunch] Hit", enemyPlayer.Name, "for", PowerPunchConfig.Damage) end
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
 
         StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, false, player, true)
+        if DEBUG then print("[PowerPunch] Applied stun to", enemyPlayer.Name) end
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
@@ -124,6 +162,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
             if knockbackAnim then
                 playAnimation(enemyHumanoid, knockbackAnim)
+                if DEBUG then print("[PowerPunch] Knockback animation played for", enemyPlayer.Name) end
             end
         end
     end
@@ -133,6 +172,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if hitSfx then
             SoundUtils:PlaySpatialSound(hitSfx, hrp)
         end
+        if DEBUG then print("[PowerPunch] Hit sequence complete") end
     end
 end)
 
