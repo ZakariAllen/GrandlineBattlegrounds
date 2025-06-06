@@ -22,7 +22,12 @@ local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
         part.CFrame = hrp.CFrame * offsetCFrame
         if shape == "Cylinder" then
                 part.Shape = Enum.PartType.Cylinder
-                part.Orientation = Vector3.new(0, 0, 90)
+                -- Cylinder hitboxes should be oriented vertically so the client
+                -- hit detection matches the visual. The previous 90 degree
+                -- rotation caused the hitbox to lie on its side, leading to
+                -- mismatches between the visual cylinder and the math used for
+                -- overlap checks.
+                part.Orientation = Vector3.new(0, 0, 0)
         end
         part.Anchored = false
         part.CanCollide = false
@@ -138,6 +143,9 @@ function HitboxClient.CastHitbox(
                 end
 
                 local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
+                local center = hitbox.CFrame.Position
+                local radius = hitbox.Size.X * 0.5
+                local height = hitbox.Size.Y
                 for _, part in ipairs(parts) do
                         local model = part:FindFirstAncestorOfClass("Model")
                         local humanoid = model and model:FindFirstChildOfClass("Humanoid")
@@ -146,16 +154,11 @@ function HitboxClient.CastHitbox(
                         if humanoid and otherPlayer and otherPlayer ~= player then
                                 local newHit = false
                                 if shape == "Cylinder" then
-                                        local root = model:FindFirstChild("HumanoidRootPart")
-                                        if root then
-                                                local center = hitbox.CFrame.Position
-                                                local dx = root.Position.X - center.X
-                                                local dz = root.Position.Z - center.Z
-                                                local radius = hitbox.Size.X * 0.5
-                                                local height = hitbox.Size.Y
-                                                if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(root.Position.Y - center.Y) <= height * 0.5 then
-                                                        newHit = true
-                                                end
+                                        local pos = part.Position
+                                        local dx = pos.X - center.X
+                                        local dz = pos.Z - center.Z
+                                        if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(pos.Y - center.Y) <= height * 0.5 then
+                                                newHit = true
                                         end
                                 else
                                         newHit = true
