@@ -45,7 +45,7 @@ local SoundConfig = {
                         { Id = "rbxassetid://78834849660646", Pitch = 1 }, -- Track 3 208-B
                         { Id = "rbxassetid://78834849660646", Pitch = 1.1 }, -- Track 4 208-B
                         { Id = "rbxassetid://90253170109596", Pitch = 1.1 }, -- Track 5 Overtaken
-						{ Id = "rbxassetid://90253170109596", Pitch = 0.9 } -- Track 6 Overtaken
+						{ Id = "rbxassetid://90253170109596", Pitch = 0.9 }, -- Track 6 Overtaken
 						{ Id = "rbxassetid://90253170109596", Pitch = 1 } -- Track 7 Overtaken
                 },
 
