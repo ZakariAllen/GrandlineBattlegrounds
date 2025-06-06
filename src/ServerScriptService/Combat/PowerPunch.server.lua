@@ -103,7 +103,6 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         enemyHumanoid:TakeDamage(PowerPunchConfig.Damage)
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
-        StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, true, player, true)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
@@ -118,6 +117,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
                 Lift = knockback.KnockbackLift,
             })
         end
+
+        StunService:ApplyStun(enemyHumanoid, PowerPunchConfig.StunDuration, false, player, true)
 
         local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
         if knockbackAnim then
