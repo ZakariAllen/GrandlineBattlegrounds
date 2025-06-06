@@ -3,15 +3,15 @@
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
 
-local KnockbackTypes = require(script.Parent.KnockbackTypes)
+local KnockbackConfig = require(script.Parent.KnockbackConfig)
 
 local KnockbackService = {}
 
-KnockbackService.DirectionType = KnockbackTypes.Type
+KnockbackService.DirectionType = KnockbackConfig.Type
 
 -- Backwards compatible helper
 function KnockbackService.ComputeDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
-    return KnockbackTypes.GetDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
+    return KnockbackConfig.GetDirection(directionType, attackerRoot, enemyRoot, hitboxDir)
 end
 
 -- Utility to check active knockback forces on a root part
@@ -87,7 +87,11 @@ function KnockbackService.ApplyDirectionalKnockback(humanoid, options)
         options.TargetRoot,
         options.HitboxDirection
     )
-    KnockbackService.ApplyKnockback(humanoid, dir, options.Distance, options.Duration, options.Lift)
+    local params = KnockbackConfig.Params and KnockbackConfig.Params[options.DirectionType] or {}
+    local distance = options.Distance or params.Distance
+    local duration = options.Duration or params.Duration
+    local lift = options.Lift or params.Lift
+    KnockbackService.ApplyKnockback(humanoid, dir, distance, duration, lift)
 end
 
 return KnockbackService

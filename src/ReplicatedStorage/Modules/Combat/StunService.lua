@@ -87,14 +87,19 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         if self:WasRecentlyHit(targetPlayer) then return end
         HitReservations[targetPlayer] = tick()
 
-        local existing = StunnedPlayers[targetPlayer]
-        if existing then
-                if existing.Conn then existing.Conn:Disconnect() end
-                if existing.HRP and existing.PreserveVelocity then
-                        existing.HRP:SetAttribute("StunPreserveVelocity", nil)
-                end
-                StunnedPlayers[targetPlayer] = nil
-        end
+    local prevWalkSpeed = targetHumanoid.WalkSpeed
+    local prevJumpPower = targetHumanoid.JumpPower
+
+    local existing = StunnedPlayers[targetPlayer]
+    if existing then
+            if existing.Conn then existing.Conn:Disconnect() end
+            if existing.HRP and existing.PreserveVelocity then
+                    existing.HRP:SetAttribute("StunPreserveVelocity", nil)
+            end
+            prevWalkSpeed = existing.PrevWalkSpeed or prevWalkSpeed
+            prevJumpPower = existing.PrevJumpPower or prevJumpPower
+            StunnedPlayers[targetPlayer] = nil
+    end
 
         if ActiveAnimations[targetPlayer] then
                 ActiveAnimations[targetPlayer]:Stop()
@@ -167,6 +172,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
             HRP = hrp,
             PrevAutoRotate = prevAutoRotate,
             PreserveVelocity = preserveVelocity,
+            PrevWalkSpeed = prevWalkSpeed,
+            PrevJumpPower = prevJumpPower,
         }
         sendStatus(targetPlayer)
 
@@ -182,8 +189,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                 end
                         end
 
-			targetHumanoid.WalkSpeed = Config.GameSettings.DefaultWalkSpeed
-			targetHumanoid.JumpPower = Config.GameSettings.DefaultJumpPower
+                        targetHumanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
+                        targetHumanoid.JumpPower = data.PrevJumpPower or Config.GameSettings.DefaultJumpPower
 
                         if ActiveAnimations[targetPlayer] then
                                 ActiveAnimations[targetPlayer]:Stop()
