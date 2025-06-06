@@ -12,11 +12,9 @@ local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
-local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -144,22 +142,10 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
             StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), true, player, true)
 
+            -- No knockback on block break for PowerKick
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
-                local knockback = CombatConfig.M1
-                KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                    DirectionType = PowerKickConfig.KnockbackDirection or knockback.KnockbackDirection,
-                    AttackerRoot = hrp,
-                    TargetRoot = enemyRoot,
-                    Distance = knockback.KnockbackDistance,
-                    Duration = knockback.KnockbackDuration,
-                    Lift = knockback.KnockbackLift,
-                })
-
-                local knockbackAnim = AnimationData.M1.BlackLeg and AnimationData.M1.BlackLeg.Knockback
-                if knockbackAnim then
-                    playAnimation(enemyHumanoid, knockbackAnim)
-                end
+                -- reserved for potential future effects
             end
 
             continue
@@ -174,20 +160,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
-            local knockback = CombatConfig.M1
-            KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                DirectionType = PowerKickConfig.KnockbackDirection or knockback.KnockbackDirection,
-                AttackerRoot = hrp,
-                TargetRoot = enemyRoot,
-                Distance = knockback.KnockbackDistance,
-                Duration = knockback.KnockbackDuration,
-                Lift = knockback.KnockbackLift,
-            })
-
-            local knockbackAnim = AnimationData.M1.BlackLeg and AnimationData.M1.BlackLeg.Knockback
-            if knockbackAnim then
-                playAnimation(enemyHumanoid, knockbackAnim)
-            end
+            -- PowerKick does not apply knockback on hit
         end
     end
 
