@@ -73,7 +73,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         if DEBUG then print("[PowerKick] Not enough stamina") end
         return
     end
-    playAnimation(humanoid, AnimationData.SpecialMoves.PowerPunch)
+    playAnimation(humanoid, AnimationData.SpecialMoves.PowerKick)
     if DEBUG then print("[PowerKick] Animation triggered") end
 end)
 
