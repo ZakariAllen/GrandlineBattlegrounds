@@ -54,6 +54,15 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     local playerOwner = Players:GetPlayerFromCharacter(humanoid.Parent)
     local originalOwner = root:GetNetworkOwner()
 
+    -- Ensure nothing is restricting movement before applying forces
+    humanoid.PlatformStand = false
+    root.Anchored = false
+    for _, child in ipairs(root:GetChildren()) do
+        if child:IsA("BodyMover") or child:IsA("VectorForce") then
+            child:Destroy()
+        end
+    end
+
     -- Server controls physics during knockback
     root:SetNetworkOwner(nil)
     -- Mark knockback active so other systems don't zero velocity
@@ -61,7 +70,11 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
 
     -- Calculate the impulse needed for the desired distance
     local velocity = direction * (distance / duration)
-    local impulse = Vector3.new(velocity.X, lift, velocity.Z) * root.AssemblyMass
+    local mass = root.AssemblyMass
+    if mass <= 0 then
+        mass = 1 -- Fallback for rigs with all parts marked Massless
+    end
+    local impulse = Vector3.new(velocity.X, lift, velocity.Z) * mass
 
     -- Reset existing motion and apply impulse for a snappy feel
     root.AssemblyLinearVelocity = Vector3.zero
