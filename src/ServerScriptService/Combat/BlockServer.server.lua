@@ -9,6 +9,7 @@ local BlockVFXEvent = CombatRemotes:WaitForChild("BlockVFX")
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
+local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 
 local function hasValidTool(player)
        local char = player.Character
@@ -38,8 +39,13 @@ BlockEvent.OnServerEvent:Connect(function(player, start)
                 end
 
                 if hasValidTool(player) and BlockService.StartBlocking(player) then
-                        BlockEvent:FireClient(player, true)
-                        BlockVFXEvent:FireAllClients(player, true)
+                        local startup = CombatConfig.Blocking.StartupTime or 0
+                        task.delay(startup, function()
+                                if BlockService.IsBlocking(player) then
+                                        BlockEvent:FireClient(player, true)
+                                        BlockVFXEvent:FireAllClients(player, true)
+                                end
+                        end)
                 else
                         BlockEvent:FireClient(player, false)
                 end
