@@ -34,6 +34,7 @@ local LoadingManager  = require(MenuCfgs:WaitForChild("LoadingManager"))
 local CameraManager   = require(MenuCfgs:WaitForChild("CameraManager"))
 local MenuGlobalCfg   = require(MenuCfgs:WaitForChild("MenuGlobalCfg"))
 local PlayerGuiManager = require(ReplicatedStorage.Modules.Client.PlayerGuiManager)
+local MusicManager    = require(ReplicatedStorage.Modules.Client.MusicManager)
 PlayerGuiManager.Hide()
 
 -- 🔁 Remotes
@@ -86,12 +87,12 @@ local function spawnAndFollow(toolName)
 	local duration = MenuGlobalCfg.TransitionScreen and MenuGlobalCfg.TransitionScreen.Duration or 1
 	task.delay(duration, hideTransitionScreen)
 
-	PlayerLeftMenu:FireServer()
-	SpawnRequestEvent:FireServer(toolName)
-	MenuLogic.HideMenu()
-	setButtonsEnabled(false)
+        PlayerLeftMenu:FireServer()
+        SpawnRequestEvent:FireServer(toolName)
+        MenuLogic.HideMenu()
+        setButtonsEnabled(false)
 
-	player.CharacterAdded:Wait()
+        player.CharacterAdded:Wait()
 	task.wait(0.25)
 
 	local char = player.Character
@@ -120,16 +121,17 @@ local function spawnAndFollow(toolName)
 	-- 🔄 Enforce camera following for a short time
 	local startTime = tick()
 	local conn
-	conn = RunService.RenderStepped:Connect(function()
-		if tick() - startTime > 2 then
-			conn:Disconnect()
-		else
-			camera.CameraSubject = humanoid
-			camera.CameraType = Enum.CameraType.Custom
-		end
-	end)
+        conn = RunService.RenderStepped:Connect(function()
+                if tick() - startTime > 2 then
+                        conn:Disconnect()
+                else
+                        camera.CameraSubject = humanoid
+                        camera.CameraType = Enum.CameraType.Custom
+                end
+        end)
 
-	setButtonsEnabled(true)
+        MusicManager.StartGameplayMusic()
+        setButtonsEnabled(true)
 end
 
 -- 🎬 Initialize main menu
@@ -138,6 +140,7 @@ local function initMainMenu()
         CameraManager.ApplyMenuCamera()
         PlayerGuiManager.Hide()
         setButtonsEnabled(true)
+        MusicManager.PlayMenuMusic()
         PlayerEnteredMenu:FireServer()
 
 	MenuLogic.ShowMainMenu(function(toolName)
@@ -151,14 +154,15 @@ ReturnToMenuEvent.OnClientEvent:Connect(function()
         PlayerGuiManager.Hide()
         setButtonsEnabled(false)
 
-	local duration = MenuGlobalCfg.TransitionScreen and MenuGlobalCfg.TransitionScreen.Duration or 1
-	task.delay(duration, function()
-		CameraManager.ClearMenuCamera()
-		task.wait(0.1)
-		CameraManager.ApplyMenuCamera()
-		initMainMenu()
-		hideTransitionScreen()
-	end)
+        local duration = MenuGlobalCfg.TransitionScreen and MenuGlobalCfg.TransitionScreen.Duration or 1
+        task.delay(duration, function()
+                CameraManager.ClearMenuCamera()
+                task.wait(0.1)
+                CameraManager.ApplyMenuCamera()
+                MusicManager.PlayMenuMusic()
+                initMainMenu()
+                hideTransitionScreen()
+        end)
 end)
 
 -- 🚀 Begin game
