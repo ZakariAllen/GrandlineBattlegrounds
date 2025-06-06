@@ -32,7 +32,9 @@ local retryConn: RBXScriptConnection? = nil
 local activeVFX: Instance? = nil
 local otherVFX = {}
 
-local function playBlockAnimation()
+-- Plays the block hold animation. When skipVFX is true the visual effect is not
+-- spawned yet, allowing us to wait for server confirmation before showing it.
+local function playBlockAnimation(skipVFX)
         local char = player.Character
         local humanoid = char and char:FindFirstChildOfClass("Humanoid")
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -50,7 +52,7 @@ local function playBlockAnimation()
         blockTrack = track
         ToolController.PauseStance()
 
-        if hrp and not activeVFX then
+        if hrp and not activeVFX and not skipVFX then
                 activeVFX = BlockVFX.Create(hrp)
         end
 end
@@ -75,6 +77,13 @@ BlockEvent.OnClientEvent:Connect(function(active)
                 -- Avoid starting the animation twice if we already began locally
                 if not blockTrack then
                         playBlockAnimation()
+                end
+
+                -- Ensure the visual effect starts once the block is truly active
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp and not activeVFX then
+                        activeVFX = BlockVFX.Create(hrp)
                 end
         else
                 lastBlockEnd = tick()
@@ -101,6 +110,15 @@ BlockVFXEvent.OnClientEvent:Connect(function(blockPlayer, active)
                        BlockVFX.Remove(vfx)
                        otherVFX[blockPlayer] = nil
                end
+       end
+end)
+
+-- Clean up VFX if another player leaves the game
+Players.PlayerRemoving:Connect(function(leftPlayer)
+       local vfx = otherVFX[leftPlayer]
+       if vfx then
+               BlockVFX.Remove(vfx)
+               otherVFX[leftPlayer] = nil
        end
 end)
 
@@ -132,7 +150,9 @@ local function attemptBlock()
                MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
        end
        MovementClient.StopSprint()
-       playBlockAnimation()
+       -- Play the animation immediately but delay the VFX until the server
+       -- confirms the block has started
+       playBlockAnimation(true)
        BlockEvent:FireServer(true)
 
        if retryConn then

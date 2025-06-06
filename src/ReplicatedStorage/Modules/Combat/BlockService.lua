@@ -70,20 +70,20 @@ end
 
 -- ❌ Called when player releases block or is stunned out
 function BlockService.StopBlocking(player)
-       if BlockingPlayers[player] or BlockStartup[player] then
+       local hadBlock = BlockingPlayers[player] or BlockStartup[player]
+
+       if hadBlock then
                if BlockingPlayers[player] then
                        BlockCooldowns[player] = tick() + (CombatConfig.Blocking.BlockCooldown or 2)
                end
        end
-
-       local hadBlock = BlockingPlayers[player] or BlockStartup[player]
 
        BlockingPlayers[player] = nil
        BlockStartup[player] = nil
        BlockHP[player] = nil
        PerfectBlockTimers[player] = nil
 
-       if hadBlock and VFXEvent then
+       if VFXEvent then
                VFXEvent:FireAllClients(player, false)
        end
 end
