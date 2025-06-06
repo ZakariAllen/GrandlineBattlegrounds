@@ -100,20 +100,20 @@ end
 function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
        if not BlockingPlayers[player] then return nil end
 
+       local hp = BlockHP[player] or 0
+       local timeSinceStart = tick() - (PerfectBlockTimers[player] or 0)
+
+       -- 🌀 Perfect block window takes priority even against block breakers
+       if timeSinceStart <= CombatConfig.Blocking.PerfectBlockWindow then
+               -- Reflect to attacker happens in CombatService
+               BlockService.StopBlocking(player)
+               return "Perfect"
+       end
+
        if isBlockBreaker then
                BlockService.StopBlocking(player)
                return "Broken"
        end
-
-	local hp = BlockHP[player] or 0
-	local timeSinceStart = tick() - (PerfectBlockTimers[player] or 0)
-
-	-- 🌀 Perfect block window
-	if timeSinceStart <= CombatConfig.Blocking.PerfectBlockWindow then
-		-- Reflect to attacker happens in CombatService
-                BlockService.StopBlocking(player)
-                return "Perfect"
-	end
 
 	-- 🩸 Block damage
         hp -= damage
