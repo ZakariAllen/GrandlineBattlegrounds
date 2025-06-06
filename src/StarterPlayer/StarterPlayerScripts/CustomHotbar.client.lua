@@ -1,0 +1,99 @@
+-- StarterPlayerScripts > CustomHotbar
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Hide the default backpack UI
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- Clone hotbar template from ReplicatedStorage.Assets
+local assets = ReplicatedStorage:WaitForChild("Assets")
+local template = assets:WaitForChild("CustomHotbar")
+
+local hotbar = template:Clone()
+hotbar.ResetOnSpawn = false
+hotbar.Parent = PlayerGui
+
+local basicButton = hotbar:WaitForChild("BasicCombat")
+local blackButton = hotbar:WaitForChild("BlackLeg")
+
+-- Display only the button for the player's current tool
+local function updateVisibleButton()
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
+
+    local hasBasic = (backpack and backpack:FindFirstChild("BasicCombat"))
+        or (character and character:FindFirstChild("BasicCombat"))
+    local hasBlack = (backpack and backpack:FindFirstChild("BlackLeg"))
+        or (character and character:FindFirstChild("BlackLeg"))
+
+    basicButton.Visible = not not hasBasic
+    blackButton.Visible = not not hasBlack
+end
+
+updateVisibleButton()
+player.CharacterAdded:Connect(function()
+    task.wait(0.1)
+    updateVisibleButton()
+end)
+
+player:WaitForChild("Backpack").ChildAdded:Connect(updateVisibleButton)
+player.Backpack.ChildRemoved:Connect(updateVisibleButton)
+
+print("[CustomHotbar] Initialized")
+
+-- Helper to equip/unequip a tool just like the default hotbar
+local function toggleTool(toolName)
+    local backpack = player:WaitForChild("Backpack")
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    -- Already equipped -> move back to backpack
+    local equipped = character:FindFirstChild(toolName)
+    if equipped and equipped:IsA("Tool") then
+        equipped.Parent = backpack
+        return
+    end
+
+    -- Unequip any other equipped tools
+    for _, obj in ipairs(character:GetChildren()) do
+        if obj:IsA("Tool") then
+            obj.Parent = backpack
+        end
+    end
+
+    -- Equip requested tool if present
+    local tool = backpack:FindFirstChild(toolName)
+    if tool and tool:IsA("Tool") then
+        tool.Parent = character
+    end
+
+    updateVisibleButton()
+end
+
+-- Button handlers
+hotbar:WaitForChild("BasicCombat").MouseButton1Click:Connect(function()
+    toggleTool("BasicCombat")
+end)
+
+hotbar:WaitForChild("BlackLeg").MouseButton1Click:Connect(function()
+    toggleTool("BlackLeg")
+end)
+
+-- Pressing 1 equips the first available tool, mirroring the default behaviour
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.One then
+        local backpack = player:WaitForChild("Backpack")
+        local preferred = "BasicCombat"
+        if not backpack:FindFirstChild(preferred) and not (player.Character and player.Character:FindFirstChild(preferred)) then
+            preferred = "BlackLeg"
+        end
+        toggleTool(preferred)
+    end
+end)
+
