@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local HealthService = require(ReplicatedStorage.Modules.Stats.HealthService)
 
 -- ✅ Updated remote path
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -59,9 +60,13 @@ local function spawnPlayerWithTool(player, toolName)
 		return
 	end
 
-	player:LoadCharacter()
-	local char = player.Character or player.CharacterAdded:Wait()
-	local hrp = char:WaitForChild("HumanoidRootPart", 5)
+        player:LoadCharacter()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+                HealthService.SetupHumanoid(humanoid)
+        end
+        local hrp = char:WaitForChild("HumanoidRootPart", 5)
 
 	if hrp then
 		hrp.Anchored = false
