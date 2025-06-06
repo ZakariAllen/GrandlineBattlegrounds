@@ -28,6 +28,10 @@ end
 
 function OverheadBarService.UpdateBlock(player, hp)
     local info = barInfo[player]
+    if not info and player and player.Character then
+        onCharacterAdded(player, player.Character)
+        info = barInfo[player]
+    end
     if not info then return end
     local ratio = math.clamp(hp / PlayerStats.BlockHP, 0, 1)
     local base = info.blockBase
@@ -41,6 +45,10 @@ end
 
 function OverheadBarService.SetBlockActive(player, active)
     local info = barInfo[player]
+    if not info and player and player.Character then
+        onCharacterAdded(player, player.Character)
+        info = barInfo[player]
+    end
     if info and info.blockGui then
         info.blockGui.Enabled = active
     end
