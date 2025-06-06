@@ -4,9 +4,12 @@ local StaminaService = {}
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
-StaminaService.DEFAULT_MAX = 250
-StaminaService.REGEN_RATE = 5 -- per second
+StaminaService.DEFAULT_MAX = PlayerStats.Stamina
+StaminaService.REGEN_RATE = PlayerStats.StaminaRegen
+StaminaService._regenPaused = {}
 
 local function setupPlayer(player)
     local max = player:FindFirstChild("MaxStamina")
@@ -26,14 +29,29 @@ local function setupPlayer(player)
     end
 end
 
+function StaminaService.PauseRegen(player)
+    StaminaService._regenPaused[player] = true
+end
+
+function StaminaService.ResumeRegen(player)
+    StaminaService._regenPaused[player] = nil
+end
+
 if RunService:IsServer() then
     Players.PlayerAdded:Connect(setupPlayer)
     for _, p in ipairs(Players:GetPlayers()) do
         setupPlayer(p)
     end
 
+    Players.PlayerRemoving:Connect(function(player)
+        StaminaService._regenPaused[player] = nil
+    end)
+
     RunService.Heartbeat:Connect(function(dt)
         for _, player in ipairs(Players:GetPlayers()) do
+            if StaminaService._regenPaused[player] then
+                continue
+            end
             local max = player:FindFirstChild("MaxStamina")
             local cur = player:FindFirstChild("Stamina")
             if max and cur then

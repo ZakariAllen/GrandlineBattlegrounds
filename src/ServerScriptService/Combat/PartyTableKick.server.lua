@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
@@ -88,6 +89,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         if DEBUG then print("[PartyTableKick] Not enough stamina") end
         return
     end
+    StaminaService.PauseRegen(player)
     activeDrain[player] = tick()
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
     if DEBUG then print("[PartyTableKick] Animation triggered") end
@@ -223,10 +225,16 @@ StopEvent.OnServerEvent:Connect(function(player)
         activeLoopSounds[player] = nil
     end
     activeDrain[player] = nil
+    StaminaService.ResumeRegen(player)
 end)
 
 RunService.Heartbeat:Connect(function(dt)
     for player, last in pairs(activeDrain) do
         StaminaService.Consume(player, 3 * dt)
     end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    activeDrain[player] = nil
+    StaminaService.ResumeRegen(player)
 end)

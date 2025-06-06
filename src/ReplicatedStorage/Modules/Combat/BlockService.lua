@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
+local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 -- Remotes
@@ -30,7 +31,7 @@ function BlockService.IsInStartup(player)
 end
 
 function BlockService.GetBlockHP(player)
-	return BlockHP[player] or CombatConfig.Blocking.BlockHP
+        return BlockHP[player] or PlayerStats.BlockHP
 end
 
 function BlockService.GetPerfectBlockStunDuration()
@@ -60,7 +61,7 @@ function BlockService.StartBlocking(player)
        task.delay(startup, function()
                if BlockStartup[player] then
                        BlockStartup[player] = nil
-                       BlockHP[player] = CombatConfig.Blocking.BlockHP
+                       BlockHP[player] = PlayerStats.BlockHP
                        BlockingPlayers[player] = true
                        PerfectBlockTimers[player] = tick()
                end

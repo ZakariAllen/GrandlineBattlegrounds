@@ -27,7 +27,6 @@ CombatConfig.M1 = {
 }
 
 CombatConfig.Blocking = {
-        BlockHP = 35,
     -- Time between pressing block and the block becoming active
     StartupTime = 0.2,
         PerfectBlockWindow = 0.3,

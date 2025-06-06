@@ -5,6 +5,7 @@ local PlayerGuiManager = {}
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
@@ -96,7 +97,7 @@ function PlayerGuiManager.BindStamina(staminaValue)
 
     local function update()
         if not staminaBase then return end
-        local max = maxVal and maxVal.Value or StaminaService and StaminaService.DEFAULT_MAX or 250
+        local max = maxVal and maxVal.Value or StaminaService and StaminaService.DEFAULT_MAX or PlayerStats.Stamina
         local ratio = math.clamp(staminaValue.Value / max, 0, 1)
         staminaBar.Size = UDim2.new(
             staminaBase.X.Scale * ratio,
