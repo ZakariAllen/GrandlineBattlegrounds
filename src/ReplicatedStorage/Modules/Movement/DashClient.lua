@@ -26,11 +26,15 @@ local dashConn = nil
 
 -- Utility used for RokuDash to hide or show a character model
 local function setCharacterInvisible(character, invisible)
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") or part:IsA("Decal") then
-            part.Transparency = invisible and 1 or 0
-        elseif part:IsA("ParticleEmitter") or part:IsA("Trail") then
-            part.Enabled = not invisible
+    for _, obj in ipairs(character:GetDescendants()) do
+        if obj:IsA("BasePart") or obj:IsA("Decal") then
+            obj.Transparency = invisible and 1 or 0
+        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+            obj.Enabled = not invisible
+        elseif obj:IsA("BillboardGui") or obj:IsA("SurfaceGui") then
+            obj.Enabled = not invisible
+        elseif obj:IsA("Highlight") then
+            obj.Enabled = not invisible
         end
     end
 end
@@ -135,7 +139,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
         local distance = dashSettings.Distance
 
         if styleKey == "Rokushiki" and character then
-                task.delay(duration, function()
+                task.delay(DashConfig.RokuInvisDuration, function()
                         if character then
                                 setCharacterInvisible(character, false)
                         end
@@ -208,9 +212,7 @@ DashEvent.OnClientEvent:Connect(function(dashPlayer, direction, styleKey)
 
         if styleKey == "Rokushiki" and char then
                 setCharacterInvisible(char, true)
-                local dashSet = DashConfig.RokuSettings
-                local dur = dashSet[direction] and dashSet[direction].Duration or dashSet.Forward.Duration
-                task.delay(dur, function()
+                task.delay(DashConfig.RokuInvisDuration, function()
                         if char then
                                 setCharacterInvisible(char, false)
                         end
