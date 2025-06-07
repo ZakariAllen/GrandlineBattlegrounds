@@ -1,6 +1,7 @@
 local Tools = {
     BlackLeg = require(script.Parent.Tools.BlackLeg),
     BasicCombat = require(script.Parent.Tools.BasicCombat),
+    Rokushiki = require(script.Parent.Tools.Rokushiki),
 }
 
 local MoveHitboxConfig = {}
@@ -15,5 +16,6 @@ MoveHitboxConfig.M1 = {
 MoveHitboxConfig.PartyTableKick = Tools.BlackLeg.PartyTableKick.Hitbox
 MoveHitboxConfig.PowerPunch = Tools.BasicCombat.PowerPunch.Hitbox
 MoveHitboxConfig.PowerKick = Tools.BlackLeg.PowerKick.Hitbox
+MoveHitboxConfig.Shigan = Tools.Rokushiki.Shigan.Hitbox
 
 return MoveHitboxConfig
