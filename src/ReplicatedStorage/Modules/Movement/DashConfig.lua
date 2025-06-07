@@ -5,7 +5,7 @@ DashConfig.Cooldown = 2
 DashConfig.SoundId = "rbxassetid://72014632956520"  -- Replace with your dash SFX asset id
 
 -- Duration that characters stay invisible when performing the Rokushiki dash
-DashConfig.RokuInvisDuration = 0.22
+DashConfig.RokuInvisDuration = 0.3
 
 DashConfig.Settings = {
 	Forward = {
@@ -45,14 +45,14 @@ DashConfig.Settings = {
 -- Separate dash settings for the Rokushiki style. These can be tuned
 -- independently from the regular dash distances and durations.
 DashConfig.RokuSettings = {
-    Forward = { Distance = 20, Duration = 0.12 },
-    Backward = { Distance = 20, Duration = 0.12 },
-    Left = { Distance = 20, Duration = 0.12 },
-    Right = { Distance = 20, Duration = 0.12 },
-    ForwardLeft = { Distance = 20, Duration = 0.12 },
-    ForwardRight = { Distance = 20, Duration = 0.12 },
-    BackwardLeft = { Distance = 20, Duration = 0.12 },
-    BackwardRight = { Distance = 20, Duration = 0.12 },
+    Forward = { Distance = 20, Duration = 0.22 },
+    Backward = { Distance = 20, Duration = 0.22 },
+    Left = { Distance = 20, Duration = 0.22 },
+    Right = { Distance = 20, Duration = 0.22 },
+    ForwardLeft = { Distance = 20, Duration = 0.22 },
+    ForwardRight = { Distance = 20, Duration = 0.22 },
+    BackwardLeft = { Distance = 20, Duration = 0.22 },
+    BackwardRight = { Distance = 20, Duration = 0.22 },
 }
 
 return DashConfig
