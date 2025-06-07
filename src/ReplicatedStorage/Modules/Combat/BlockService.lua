@@ -33,7 +33,10 @@ function BlockService.IsInStartup(player)
 end
 
 function BlockService.GetBlockHP(player)
-        return BlockHP[player] or PlayerStats.BlockHP
+       if TekkaiService.IsActive(player) then
+               return TekkaiService.GetHP(player)
+       end
+       return BlockHP[player] or PlayerStats.BlockHP
 end
 
 function BlockService.GetPerfectBlockStunDuration()
