@@ -19,17 +19,21 @@ HakiEvent.OnServerEvent:Connect(function(player, enable)
     if typeof(enable) ~= "boolean" then return end
     if pending[player] then return end
     pending[player] = true
+
+    if enable then
+        if not HakiService.Toggle(player, true) then
+            HakiEvent:FireClient(player, false)
+            pending[player] = nil
+            return
+        end
+    else
+        HakiService.Toggle(player, false)
+    end
+
+    broadcastState(player)
+
     task.delay(1, function()
         pending[player] = nil
-        if enable then
-            if not HakiService.Toggle(player, true) then
-                HakiEvent:FireClient(player, false)
-                return
-            end
-        else
-            HakiService.Toggle(player, false)
-        end
-        broadcastState(player)
     end)
 end)
 
