@@ -188,7 +188,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
                 end
             end
 
-            continue
+            -- fallthrough to apply damage on block break
         end
 
         enemyHumanoid:TakeDamage(PowerPunchConfig.Damage)

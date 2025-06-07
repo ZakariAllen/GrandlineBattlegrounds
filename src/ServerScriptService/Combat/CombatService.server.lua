@@ -138,7 +138,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                         if soundId then
                                 SoundUtils:PlaySpatialSound(soundId, hrp)
                         end
-                        continue
+                        -- fallthrough to apply damage on block break
                 end
 
 		-- ✅ Deal damage and apply stun

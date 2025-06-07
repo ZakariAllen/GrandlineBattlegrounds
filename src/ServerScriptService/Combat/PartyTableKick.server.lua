@@ -174,7 +174,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             if soundId then
                 SoundUtils:PlaySpatialSound(soundId, hrp)
             end
-            continue
+            -- fallthrough to apply damage on block break
         end
 
         enemyHumanoid:TakeDamage(cfg.DamagePerHit)

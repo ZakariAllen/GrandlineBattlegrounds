@@ -160,7 +160,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
                 -- reserved for potential future effects
             end
 
-            continue
+            -- fallthrough to apply damage on block break
         end
 
         enemyHumanoid:TakeDamage(PowerKickConfig.Damage)
