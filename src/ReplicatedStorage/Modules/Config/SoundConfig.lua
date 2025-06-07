@@ -8,11 +8,16 @@ local SoundConfig = {
 			Miss = "rbxassetid://135883654541622",
 		},
 
-		BlackLeg = {
-			Hit = "rbxassetid://122809552011508",
-			Miss = "rbxassetid://135883654541622",
-		},
-	},
+                BlackLeg = {
+                        Hit = "rbxassetid://122809552011508",
+                        Miss = "rbxassetid://135883654541622",
+                },
+
+                Rokushiki = {
+                        Hit = "rbxassetid://9117969717",
+                        Miss = "rbxassetid://135883654541622",
+                },
+        },
 
 	Blocking = {
 		-- 🛡️ Shared blocking sounds

@@ -29,6 +29,7 @@ hotbar.Parent = PlayerGui
 
 local basicButton = hotbar:WaitForChild("BasicCombat")
 local blackButton = hotbar:WaitForChild("BlackLeg")
+local rokuButton = hotbar:FindFirstChild("Rokushiki")
 
 -- Display only the button for the player's current tool
 local function updateVisibleButton()
@@ -39,9 +40,14 @@ local function updateVisibleButton()
         or (character and character:FindFirstChild("BasicCombat"))
     local hasBlack = (backpack and backpack:FindFirstChild("BlackLeg"))
         or (character and character:FindFirstChild("BlackLeg"))
+    local hasRoku = rokuButton and ((backpack and backpack:FindFirstChild("Rokushiki"))
+        or (character and character:FindFirstChild("Rokushiki")))
 
     basicButton.Visible = not not hasBasic
     blackButton.Visible = not not hasBlack
+    if rokuButton then
+        rokuButton.Visible = not not hasRoku
+    end
 end
 
 updateVisibleButton()
@@ -111,6 +117,12 @@ hotbar:WaitForChild("BlackLeg").MouseButton1Click:Connect(function()
     toggleTool("BlackLeg")
 end)
 
+if rokuButton then
+    rokuButton.MouseButton1Click:Connect(function()
+        toggleTool("Rokushiki")
+    end)
+end
+
 -- Pressing 1 equips the first available tool, mirroring the default behaviour
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
@@ -119,6 +131,9 @@ UserInputService.InputBegan:Connect(function(input, gp)
         local preferred = "BasicCombat"
         if not backpack:FindFirstChild(preferred) and not (player.Character and player.Character:FindFirstChild(preferred)) then
             preferred = "BlackLeg"
+            if not backpack:FindFirstChild(preferred) and not (player.Character and player.Character:FindFirstChild(preferred)) then
+                preferred = "Rokushiki"
+            end
         end
         toggleTool(preferred)
     end
