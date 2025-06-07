@@ -6,7 +6,9 @@ local DashModule = {}
 local activeDashes = {}
 
 -- Called when a dash is requested (just mark dash state & lock autorotate for side/back/diagonal-back)
-function DashModule.ExecuteDash(player, direction, dashVector)
+-- styleKey specifies the equipped combat style, e.g. "Rokushiki". It allows
+-- style-specific dash behaviour such as different durations.
+function DashModule.ExecuteDash(player, direction, dashVector, styleKey)
 	if activeDashes[player] then
 		-- Already dashing, ignore
 		return
@@ -27,8 +29,12 @@ function DashModule.ExecuteDash(player, direction, dashVector)
 		humanoid.AutoRotate = false
 	end
 
-	local dashSettings = DashConfig.Settings[direction] or DashConfig.Settings["Forward"]
-	local duration = dashSettings and dashSettings.Duration or 0.25
+        local dashSet = DashConfig.Settings
+        if styleKey == "Rokushiki" then
+                dashSet = DashConfig.RokuSettings
+        end
+        local dashSettings = dashSet[direction] or dashSet["Forward"]
+        local duration = dashSettings and dashSettings.Duration or 0.25
 
 	-- End dash after duration, unlock autorotate if needed
 	task.delay(duration, function()

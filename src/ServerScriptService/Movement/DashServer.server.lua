@@ -10,6 +10,7 @@ local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 
 local validDirections = {
 	Forward = true,
@@ -36,11 +37,19 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
        end
        if not StaminaService.Consume(player, 10) then return end
 
+       local char = player.Character
+       local tool = char and char:FindFirstChildOfClass("Tool")
+       if not tool or not ToolConfig.ValidCombatTools[tool.Name] then
+               return
+       end
+
+       local equippedStyle = tool.Name:gsub(" ", "")
+
        -- Always forward dashVector to the DashModule (module handles all logic now)
-       DashModule.ExecuteDash(player, direction, dashVector)
+       DashModule.ExecuteDash(player, direction, dashVector, equippedStyle)
 
        -- Notify all clients so they can play VFX/SFX for this dash
-       DashEvent:FireAllClients(player, direction)
+       DashEvent:FireAllClients(player, direction, equippedStyle)
 end)
 
 print("[DashServer] Ready")
