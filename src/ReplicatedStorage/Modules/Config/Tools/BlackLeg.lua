@@ -25,7 +25,7 @@ local BlackLeg = {
     },
     PowerKick = {
         Damage = 50,
-        StunDuration = 2.0,
+        StunDuration = 1.5,
         Startup = 0.4,
         HyperArmor = false,
         GuardBreak = true,

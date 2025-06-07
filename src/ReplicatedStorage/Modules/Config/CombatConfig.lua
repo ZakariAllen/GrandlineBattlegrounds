@@ -5,12 +5,12 @@ local CombatConfig = {}
 CombatConfig.M1 = {
 	ComboHits = 5,
 	DelayBetweenHits = 0.3,
-	ComboResetTime = 1.8,
-	ComboCooldown = 2.2,
+	ComboResetTime = 2,
+	ComboCooldown = 2,
 
 	HitDelay = 0.12, -- Delay before damage applies after animation starts
-	M1StunDuration = 0.65,
-	M1_5StunDuration = 2.0,
+	M1StunDuration = 0.5,
+	M1_5StunDuration = 1.5,
 
 	KnockbackDistance = 25,
 	KnockbackDuration = 0.4,

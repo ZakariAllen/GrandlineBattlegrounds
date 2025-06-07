@@ -1,7 +1,7 @@
 local BasicCombat = {
     PowerPunch = {
         Damage = 120,
-        StunDuration = 2.0,
+        StunDuration = 1.5,
         Startup = 1.0,
         HyperArmor = true,
         GuardBreak = true,
