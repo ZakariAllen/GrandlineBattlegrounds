@@ -99,7 +99,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	if not humanoid or not hrp then return end
 
         local tool = char:FindFirstChildOfClass("Tool")
-        local styleKey = (tool and tool.Name or "Basic Combat"):gsub(" ", "")
+        local styleKey = (tool and tool.Name or "BasicCombat"):gsub(" ", "")
         local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or CombatConfig.M1.DefaultM1Damage
 
         local hitLanded = false
