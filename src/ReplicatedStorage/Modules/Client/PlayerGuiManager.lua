@@ -5,6 +5,7 @@ local PlayerGuiManager = {}
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
 local player = Players.LocalPlayer
@@ -13,12 +14,16 @@ local PlayerGui = player:WaitForChild("PlayerGui")
 local screenGui
 local healthBar
 local staminaBar
+local hakiBar
 local healthText
 local staminaText
+local hakiText
 local baseSize
 local staminaBase
+local hakiBase
 local connection
 local staminaConnection
+local hakiConnection
 
 -- Clone the existing PlayerGUI from ReplicatedStorage.Assets
 local function ensureGui()
@@ -40,17 +45,27 @@ local function ensureGui()
     -- being contained under an extra "GUI" frame
     local hpFrame = screenGui:WaitForChild("HP")
     local stamFrame = screenGui:WaitForChild("Stam")
+    local hakiFrame = screenGui:FindFirstChild("Haki")
 
     healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
     staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
+    if hakiFrame then
+        hakiBar = hakiFrame:WaitForChild("Middle"):WaitForChild("HakiBar")
+    end
 
     healthText = hpFrame:FindFirstChild("Value")
     staminaText = stamFrame:FindFirstChild("Value")
+    if hakiFrame then
+        hakiText = hakiFrame:FindFirstChild("Value")
+    end
     if not baseSize then
         baseSize = healthBar.Size
     end
     if not staminaBase then
         staminaBase = staminaBar.Size
+    end
+    if hakiBar and not hakiBase then
+        hakiBase = hakiBar.Size
     end
 end
 
@@ -126,6 +141,42 @@ function PlayerGuiManager.BindStamina(staminaValue)
 
     update()
     staminaConnection = staminaValue.Changed:Connect(update)
+    if maxVal then
+        maxVal.Changed:Connect(update)
+    end
+end
+
+function PlayerGuiManager.BindHaki(hakiValue)
+    if hakiConnection then
+        hakiConnection:Disconnect()
+        hakiConnection = nil
+    end
+
+    if not hakiValue then return end
+
+    ensureGui()
+
+    local parent = hakiValue.Parent
+    local maxVal = parent and parent:FindFirstChild("MaxHaki")
+
+    local function update()
+        if not hakiBase or not hakiBar then return end
+        local max = maxVal and maxVal.Value or HakiService and HakiService.DEFAULT_MAX or 240
+        local ratio = math.clamp(hakiValue.Value / max, 0, 1)
+        hakiBar.Size = UDim2.new(
+            hakiBase.X.Scale * ratio,
+            hakiBase.X.Offset * ratio,
+            hakiBase.Y.Scale,
+            hakiBase.Y.Offset
+        )
+
+        if hakiText then
+            hakiText.Text = string.format("%d / %d", math.floor(hakiValue.Value), math.floor(max))
+        end
+    end
+
+    update()
+    hakiConnection = hakiValue.Changed:Connect(update)
     if maxVal then
         maxVal.Changed:Connect(update)
     end
