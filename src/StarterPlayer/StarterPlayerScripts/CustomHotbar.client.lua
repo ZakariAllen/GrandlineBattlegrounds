@@ -1,3 +1,11 @@
+
+--[[
+    This hotbar only changes the visual interface. The actual Tool
+    instances in the Backpack still control equipping, unequipping and
+    LocalScript execution. Buttons simply move Tools between the Backpack
+    and Character just like the default Roblox hotbar.
+]]
+
 -- StarterPlayerScripts > CustomHotbar
 
 local Players = game:GetService("Players")
@@ -37,17 +45,36 @@ local function updateVisibleButton()
 end
 
 updateVisibleButton()
-player.CharacterAdded:Connect(function()
+local function connectCharacter(char)
+    char.ChildAdded:Connect(function(child)
+        if child:IsA("Tool") then
+            updateVisibleButton()
+        end
+    end)
+    char.ChildRemoved:Connect(function(child)
+        if child:IsA("Tool") then
+            updateVisibleButton()
+        end
+    end)
+end
+
+player.CharacterAdded:Connect(function(char)
     task.wait(0.1)
+    connectCharacter(char)
     updateVisibleButton()
 end)
+
+if player.Character then
+    connectCharacter(player.Character)
+end
 
 player:WaitForChild("Backpack").ChildAdded:Connect(updateVisibleButton)
 player.Backpack.ChildRemoved:Connect(updateVisibleButton)
 
 print("[CustomHotbar] Initialized")
 
--- Helper to equip/unequip a tool just like the default hotbar
+-- Moving tools between Backpack and Character ensures Roblox still
+-- runs any LocalScripts and animations associated with the Tool.
 local function toggleTool(toolName)
     local backpack = player:WaitForChild("Backpack")
     local character = player.Character or player.CharacterAdded:Wait()
