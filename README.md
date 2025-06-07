@@ -4,18 +4,15 @@ This project contains the core scripts and modules for the game. To ensure all r
 
 Several core server scripts emit initialization messages to the output so you can confirm they are running.
 
-## Hitbox Configuration
+## Move Configuration
 
-Hitbox sizes, offsets, durations and shapes for each move are defined in
-`ReplicatedStorage/Modules/Config/MoveHitboxConfig.lua`. Adjust the values in
-that module to tweak hitboxes without editing the move scripts themselves.
-
-## Move Settings
-
-Move settings such as damage, stun duration and cooldown are defined in
-`ReplicatedStorage/Modules/Config/AbilityConfig.lua` under each combat style.
-For example, Party Table Kick's values live at `AbilityConfig.BlackLeg.PartyTableKick`
-and Power Punch uses `AbilityConfig.BasicCombat.PowerPunch`.
+Each combat tool now has a dedicated module under
+`ReplicatedStorage/Modules/Config/Tools`. These tool modules contain every
+setting for their moves including hitboxes and sound asset IDs. The legacy
+files `AbilityConfig.lua`, `MoveHitboxConfig.lua` and `MoveSoundConfig.lua`
+simply return values from these tool modules. For example,
+`Tools/BlackLeg.lua` defines both `PartyTableKick` and `PowerKick` in a single
+table.
 
 ### Knockback Types
 
