@@ -13,6 +13,7 @@ print("[CombatService] Loaded")
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
+local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 
@@ -142,8 +143,9 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 end
 
 		-- ✅ Deal damage and apply stun
-		enemyHumanoid:TakeDamage(damage)
-		hitLanded = true
+                enemyHumanoid:TakeDamage(damage)
+                DamageText.Show(enemyHumanoid, damage)
+                hitLanded = true
 
                 local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration
                 StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, isFinal)
