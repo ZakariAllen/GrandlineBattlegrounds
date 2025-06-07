@@ -50,6 +50,13 @@ function Teleport.OnInputBegan(input, gp)
         pos = hrp.Position + delta
     end
 
+    -- Move the character locally first so the server update isn't overwritten
+    -- by client-side physics when the player is in motion. The server will
+    -- validate the request and replicate the same position back to all clients.
+    hrp.CFrame = CFrame.new(pos)
+    local vel = hrp.AssemblyLinearVelocity
+    hrp.AssemblyLinearVelocity = Vector3.new(0, vel.Y, 0)
+
     TeleportEvent:FireServer(pos)
 
     local sfx = TeleportConfig.Sound and TeleportConfig.Sound.Use

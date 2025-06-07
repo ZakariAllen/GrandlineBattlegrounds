@@ -15,6 +15,7 @@ local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
@@ -178,8 +179,12 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             -- fallthrough to apply damage on block break
         end
 
-        enemyHumanoid:TakeDamage(cfg.DamagePerHit)
-        DamageText.Show(enemyHumanoid, cfg.DamagePerHit)
+        local dmg = cfg.DamagePerHit
+        if HakiService.IsActive(player) then
+            dmg *= 1.025
+        end
+        enemyHumanoid:TakeDamage(dmg)
+        DamageText.Show(enemyHumanoid, dmg)
         hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration

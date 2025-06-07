@@ -26,12 +26,16 @@ local SoundConfig = {
 		BlockBreak = "rbxassetid://72374553050886",
 	},
 
-	Movement = {
-		-- 🌀 Movement sounds
-		Dash = "rbxassetid://84275983410258",
-		Walk = "rbxassetid://YOUR_WALK_SOUND_ID",
-		Sprint = "rbxassetid://YOUR_SPRINT_SOUND_ID",
-	},
+        Movement = {
+                -- 🌀 Movement sounds
+                Dash = "rbxassetid://84275983410258",
+                Walk = "rbxassetid://YOUR_WALK_SOUND_ID",
+                Sprint = "rbxassetid://YOUR_SPRINT_SOUND_ID",
+        },
+
+        Haki = {
+                Activate = "rbxassetid://122809552011508",
+        },
 
 	UI = {
 		-- 🖱️ UI interaction sounds
