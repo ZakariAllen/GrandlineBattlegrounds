@@ -5,7 +5,7 @@ DashConfig.Cooldown = 2
 DashConfig.SoundId = "rbxassetid://72014632956520"  -- Replace with your dash SFX asset id
 
 -- Duration that characters stay invisible when performing the Rokushiki dash
-DashConfig.RokuInvisDuration = 0.12
+DashConfig.RokuInvisDuration = 0.22
 
 DashConfig.Settings = {
 	Forward = {
