@@ -22,12 +22,10 @@ local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
         part.CFrame = hrp.CFrame * offsetCFrame
         if shape == "Cylinder" then
                 part.Shape = Enum.PartType.Cylinder
-                -- Cylinder hitboxes should be oriented vertically so the client
-                -- hit detection matches the visual. The previous 90 degree
-                -- rotation caused the hitbox to lie on its side, leading to
-                -- mismatches between the visual cylinder and the math used for
-                -- overlap checks.
-                part.Orientation = Vector3.new(0, 0, 0)
+                -- Rotate the cylinder 90 degrees for a flat disc effect.
+                -- The hit detection code now handles arbitrary orientation
+                -- using local space calculations.
+                part.Orientation = Vector3.new(0, 0, 90)
         end
         part.Anchored = false
         part.CanCollide = false
@@ -154,10 +152,10 @@ function HitboxClient.CastHitbox(
                         if humanoid and otherPlayer and otherPlayer ~= player then
                                 local newHit = false
                                 if shape == "Cylinder" then
-                                        local pos = part.Position
-                                        local dx = pos.X - center.X
-                                        local dz = pos.Z - center.Z
-                                        if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(pos.Y - center.Y) <= height * 0.5 then
+                                        local rel = hitbox.CFrame:PointToObjectSpace(part.Position)
+                                        local dx = rel.X
+                                        local dz = rel.Z
+                                        if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(rel.Y) <= height * 0.5 then
                                                 newHit = true
                                         end
                                 else
