@@ -92,6 +92,9 @@ end
 -- 🕹️ Route all input through controllers
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
         local typing = typingInChat or UserInputService:GetFocusedTextBox() ~= nil
+        if typing then
+                return
+        end
         gameProcessed = gameProcessed or typing
         if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
                 print("[InputController] InputBegan:", input.KeyCode.Name, "GP:", gameProcessed)
@@ -109,6 +112,9 @@ end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
         local typing = typingInChat or UserInputService:GetFocusedTextBox() ~= nil
+        if typing then
+                return
+        end
         gameProcessed = gameProcessed or typing
         if DEBUG and input.UserInputType == Enum.UserInputType.Keyboard then
                 print("[InputController] InputEnded:", input.KeyCode.Name, "GP:", gameProcessed)
