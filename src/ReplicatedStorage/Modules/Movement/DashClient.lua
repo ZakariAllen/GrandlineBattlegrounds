@@ -17,11 +17,23 @@ local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 
 local lastDashTime = 0
 local DASH_KEY = Enum.KeyCode.Q
 local currentTrack = nil
 local dashConn = nil
+
+-- Utility used for RokuDash to hide or show a character model
+local function setCharacterInvisible(character, invisible)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") or part:IsA("Decal") then
+            part.Transparency = invisible and 1 or 0
+        elseif part:IsA("ParticleEmitter") or part:IsA("Trail") then
+            part.Enabled = not invisible
+        end
+    end
+end
 
 local function getCharacterComponents()
 	local character = player.Character
@@ -93,24 +105,42 @@ function DashClient.OnInputBegan(input, gameProcessed)
 
     if tick() - lastDashTime < DashConfig.Cooldown then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
+    if not ToolController.IsValidCombatTool() then return end
     if StaminaService.GetStamina(player) < 10 then return end
 
-	local direction, dashVector = getDashInputAndVector()
-	if not direction or not dashVector then return end
+        local direction, dashVector = getDashInputAndVector()
+        if not direction or not dashVector then return end
+
+        local styleKey = ToolController.GetEquippedStyleKey()
 
         lastDashTime = tick()
         playDashAnimation(direction)
 
-        local _, humanoid, _, hrp = getCharacterComponents()
+        local character, humanoid, _, hrp = getCharacterComponents()
         if hrp then
                 if DashConfig.SoundId and DashConfig.SoundId ~= "" then
                         SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
                 end
                 DashVFX:PlayDashEffect(direction, hrp)
         end
-	local dashSettings = DashConfig.Settings[direction] or DashConfig.Settings["Forward"]
-	local duration = dashSettings.Duration
-	local distance = dashSettings.Distance
+        if styleKey == "Rokushiki" and character then
+                setCharacterInvisible(character, true)
+        end
+        local dashSet = DashConfig.Settings
+        if styleKey == "Rokushiki" then
+                dashSet = DashConfig.RokuSettings
+        end
+        local dashSettings = dashSet[direction] or dashSet["Forward"]
+        local duration = dashSettings.Duration
+        local distance = dashSettings.Distance
+
+        if styleKey == "Rokushiki" and character then
+                task.delay(duration, function()
+                        if character then
+                                setCharacterInvisible(character, false)
+                        end
+                end)
+        end
 
 	local dashSpeed = distance / duration
 
@@ -158,12 +188,12 @@ function DashClient.OnInputBegan(input, gameProcessed)
 		end)
 	end
 
-	-- Notify server for validation (state only)
-        DashEvent:FireServer(direction, dashVector)
+        -- Notify server for validation (state only)
+        DashEvent:FireServer(direction, dashVector, styleKey)
 end
 
 -- Play dash VFX/SFX when another player dashes
-DashEvent.OnClientEvent:Connect(function(dashPlayer, direction)
+DashEvent.OnClientEvent:Connect(function(dashPlayer, direction, styleKey)
         if dashPlayer == player then return end
         if typeof(direction) ~= "string" then return end
 
@@ -175,6 +205,17 @@ DashEvent.OnClientEvent:Connect(function(dashPlayer, direction)
                 SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
         end
         DashVFX:PlayDashEffect(direction, hrp)
+
+        if styleKey == "Rokushiki" and char then
+                setCharacterInvisible(char, true)
+                local dashSet = DashConfig.RokuSettings
+                local dur = dashSet[direction] and dashSet[direction].Duration or dashSet.Forward.Duration
+                task.delay(dur, function()
+                        if char then
+                                setCharacterInvisible(char, false)
+                        end
+                end)
+        end
 end)
 
 function DashClient.OnInputEnded() end
