@@ -113,13 +113,22 @@ function DashClient.OnInputBegan(input, gameProcessed)
 
     if tick() - lastDashTime < DashConfig.Cooldown then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
-    if not ToolController.IsValidCombatTool() then return end
+    -- Basic dashing should be available even when no tool is equipped. We only
+    -- restrict dashing if a tool is equipped and specifically disallowed by the
+    -- game (none at the moment). The style key will determine if any special
+    -- dash settings apply.
     if StaminaService.GetStamina(player) < 10 then return end
 
         local direction, dashVector = getDashInputAndVector()
         if not direction or not dashVector then return end
 
+        -- Only the Rokushiki tool changes the dash behaviour. Any other tool
+        -- (or no tool) should result in a normal dash, so we ignore the style
+        -- key unless it is explicitly Rokushiki.
         local styleKey = ToolController.GetEquippedStyleKey()
+        if styleKey ~= "Rokushiki" then
+                styleKey = nil
+        end
 
         lastDashTime = tick()
         playDashAnimation(direction)

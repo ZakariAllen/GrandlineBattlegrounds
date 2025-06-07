@@ -10,7 +10,6 @@ local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
-local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 
 local validDirections = {
 	Forward = true,
@@ -39,11 +38,14 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
 
        local char = player.Character
        local tool = char and char:FindFirstChildOfClass("Tool")
-       if not tool or not ToolConfig.ValidCombatTools[tool.Name] then
-               return
-       end
 
-       local equippedStyle = tool.Name
+       -- Allow dashing even when no tool is equipped. Only the Rokushiki tool
+       -- modifies dash behaviour, so styleKey is nil unless that tool is
+       -- equipped.
+       local equippedStyle = nil
+       if tool and tool.Name == "Rokushiki" then
+               equippedStyle = "Rokushiki"
+       end
 
        -- Always forward dashVector to the DashModule (module handles all logic now)
        DashModule.ExecuteDash(player, direction, dashVector, equippedStyle)
