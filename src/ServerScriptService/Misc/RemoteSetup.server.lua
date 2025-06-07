@@ -47,6 +47,7 @@ ensureEvent(combat, "PowerKickHit")
 local movement = ensureFolder(remotes, "Movement")
 ensureEvent(movement, "DashEvent")
 ensureEvent(movement, "SprintStateEvent")
+ensureEvent(movement, "TeleportEvent")
 
 -- Stun events
 local stun = ensureFolder(remotes, "Stun")
