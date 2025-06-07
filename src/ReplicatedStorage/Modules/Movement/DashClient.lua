@@ -28,7 +28,11 @@ local dashConn = nil
 local function setCharacterInvisible(character, invisible)
     for _, obj in ipairs(character:GetDescendants()) do
         if obj:IsA("BasePart") or obj:IsA("Decal") then
-            obj.Transparency = invisible and 1 or 0
+            if obj.Name == "HumanoidRootPart" then
+                obj.Transparency = 1
+            else
+                obj.Transparency = invisible and 1 or 0
+            end
         elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
             obj.Enabled = not invisible
         elseif obj:IsA("BillboardGui") or obj:IsA("SurfaceGui") then
