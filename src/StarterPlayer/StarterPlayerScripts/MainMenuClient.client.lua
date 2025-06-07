@@ -109,6 +109,10 @@ local function spawnAndFollow(toolName)
         if stam then
                 PlayerGuiManager.BindStamina(stam)
         end
+        local hakiVal = player:FindFirstChild("Haki") or player:WaitForChild("Haki", 5)
+        if hakiVal then
+                PlayerGuiManager.BindHaki(hakiVal)
+        end
         PlayerGuiManager.Show()
 
 	local camera = workspace.CurrentCamera

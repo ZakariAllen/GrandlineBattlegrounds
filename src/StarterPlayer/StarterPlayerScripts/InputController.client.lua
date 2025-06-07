@@ -27,6 +27,7 @@ local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
+local HakiClient = require(ReplicatedStorage.Modules.Combat.HakiClient)
 
 local MovesFolder = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Combat"):WaitForChild("Moves")
 local Moves = require(MovesFolder:WaitForChild("MovesConfig"))
@@ -102,6 +103,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         M1InputClient.OnInputBegan(input, gameProcessed)
         DashClient.OnInputBegan(input, gameProcessed)
         BlockClient.OnInputBegan(input, gameProcessed)
+        HakiClient.OnInputBegan(input, gameProcessed)
         MovementClient.OnInputBegan(input, gameProcessed)
         for _, move in ipairs(Moves) do
                 if move.OnInputBegan then
@@ -122,6 +124,7 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
         M1InputClient.OnInputEnded(input, gameProcessed)
         DashClient.OnInputEnded(input, gameProcessed)
         BlockClient.OnInputEnded(input, gameProcessed)
+        HakiClient.OnInputEnded(input, gameProcessed)
         MovementClient.OnInputEnded(input, gameProcessed)
         for _, move in ipairs(Moves) do
                 if move.OnInputEnded then

@@ -20,6 +20,7 @@ local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
+local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -192,9 +193,13 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             -- fallthrough to apply damage on block break
         end
 
-        enemyHumanoid:TakeDamage(PowerPunchConfig.Damage)
-        DamageText.Show(enemyHumanoid, PowerPunchConfig.Damage)
-        if DEBUG then print("[PowerPunch] Hit", enemyPlayer.Name, "for", PowerPunchConfig.Damage) end
+        local dmg = PowerPunchConfig.Damage
+        if HakiService.IsActive(player) then
+            dmg *= 1.025
+        end
+        enemyHumanoid:TakeDamage(dmg)
+        DamageText.Show(enemyHumanoid, dmg)
+        if DEBUG then print("[PowerPunch] Hit", enemyPlayer.Name, "for", dmg) end
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
 

@@ -16,6 +16,7 @@ local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -101,7 +102,10 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 
         local tool = char:FindFirstChildOfClass("Tool")
        local styleKey = tool and tool.Name or "BasicCombat"
-        local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or CombatConfig.M1.DefaultM1Damage
+       local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or CombatConfig.M1.DefaultM1Damage
+       if HakiService.IsActive(player) then
+               damage *= 1.025
+       end
 
         local hitLanded = false
         local blockHit = false
