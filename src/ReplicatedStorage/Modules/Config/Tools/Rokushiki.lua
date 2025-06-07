@@ -26,6 +26,10 @@ local Rokushiki = {
             Hit = "rbxassetid://9117969717",
         },
     },
+    Tekkai = {
+        BlockHP = 750,
+        StaminaDrain = 10,
+    },
 }
 
 return Rokushiki
