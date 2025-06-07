@@ -13,17 +13,24 @@ local function broadcastState(player)
     HakiEvent:FireAllClients(player, active)
 end
 
+local pending = {}
+
 HakiEvent.OnServerEvent:Connect(function(player, enable)
     if typeof(enable) ~= "boolean" then return end
-    if enable then
-        if not HakiService.Toggle(player, true) then
-            HakiEvent:FireClient(player, false)
-            return
+    if pending[player] then return end
+    pending[player] = true
+    task.delay(1, function()
+        pending[player] = nil
+        if enable then
+            if not HakiService.Toggle(player, true) then
+                HakiEvent:FireClient(player, false)
+                return
+            end
+        else
+            HakiService.Toggle(player, false)
         end
-    else
-        HakiService.Toggle(player, false)
-    end
-    broadcastState(player)
+        broadcastState(player)
+    end)
 end)
 
 RunService.Heartbeat:Connect(function()

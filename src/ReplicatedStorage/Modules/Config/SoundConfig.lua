@@ -34,7 +34,7 @@ local SoundConfig = {
         },
 
         Haki = {
-                Activate = "rbxassetid://122809552011508",
+                Activate = "rbxassetid://979751563",
         },
 
 	UI = {
