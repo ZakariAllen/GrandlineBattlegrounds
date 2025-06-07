@@ -24,6 +24,9 @@ local DASH_KEY = Enum.KeyCode.Q
 local currentTrack = nil
 local dashConn = nil
 
+-- Store original Enabled states for Gui objects so we can restore them
+local originalGuiState = setmetatable({}, {__mode = "k"})
+
 -- Utility used for RokuDash to hide or show a character model
 local function setCharacterInvisible(character, invisible, owner)
     for _, obj in ipairs(character:GetDescendants()) do
@@ -36,7 +39,15 @@ local function setCharacterInvisible(character, invisible, owner)
         elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
             obj.Enabled = not invisible
         elseif obj:IsA("BillboardGui") or obj:IsA("SurfaceGui") then
-            obj.Enabled = not invisible
+            if invisible then
+                -- Remember previous state so it can be restored later
+                originalGuiState[obj] = obj.Enabled
+                obj.Enabled = false
+            else
+                local prev = originalGuiState[obj]
+                obj.Enabled = prev ~= nil and prev or obj.Enabled
+                originalGuiState[obj] = nil
+            end
             if not invisible and owner and obj:IsA("BillboardGui") then
                 pcall(function()
                     obj.PlayerToHideFrom = owner
