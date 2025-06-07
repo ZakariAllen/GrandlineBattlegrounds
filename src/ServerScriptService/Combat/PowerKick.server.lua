@@ -12,6 +12,7 @@ local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
+local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
@@ -164,6 +165,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         end
 
         enemyHumanoid:TakeDamage(PowerKickConfig.Damage)
+        DamageText.Show(enemyHumanoid, PowerKickConfig.Damage)
         if DEBUG then print("[PowerKick] Hit", enemyPlayer.Name, "for", PowerKickConfig.Damage) end
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
