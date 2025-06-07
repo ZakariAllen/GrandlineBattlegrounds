@@ -8,8 +8,8 @@ local ButtonCfg = {
 		{ Name = "4 - Settings",  Image = "rbxassetid://YOUSETTINGS_IMG", ImageColor = Color3.fromRGB(255,255,255), HoverColor = Color3.fromRGB(200,255,200) }
 	},
 	Selection = {
-		{ Name = "1 - Basic Combat", Image = "rbxassetid://128114491023651", ImageColor = Color3.fromRGB(255,255,255), HoverColor = Color3.fromRGB(200,255,255) },
-		{ Name = "2 - Black Leg",    Image = "rbxassetid://135812261993733", ImageColor = Color3.fromRGB(255,255,255), HoverColor = Color3.fromRGB(255,200,255) },
+                { Name = "1 - BasicCombat", Image = "rbxassetid://128114491023651", ImageColor = Color3.fromRGB(255,255,255), HoverColor = Color3.fromRGB(200,255,255) },
+                { Name = "2 - BlackLeg",    Image = "rbxassetid://135812261993733", ImageColor = Color3.fromRGB(255,255,255), HoverColor = Color3.fromRGB(255,200,255) },
 		-- Add more as needed!
 	},
 	Shop = {

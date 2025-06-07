@@ -3,8 +3,8 @@
 local ToolConfig = {}
 
 ToolConfig.ValidCombatTools = {
-	["Basic Combat"] = true,
-	["Black Leg"] = true,
+        ["BasicCombat"] = true,
+        ["BlackLeg"] = true,
 	-- Add more tools here
 }
 

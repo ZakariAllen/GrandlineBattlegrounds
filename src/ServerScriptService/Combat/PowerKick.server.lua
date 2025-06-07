@@ -73,7 +73,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         return
     end
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Black Leg" then
+    if not tool or tool.Name ~= "BlackLeg" then
         if DEBUG then print("[PowerKick] Invalid tool") end
         return
     end
@@ -101,7 +101,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Black Leg" then
+    if not tool or tool.Name ~= "BlackLeg" then
         if DEBUG then print("[PowerKick] Invalid tool during hit") end
         return
     end

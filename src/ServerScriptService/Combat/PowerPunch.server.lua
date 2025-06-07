@@ -81,7 +81,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         return
     end
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Basic Combat" then
+    if not tool or tool.Name ~= "BasicCombat" then
         if DEBUG then print("[PowerPunch] Invalid tool") end
         return
     end
@@ -110,7 +110,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     local tool = char:FindFirstChildOfClass("Tool")
-    if not tool or tool.Name ~= "Basic Combat" then
+    if not tool or tool.Name ~= "BasicCombat" then
         if DEBUG then print("[PowerPunch] Invalid tool during hit") end
         return
     end
