@@ -9,6 +9,7 @@ local MoveSoundConfig = {
     PowerPunch = Tools.BasicCombat.PowerPunch.Sound,
     PowerKick = Tools.BlackLeg.PowerKick.Sound,
     Teleport = Tools.Rokushiki.Teleport.Sound,
+    Shigan = Tools.Rokushiki.Shigan.Sound,
 }
 
 return MoveSoundConfig
