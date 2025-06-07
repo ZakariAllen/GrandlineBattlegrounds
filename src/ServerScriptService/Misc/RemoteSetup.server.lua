@@ -45,6 +45,7 @@ ensureEvent(combat, "PowerKickHit")
 ensureEvent(combat, "ShiganStart")
 ensureEvent(combat, "ShiganHit")
 ensureEvent(combat, "HakiEvent")
+ensureEvent(combat, "TekkaiEvent")
 
 -- Movement events
 local movement = ensureFolder(remotes, "Movement")
