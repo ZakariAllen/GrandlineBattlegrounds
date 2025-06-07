@@ -16,6 +16,7 @@ local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
+local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
@@ -178,6 +179,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
 
         enemyHumanoid:TakeDamage(cfg.DamagePerHit)
+        DamageText.Show(enemyHumanoid, cfg.DamagePerHit)
         hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration
