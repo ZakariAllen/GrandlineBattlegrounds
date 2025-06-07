@@ -50,7 +50,7 @@ function ToolController.SetEquippedTool(tool)
 
 	-- Equip new tool
 	if tool then
-		local styleKey = tool.Name:gsub(" ", "")
+            local styleKey = tool.Name
 		local styleConfig = ToolAnimations[styleKey]
 
 		equippedTool = tool

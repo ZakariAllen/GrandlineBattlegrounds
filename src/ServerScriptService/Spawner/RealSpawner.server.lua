@@ -13,10 +13,6 @@ local SpawnRequestEvent = SystemRemotes:WaitForChild("SpawnRequestEvent")
 local TOOLS_FOLDER = ReplicatedStorage:WaitForChild("Tools")
 local hasSpawned = require(script.Parent:WaitForChild("SpawnRegistry"))
 
-local function stripPrefix(name)
-	-- Removes "1 - " or "2 - " etc. from button name
-	return name:match("^%d+%s*%-[%s]*(.+)$") or name
-end
 
 local function getRandomSpawnPoint()
 	local map = Workspace:FindFirstChild("Map")
@@ -50,13 +46,9 @@ end
 local function spawnPlayerWithTool(player, toolName)
 	print("[RealSpawner] Spawn request from:", player.Name, "Tool:", toolName)
 
-	-- Remove prefix if present
-	local cleanedToolName = stripPrefix(toolName)
-	print("[RealSpawner] Cleaned tool name:", cleanedToolName)
-
-	local tool = TOOLS_FOLDER:FindFirstChild(cleanedToolName)
-	if not tool then
-		warn("[RealSpawner] Tool not found:", cleanedToolName)
+       local tool = TOOLS_FOLDER:FindFirstChild(toolName)
+       if not tool then
+               warn("[RealSpawner] Tool not found:", toolName)
 		return
 	end
 

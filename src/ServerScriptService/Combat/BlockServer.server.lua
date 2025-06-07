@@ -21,7 +21,7 @@ local function hasValidTool(player)
                return false
        end
 
-       local styleKey = tool.Name:gsub(" ", "")
+       local styleKey = tool.Name
        local stats = ToolConfig.ToolStats[styleKey]
        if stats and stats.AllowsBlocking == false then
                return false

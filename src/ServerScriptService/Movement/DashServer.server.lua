@@ -43,7 +43,7 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
                return
        end
 
-       local equippedStyle = tool.Name:gsub(" ", "")
+       local equippedStyle = tool.Name
 
        -- Always forward dashVector to the DashModule (module handles all logic now)
        DashModule.ExecuteDash(player, direction, dashVector, equippedStyle)
