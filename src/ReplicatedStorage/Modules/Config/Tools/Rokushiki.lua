@@ -1,9 +1,9 @@
 local Rokushiki = {
     Teleport = {
-        Cooldown = 10,
-        MaxDistance = 20,
+        Cooldown = 5,
+        MaxDistance = 25,
         Sound = {
-            Use = "rbxassetid://1234567890",
+            Use = "rbxassetid://105257107308215",
         },
     },
 }
