@@ -25,7 +25,7 @@ local currentTrack = nil
 local dashConn = nil
 
 -- Utility used for RokuDash to hide or show a character model
-local function setCharacterInvisible(character, invisible)
+local function setCharacterInvisible(character, invisible, owner)
     for _, obj in ipairs(character:GetDescendants()) do
         if obj:IsA("BasePart") or obj:IsA("Decal") then
             if obj.Name == "HumanoidRootPart" then
@@ -37,6 +37,11 @@ local function setCharacterInvisible(character, invisible)
             obj.Enabled = not invisible
         elseif obj:IsA("BillboardGui") or obj:IsA("SurfaceGui") then
             obj.Enabled = not invisible
+            if not invisible and owner and obj:IsA("BillboardGui") then
+                pcall(function()
+                    obj.PlayerToHideFrom = owner
+                end)
+            end
         elseif obj:IsA("Highlight") then
             obj.Enabled = not invisible
         end
@@ -141,7 +146,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
                 DashVFX:PlayDashEffect(direction, hrp)
         end
         if styleKey == "Rokushiki" and character then
-                setCharacterInvisible(character, true)
+                setCharacterInvisible(character, true, player)
         end
         local dashSet = DashConfig.Settings
         if styleKey == "Rokushiki" then
@@ -154,7 +159,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
         if styleKey == "Rokushiki" and character then
                 task.delay(DashConfig.RokuInvisDuration, function()
                         if character then
-                                setCharacterInvisible(character, false)
+                                setCharacterInvisible(character, false, player)
                         end
                 end)
         end
@@ -224,10 +229,10 @@ DashEvent.OnClientEvent:Connect(function(dashPlayer, direction, styleKey)
         DashVFX:PlayDashEffect(direction, hrp)
 
         if styleKey == "Rokushiki" and char then
-                setCharacterInvisible(char, true)
+                setCharacterInvisible(char, true, dashPlayer)
                 task.delay(DashConfig.RokuInvisDuration, function()
                         if char then
-                                setCharacterInvisible(char, false)
+                                setCharacterInvisible(char, false, dashPlayer)
                         end
                 end)
         end
