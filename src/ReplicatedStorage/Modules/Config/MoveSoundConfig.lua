@@ -1,15 +1,12 @@
+local Tools = {
+    BlackLeg = require(script.Parent.Tools.BlackLeg),
+    BasicCombat = require(script.Parent.Tools.BasicCombat),
+}
+
 local MoveSoundConfig = {
-    PartyTableKick = {
-        Hit = "rbxassetid://122809552011508",
-        Miss = "rbxassetid://135883654541622",
-        Loop = "rbxassetid://118537831520752",
-    },
-    PowerPunch = {
-        Hit = "rbxassetid://9117969717",
-    },
-    PowerKick = {
-        Hit = "rbxassetid://118765157785806",
-    },
+    PartyTableKick = Tools.BlackLeg.PartyTableKick.Sound,
+    PowerPunch = Tools.BasicCombat.PowerPunch.Sound,
+    PowerKick = Tools.BlackLeg.PowerKick.Sound,
 }
 
 return MoveSoundConfig

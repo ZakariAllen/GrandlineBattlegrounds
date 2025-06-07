@@ -1,3 +1,8 @@
+local Tools = {
+    BlackLeg = require(script.Parent.Tools.BlackLeg),
+    BasicCombat = require(script.Parent.Tools.BasicCombat),
+}
+
 local MoveHitboxConfig = {}
 
 MoveHitboxConfig.M1 = {
@@ -7,25 +12,8 @@ MoveHitboxConfig.M1 = {
     Shape = "Block",
 }
 
-MoveHitboxConfig.PartyTableKick = {
-    Size = Vector3.new(7, 8, 8),
-    Offset = CFrame.new(0, 0, 0),
-    Duration = 0.1,
-    Shape = "Cylinder",
-}
-
-MoveHitboxConfig.PowerPunch = {
-    Size = Vector3.new(6, 6, 6),
-    Offset = CFrame.new(0, 0, -3.5),
-    Duration = 0.2,
-    Shape = "Block",
-}
-
-MoveHitboxConfig.PowerKick = {
-    Size = Vector3.new(6, 6, 6),
-    Offset = CFrame.new(0, 0, -3.5),
-    Duration = 0.2,
-    Shape = "Block",
-}
+MoveHitboxConfig.PartyTableKick = Tools.BlackLeg.PartyTableKick.Hitbox
+MoveHitboxConfig.PowerPunch = Tools.BasicCombat.PowerPunch.Hitbox
+MoveHitboxConfig.PowerKick = Tools.BlackLeg.PowerKick.Hitbox
 
 return MoveHitboxConfig
