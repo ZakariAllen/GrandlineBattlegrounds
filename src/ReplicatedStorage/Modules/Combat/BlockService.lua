@@ -9,6 +9,7 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local OverheadBarService = require(ReplicatedStorage.Modules.UI.OverheadBarService)
+local TekkaiService = require(ReplicatedStorage.Modules.Combat.TekkaiService)
 
 -- Remotes
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -98,6 +99,10 @@ end
 -- Returns: "Perfect", "Damaged", "Broken", or nil (not blocking)
 -- @param isBlockBreaker boolean? whether the attack ignores blocking
 function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
+       if TekkaiService.IsActive(player) then
+               return TekkaiService.ApplyDamage(player, damage)
+       end
+
        if not BlockingPlayers[player] then return nil end
 
        local hp = BlockHP[player] or 0
@@ -132,6 +137,9 @@ end
 local function cleanup(player)
         BlockService.StopBlocking(player)
         BlockCooldowns[player] = nil
+        if TekkaiService.IsActive(player) then
+                TekkaiService.Stop(player)
+        end
 end
 
 Players.PlayerRemoving:Connect(cleanup)
