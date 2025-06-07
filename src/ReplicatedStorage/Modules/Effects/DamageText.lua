@@ -3,6 +3,7 @@
 local DamageText = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 
 local template
@@ -50,10 +51,24 @@ function DamageText.Show(target: Instance, amount: number)
     local label = gui:FindFirstChildOfClass("TextLabel")
     if label then
         label.Text = tostring(math.floor(amount))
+        label.TextTransparency = 0
+        label.TextStrokeTransparency = 0
     end
+
+    -- \u{1F4A5} Tween upward movement and fade out
+    local startOffset = gui.StudsOffset
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(gui, tweenInfo, {StudsOffset = startOffset + Vector3.new(0, 2, 0)}):Play()
+    if label then
+        TweenService:Create(label, tweenInfo, {
+            TextTransparency = 1,
+            TextStrokeTransparency = 1,
+        }):Play()
+    end
+
     gui.Parent = char
 
-    Debris:AddItem(gui, 1)
+    Debris:AddItem(gui, 1.05)
 end
 
 return DamageText
