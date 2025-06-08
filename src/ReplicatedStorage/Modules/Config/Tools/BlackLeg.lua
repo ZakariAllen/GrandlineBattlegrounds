@@ -43,6 +43,24 @@ local BlackLeg = {
             Hit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
         },
     },
+    Concasse = {
+        Damage = 75,
+        StunDuration = 1.5,
+        Startup = 0,
+        HyperArmor = false,
+        GuardBreak = false,
+        PerfectBlockable = true,
+        Endlag = 0,
+        HitboxDuration = 0.1,
+        Cooldown = 12,
+        Hitbox = {
+            Size = Vector3.new(8, 8, 8),
+            Offset = CFrame.new(0, 0, 0.0),
+            Duration = 0.1,
+            Shape = "Cylinder",
+        },
+        Sound = {},
+    },
 }
 
 return BlackLeg

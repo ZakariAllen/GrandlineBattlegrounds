@@ -8,6 +8,7 @@ local MoveSoundConfig = {
     PartyTableKick = Tools.BlackLeg.PartyTableKick.Sound,
     PowerPunch = Tools.BasicCombat.PowerPunch.Sound,
     PowerKick = Tools.BlackLeg.PowerKick.Sound,
+    Concasse = Tools.BlackLeg.Concasse.Sound,
     Teleport = Tools.Rokushiki.Teleport.Sound,
     Shigan = Tools.Rokushiki.Shigan.Sound,
     TempestKick = Tools.Rokushiki.TempestKick.Sound,
