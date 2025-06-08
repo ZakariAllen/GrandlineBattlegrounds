@@ -51,7 +51,7 @@ Animation.SpecialMoves = {
     PartyTableKick = "rbxassetid://99204047574669",
     PowerKick = "rbxassetid://132858770370744",
     PowerPunch = "rbxassetid://129154072458138",
-    Shigan = "rbxassetid://129154072458138"
+    Shigan = "rbxassetid://84941234334653"
 }
 
 return Animation
