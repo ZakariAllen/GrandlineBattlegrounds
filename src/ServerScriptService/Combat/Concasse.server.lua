@@ -4,6 +4,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("ConcasseStart")
 local HitEvent = CombatRemotes:WaitForChild("ConcasseHit")
+local RunService = game:GetService("RunService")
 
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
 local ConcasseConfig = AbilityConfig.BlackLeg.Concasse
@@ -62,11 +63,12 @@ local function stopAnimation(humanoid)
     activeTracks[humanoid] = nil
 end
 
-StartEvent.OnServerEvent:Connect(function(player)
+StartEvent.OnServerEvent:Connect(function(player, targetPos)
     if DEBUG then print("[Concasse] StartEvent from", player.Name) end
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not humanoid or not hrp then
         if DEBUG then print("[Concasse] No humanoid") end
         return
     end
@@ -85,6 +87,22 @@ StartEvent.OnServerEvent:Connect(function(player)
     end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerKick)
     if DEBUG then print("[Concasse] Animation triggered") end
+
+    if typeof(targetPos) == "Vector3" and hrp then
+        local start = hrp.Position
+        local dest = targetPos
+        local height = (dest - start).Magnitude * 0.5 + 25
+        local travelTime = 0.75
+        local startTime = tick()
+        while tick() - startTime < travelTime do
+            local t = (tick() - startTime) / travelTime
+            local pos = start:Lerp(dest, t)
+            pos += Vector3.new(0, math.sin(math.pi * t) * height, 0)
+            hrp.CFrame = CFrame.new(pos, dest)
+            RunService.Heartbeat:Wait()
+        end
+        hrp.CFrame = CFrame.new(dest)
+    end
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, dir)
