@@ -18,9 +18,9 @@ local BlackLeg = {
             Shape = "Cylinder",
         },
         Sound = {
-            Hit = "rbxassetid://122809552011508",
-            Miss = "rbxassetid://135883654541622",
-            Loop = "rbxassetid://118537831520752",
+            Hit = { Id = "rbxassetid://122809552011508", Pitch = 1, Volume = 1 },
+            Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
+            Loop = { Id = "rbxassetid://118537831520752", Pitch = 1, Volume = 1 },
         },
     },
     PowerKick = {
@@ -40,7 +40,7 @@ local BlackLeg = {
             Shape = "Block",
         },
         Sound = {
-            Hit = "rbxassetid://118765157785806",
+            Hit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
         },
     },
 }

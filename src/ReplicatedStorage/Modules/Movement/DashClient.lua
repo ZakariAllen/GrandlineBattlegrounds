@@ -151,8 +151,8 @@ function DashClient.OnInputBegan(input, gameProcessed)
 
         local character, humanoid, _, hrp = getCharacterComponents()
         if hrp then
-                if DashConfig.SoundId and DashConfig.SoundId ~= "" then
-                        SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
+                if DashConfig.Sound then
+                        SoundServiceUtils:PlaySpatialSound(DashConfig.Sound, hrp)
                 end
                 DashVFX:PlayDashEffect(direction, hrp)
         end
@@ -234,8 +234,8 @@ DashEvent.OnClientEvent:Connect(function(dashPlayer, direction, styleKey)
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
-        if DashConfig.SoundId and DashConfig.SoundId ~= "" then
-                SoundServiceUtils:PlaySpatialSound(DashConfig.SoundId, hrp)
+        if DashConfig.Sound then
+                SoundServiceUtils:PlaySpatialSound(DashConfig.Sound, hrp)
         end
         DashVFX:PlayDashEffect(direction, hrp)
 

@@ -3,7 +3,7 @@ local Rokushiki = {
         Cooldown = 5,
         MaxDistance = 40,
         Sound = {
-            Use = "rbxassetid://105257107308215",
+            Use = { Id = "rbxassetid://105257107308215", Pitch = 1, Volume = 1 },
         },
     },
     Shigan = {
@@ -23,7 +23,7 @@ local Rokushiki = {
             Shape = "Block",
         },
         Sound = {
-            Hit = "rbxassetid://9117969717",
+            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
         },
     },
     Tekkai = {

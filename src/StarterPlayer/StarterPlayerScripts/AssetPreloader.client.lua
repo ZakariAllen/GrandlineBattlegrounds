@@ -24,20 +24,21 @@ local assets = {}
 
 -- Utility: Determines if an ID is valid for preloading
 local function isValidAssetId(id)
-	if typeof(id) ~= "string" then return false end
-	if id == "" then return false end
-	if id == "rbxassetid://" then return false end
-	if id:lower():find("placeholder") then return false end
-	if not id:match("^rbxassetid://%d+$") then return false end
-	return true
+        if typeof(id) ~= "string" then return false end
+        if id == "" then return false end
+        if id == "rbxassetid://" then return false end
+        if id:lower():find("placeholder") then return false end
+        if not id:match("^rbxassetid://%d+$") then return false end
+        return true
 end
 
 -- 🔊 Preload all valid sound IDs from SoundConfig
 for _, category in pairs(SoundConfig) do
-        for _, soundId in pairs(category) do
-                if isValidAssetId(soundId) then
+        for _, soundInfo in pairs(category) do
+                local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
+                if isValidAssetId(id) then
                         local sound = Instance.new("Sound")
-                        sound.SoundId = soundId
+                        sound.SoundId = id
                         sound.Parent = PlayerGui
                         table.insert(assets, sound)
                 end
@@ -46,10 +47,11 @@ end
 
 -- 🔊 Preload move-specific sound IDs
 for _, move in pairs(MoveSoundConfig) do
-       for _, soundId in pairs(move) do
-               if isValidAssetId(soundId) then
+       for _, soundInfo in pairs(move) do
+               local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
+               if isValidAssetId(id) then
                        local sound = Instance.new("Sound")
-                       sound.SoundId = soundId
+                       sound.SoundId = id
                        sound.Parent = PlayerGui
                        table.insert(assets, sound)
                end
@@ -57,9 +59,10 @@ for _, move in pairs(MoveSoundConfig) do
 end
 
 -- Dash sound from DashConfig
-if isValidAssetId(DashConfig.SoundId) then
+local dashId = typeof(DashConfig.Sound) == "table" and DashConfig.Sound.Id or DashConfig.Sound
+if isValidAssetId(dashId) then
         local ds = Instance.new("Sound")
-        ds.SoundId = DashConfig.SoundId
+        ds.SoundId = dashId
         ds.Parent = PlayerGui
         table.insert(assets, ds)
 end
