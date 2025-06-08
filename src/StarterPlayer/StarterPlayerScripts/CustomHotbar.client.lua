@@ -27,6 +27,11 @@ local hotbar = template:Clone()
 hotbar.ResetOnSpawn = false
 hotbar.Parent = PlayerGui
 
+local outline = hotbar:FindFirstChild("Outline")
+if outline then
+    outline.Visible = false
+end
+
 local basicButton = hotbar:WaitForChild("BasicCombat")
 local blackButton = hotbar:WaitForChild("BlackLeg")
 local rokuButton = hotbar:FindFirstChild("Rokushiki")
@@ -50,28 +55,54 @@ local function updateVisibleButton()
     end
 end
 
+local function updateOutline()
+    if not outline then return end
+    local character = player.Character
+    if not character then
+        outline.Visible = false
+        return
+    end
+    local tool = character:FindFirstChildWhichIsA("Tool")
+    if tool then
+        local button = hotbar:FindFirstChild(tool.Name)
+        if button and button:IsA("GuiObject") then
+            outline.Position = button.Position
+            outline.Size = button.Size
+            outline.Visible = true
+            return
+        end
+    end
+    outline.Visible = false
+end
+
 updateVisibleButton()
+updateOutline()
 local function connectCharacter(char)
     char.ChildAdded:Connect(function(child)
         if child:IsA("Tool") then
             updateVisibleButton()
+            updateOutline()
         end
     end)
     char.ChildRemoved:Connect(function(child)
         if child:IsA("Tool") then
             updateVisibleButton()
+            updateOutline()
         end
     end)
+    updateOutline()
 end
 
 player.CharacterAdded:Connect(function(char)
     task.wait(0.1)
     connectCharacter(char)
     updateVisibleButton()
+    updateOutline()
 end)
 
 if player.Character then
     connectCharacter(player.Character)
+    updateOutline()
 end
 
 player:WaitForChild("Backpack").ChildAdded:Connect(updateVisibleButton)
@@ -89,6 +120,7 @@ local function toggleTool(toolName)
     local equipped = character:FindFirstChild(toolName)
     if equipped and equipped:IsA("Tool") then
         equipped.Parent = backpack
+        updateOutline()
         return
     end
 
@@ -106,6 +138,7 @@ local function toggleTool(toolName)
     end
 
     updateVisibleButton()
+    updateOutline()
 end
 
 -- Button handlers
