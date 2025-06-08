@@ -10,6 +10,7 @@ local MoveSoundConfig = {
     PowerKick = Tools.BlackLeg.PowerKick.Sound,
     Teleport = Tools.Rokushiki.Teleport.Sound,
     Shigan = Tools.Rokushiki.Shigan.Sound,
+    TempestKick = Tools.Rokushiki.TempestKick.Sound,
 }
 
 return MoveSoundConfig
