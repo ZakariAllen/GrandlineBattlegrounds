@@ -18,7 +18,7 @@ local BasicCombat = {
             Shape = "Block",
         },
         Sound = {
-            Hit = "rbxassetid://9117969717",
+            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
         },
     },
 }

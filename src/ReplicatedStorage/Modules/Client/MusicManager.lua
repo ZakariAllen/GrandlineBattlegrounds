@@ -10,16 +10,18 @@ local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 
 local currentSound
 
--- Plays the given sound info which can be a string ID or a table { Id, Pitch }
+-- Plays the given sound info which can be a string ID or a table { Id, Pitch, Volume }
 local function playSound(soundInfo: any, looped: boolean)
     if not soundInfo then return nil end
 
     local id
     local pitch = 1
+    local volume = 0.5
 
     if typeof(soundInfo) == "table" then
         id = soundInfo.Id
         pitch = soundInfo.Pitch or 1
+        volume = soundInfo.Volume or 0.5
     else
         id = soundInfo
     end
@@ -37,7 +39,7 @@ local function playSound(soundInfo: any, looped: boolean)
 
     local sound = Instance.new("Sound")
     sound.SoundId = id
-    sound.Volume = 0.5
+    sound.Volume = volume
     sound.PlaybackSpeed = pitch
     sound.Looped = looped or false
     sound.Parent = workspace
