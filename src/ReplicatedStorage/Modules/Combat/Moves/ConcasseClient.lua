@@ -64,7 +64,7 @@ local function performMove(targetPos)
     humanoid.JumpPower = 0
 
     playAnimation(animator, Animations.SpecialMoves.PowerKick)
-    StartEvent:FireServer()
+    StartEvent:FireServer(targetPos)
 
     local start = hrp.Position
     local dest = targetPos
