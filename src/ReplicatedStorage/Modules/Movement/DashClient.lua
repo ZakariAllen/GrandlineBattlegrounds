@@ -45,7 +45,9 @@ local function setCharacterInvisible(character, invisible, owner)
                 obj.Enabled = false
             else
                 local prev = originalGuiState[obj]
-                obj.Enabled = prev ~= nil and prev or obj.Enabled
+                if prev ~= nil then
+                    obj.Enabled = prev
+                end
                 originalGuiState[obj] = nil
             end
             if not invisible and owner and obj:IsA("BillboardGui") then
