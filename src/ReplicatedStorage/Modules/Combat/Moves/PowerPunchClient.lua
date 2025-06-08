@@ -98,7 +98,7 @@ local function performMove()
     local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.PowerPunch.Offset,
         MoveHitboxConfig.PowerPunch.Size,
-        MoveHitboxConfig.PowerPunch.Duration,
+        PowerPunchConfig.HitboxDuration,
         HitEvent,
         {dir},
         MoveHitboxConfig.PowerPunch.Shape,
