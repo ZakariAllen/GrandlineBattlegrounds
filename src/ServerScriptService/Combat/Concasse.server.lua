@@ -99,7 +99,10 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         end
         local dest = start + horiz
 
-        -- Temporarily anchor and disable physics to avoid jitter
+        -- Temporarily anchor to keep the character stable while the
+        -- client animates the actual movement. The server simply
+        -- teleports to the final position after the travel time to
+        -- avoid fighting against client-side interpolation.
         local prevAnchor = hrp.Anchored
         local prevPlat = humanoid.PlatformStand
         local prevAuto = humanoid.AutoRotate
@@ -107,21 +110,16 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         humanoid.PlatformStand = true
         humanoid.AutoRotate = false
 
-        local height = dist * 0.5 + 25
+        -- Travel time is derived from a constant travel speed so the
+        -- move feels the same at any distance
         local travelTime = (ConcasseConfig.TravelTime or (dist / (ConcasseConfig.TravelSpeed or 10)))
-        local startTime = tick()
-        while tick() - startTime < travelTime do
-            local t = (tick() - startTime) / travelTime
-            local pos = start:Lerp(dest, t)
-            pos += Vector3.new(0, math.sin(math.pi * t) * height, 0)
-            hrp.CFrame = CFrame.new(pos, dest)
-            RunService.Heartbeat:Wait()
-        end
-        hrp.CFrame = CFrame.new(dest)
 
-        hrp.Anchored = prevAnchor
-        humanoid.PlatformStand = prevPlat
-        humanoid.AutoRotate = prevAuto
+        task.delay(travelTime, function()
+            hrp.CFrame = CFrame.new(dest)
+            hrp.Anchored = prevAnchor
+            humanoid.PlatformStand = prevPlat
+            humanoid.AutoRotate = prevAuto
+        end)
     end
 end)
 

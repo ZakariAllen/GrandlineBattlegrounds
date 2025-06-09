@@ -52,8 +52,8 @@ local BlackLeg = {
         PerfectBlockable = true,
         Endlag = 0,
         Range = 65,
-        -- Fixed travel time for consistent speed across distances
-        TravelTime = 1,
+        -- Constant travel speed for consistent feel across distances
+        TravelSpeed = 65,
         HitboxDuration = 0.1,
         Cooldown = 12,
         Hitbox = {
