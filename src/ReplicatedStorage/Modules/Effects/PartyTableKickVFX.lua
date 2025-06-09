@@ -17,7 +17,16 @@ function PartyTableKickVFX.Create(parent: Instance)
     local cfg = Config.VFX.PartyTableKickVFX or {}
     local vfx = TEMPLATE:Clone()
     vfx.Anchored = false
-    vfx.CFrame = parent.CFrame * CFrame.new(cfg.Position.X or 0, cfg.Position.Y or 0, cfg.Position.Z or 0)
+
+    -- The hitbox for PartyTableKick is rotated 90 degrees on the Z axis. When
+    -- the VFX is parented to that hitbox it inherits the same rotation which
+    -- results in the effect playing sideways. If the parent is the hitbox,
+    -- counter rotate so the effect appears upright.
+    local cf = parent.CFrame * CFrame.new(cfg.Position.X or 0, cfg.Position.Y or 0, cfg.Position.Z or 0)
+    if parent.Name == "ClientHitbox" then
+        cf = cf * CFrame.Angles(0, 0, math.rad(-90))
+    end
+    vfx.CFrame = cf
     vfx.Size = Vector3.new(cfg.Scale.X or 1, cfg.Scale.Y or 1, cfg.Scale.Z or 1)
     vfx.Parent = parent
 
