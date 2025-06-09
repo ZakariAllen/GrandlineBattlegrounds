@@ -17,6 +17,7 @@ local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConf
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
+local TempestKickVFX = require(ReplicatedStorage.Modules.Effects.TempestKickVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
@@ -72,7 +73,7 @@ local function performMove()
     task.wait(cfg.Startup)
 
     local dir = hrp.CFrame.LookVector
-    HitboxClient.CastHitbox(
+    local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.TempestKick.Offset,
         MoveHitboxConfig.TempestKick.Size,
         TempestKickConfig.HitboxDuration,
@@ -83,6 +84,10 @@ local function performMove()
         TempestKickConfig.HitboxDistance,
         true
     )
+
+    if hitbox then
+        TempestKickVFX.Create(hitbox)
+    end
 
     task.wait(cfg.Endlag)
 
