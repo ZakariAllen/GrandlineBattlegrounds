@@ -17,6 +17,8 @@ local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
+local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
+local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -171,6 +173,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         end
         enemyHumanoid:TakeDamage(dmg)
         DamageText.Show(enemyHumanoid, dmg)
+        UltService.RegisterHit(player, enemyHumanoid, UltConfig.Moves)
         if DEBUG then print("[PowerKick] Hit", enemyPlayer.Name, "for", dmg) end
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
