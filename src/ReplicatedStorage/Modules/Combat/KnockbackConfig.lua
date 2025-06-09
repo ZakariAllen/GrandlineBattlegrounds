@@ -12,23 +12,23 @@ KnockbackConfig.Type = {
 -- Default parameters for each knockback type
 KnockbackConfig.Params = {
     [KnockbackConfig.Type.AttackerFacingDirection] = {
-        Distance = 25,
-        Duration = 0.4,
+        Distance = 20,
+        Duration = 0.3,
         Lift = 3,
     },
     [KnockbackConfig.Type.HitboxVelocityDirection] = {
-        Distance = 25,
-        Duration = 0.4,
+        Distance = 20,
+        Duration = 0.3,
         Lift = 3,
     },
     [KnockbackConfig.Type.HitboxTravelDirection] = {
-        Distance = 25,
-        Duration = 0.4,
+        Distance = 20,
+        Duration = 0.3,
         Lift = 3,
     },
     [KnockbackConfig.Type.AwayFromAttacker] = {
-        Distance = 25,
-        Duration = 0.4,
+        Distance = 20,
+        Duration = 0.3,
         Lift = 3,
     },
 }
