@@ -142,7 +142,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
                 if not ShouldApplyHit(player, enemyPlayer) then continue end
 
-               local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
+               local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false, hrp)
                 if blockResult == "Perfect" then
                         blockHit = true
                         StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, player)

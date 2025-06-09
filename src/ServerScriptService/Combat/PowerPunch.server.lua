@@ -135,12 +135,12 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if PowerPunchConfig.GuardBreak then
             if PowerPunchConfig.PerfectBlockable then
                 local dmg = BlockService.GetBlockHP(enemyPlayer)
-                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, dmg, false)
+                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, dmg, false, hrp)
             else
-                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerPunchConfig.Damage, true)
+                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerPunchConfig.Damage, true, hrp)
             end
         else
-            blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerPunchConfig.Damage, false)
+            blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerPunchConfig.Damage, false, hrp)
         end
         if blockResult == "Perfect" then
             if DEBUG then print("[PowerPunch] Perfect block by", enemyPlayer.Name) end
