@@ -60,6 +60,12 @@ local function performMove(targetPos)
     currentHumanoid = humanoid
     prevWalkSpeed = humanoid.WalkSpeed
     prevJumpPower = humanoid.JumpPower
+    local prevAnchored = hrp.Anchored
+    local prevPlat = humanoid.PlatformStand
+    local prevAuto = humanoid.AutoRotate
+    humanoid.PlatformStand = true
+    humanoid.AutoRotate = false
+    hrp.Anchored = true
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
@@ -68,11 +74,13 @@ local function performMove(targetPos)
     local start = hrp.Position
     local dest = targetPos
     local dir = dest - start
-    local dist = dir.Magnitude
+    local horiz = Vector3.new(dir.X, 0, dir.Z)
+    local dist = horiz.Magnitude
     if dist > (cfg.Range or 65) then
-        dest = start + dir.Unit * (cfg.Range or 65)
+        horiz = horiz.Unit * (cfg.Range or 65)
         dist = (cfg.Range or 65)
     end
+    dest = start + horiz
     StartEvent:FireServer(dest)
 
     local height = dist * 0.5 + 25
@@ -86,6 +94,13 @@ local function performMove(targetPos)
         RunService.RenderStepped:Wait()
     end
     hrp.CFrame = CFrame.new(dest)
+    hrp.Anchored = prevAnchored
+    humanoid.PlatformStand = prevPlat
+    humanoid.AutoRotate = prevAuto
+
+    while humanoid.FloorMaterial == Enum.Material.Air do
+        RunService.RenderStepped:Wait()
+    end
 
     HitboxClient.CastHitbox(
         MoveHitboxConfig.Concasse.Offset,
