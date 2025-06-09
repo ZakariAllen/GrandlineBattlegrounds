@@ -27,9 +27,9 @@ local hotbar = template:Clone()
 hotbar.ResetOnSpawn = false
 hotbar.Parent = PlayerGui
 
-local outline = hotbar:FindFirstChild("Outline")
-if outline then
-    outline.Visible = false
+local toolSelected = hotbar:FindFirstChild("ToolSelected")
+if toolSelected then
+    toolSelected.Visible = false
 end
 
 local basicButton = hotbar:WaitForChild("BasicCombat")
@@ -55,54 +55,54 @@ local function updateVisibleButton()
     end
 end
 
-local function updateOutline()
-    if not outline then return end
+local function updateSelected()
+    if not toolSelected then return end
     local character = player.Character
     if not character then
-        outline.Visible = false
+        toolSelected.Visible = false
         return
     end
     local tool = character:FindFirstChildWhichIsA("Tool")
     if tool then
         local button = hotbar:FindFirstChild(tool.Name)
         if button and button:IsA("GuiObject") then
-            outline.Position = button.Position
-            outline.Size = button.Size
-            outline.Visible = true
+            toolSelected.Position = button.Position
+            toolSelected.Size = button.Size
+            toolSelected.Visible = true
             return
         end
     end
-    outline.Visible = false
+    toolSelected.Visible = false
 end
 
 updateVisibleButton()
-updateOutline()
+updateSelected()
 local function connectCharacter(char)
     char.ChildAdded:Connect(function(child)
         if child:IsA("Tool") then
             updateVisibleButton()
-            updateOutline()
+            updateSelected()
         end
     end)
     char.ChildRemoved:Connect(function(child)
         if child:IsA("Tool") then
             updateVisibleButton()
-            updateOutline()
+            updateSelected()
         end
     end)
-    updateOutline()
+    updateSelected()
 end
 
 player.CharacterAdded:Connect(function(char)
     task.wait(0.1)
     connectCharacter(char)
     updateVisibleButton()
-    updateOutline()
+    updateSelected()
 end)
 
 if player.Character then
     connectCharacter(player.Character)
-    updateOutline()
+    updateSelected()
 end
 
 player:WaitForChild("Backpack").ChildAdded:Connect(updateVisibleButton)
@@ -120,7 +120,7 @@ local function toggleTool(toolName)
     local equipped = character:FindFirstChild(toolName)
     if equipped and equipped:IsA("Tool") then
         equipped.Parent = backpack
-        updateOutline()
+        updateSelected()
         return
     end
 
@@ -138,7 +138,7 @@ local function toggleTool(toolName)
     end
 
     updateVisibleButton()
-    updateOutline()
+    updateSelected()
 end
 
 -- Button handlers
