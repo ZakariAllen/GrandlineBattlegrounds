@@ -34,7 +34,7 @@ local SoundConfig = {
         },
 
         Haki = {
-                Activate = { Id = "rbxassetid://979751563", Pitch = 1, Volume = 1 },
+                Activate = { Id = "rbxassetid://979751563", Pitch = 1, Volume = 0.35 },
         },
 
 	UI = {
@@ -49,13 +49,11 @@ local SoundConfig = {
                 -- 🎵 Background music pool (for gameplay rotation)
                 -- Each entry includes an asset ID and optional pitch (playback speed)
                 MusicPool = {
-                        { Id = "rbxassetid://78834849660646", Pitch = 0.8, Volume = 1 }, -- Track 1 208-B
-                        { Id = "rbxassetid://78834849660646", Pitch = 0.9, Volume = 1 }, -- Track 2 208-B
-                        { Id = "rbxassetid://78834849660646", Pitch = 1, Volume = 1 }, -- Track 3 208-B
-                        { Id = "rbxassetid://78834849660646", Pitch = 1.1, Volume = 1 }, -- Track 4 208-B
-                        { Id = "rbxassetid://90253170109596", Pitch = 1.1, Volume = 1 }, -- Track 5 Overtaken
-                        { Id = "rbxassetid://90253170109596", Pitch = 0.9, Volume = 1 }, -- Track 6 Overtaken
-                        { Id = "rbxassetid://90253170109596", Pitch = 1, Volume = 1 } -- Track 7 Overtaken
+                        { Id = "rbxassetid://78834849660646", Pitch = 0.8, Volume = 0.5 }, -- Track 1 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 0.9, Volume = 0.5 }, -- Track 2 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 1, Volume = 0.5 }, -- Track 3 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 1.1, Volume = 0.5 }, -- Track 4 208-B
+                        { Id = "rbxassetid://78834849660646", Pitch = 1.2, Volume = 0.5 }, -- Track 4 208-B
                 },
 
                 -- 🎼 Main menu music (single track)
