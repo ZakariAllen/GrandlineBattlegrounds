@@ -7,6 +7,7 @@ local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
+local VFXEvent = CombatRemotes:WaitForChild("PartyTableKickVFX")
 
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
 local PartyTableKickConfig = AbilityConfig.BlackLeg.PartyTableKick
@@ -101,6 +102,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         local sound = SoundUtils:PlayLoopingSpatialSound(loopId, hrp)
         activeLoopSounds[player] = sound
     end
+    VFXEvent:FireAllClients(player)
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
