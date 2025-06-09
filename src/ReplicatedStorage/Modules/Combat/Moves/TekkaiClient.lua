@@ -53,7 +53,7 @@ TekkaiEvent.OnClientEvent:Connect(function(tekkaiPlayer, state)
         prevJump = humanoid.JumpPower
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
-        track = playAnimation(animator, Animations.Blocking.BlockHold)
+        track = playAnimation(animator, Animations.Blocking.TekkaiHold)
     else
         active = false
         if track then
