@@ -17,43 +17,46 @@ local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 
 local KEY = Enum.KeyCode.J
-local active = false
+local active = {}
 local coloredParts = {}
 local originalColors = {}
 local hakiTemplate = ReplicatedStorage:FindFirstChild("Assets") and
     ReplicatedStorage.Assets:FindFirstChild("HakiEnabled")
 local addedTextures = {}
 
-local function applyColor(char, style)
+local function applyColor(char, style, hakiPlayer)
     local names
     if style == "BlackLeg" then
         names = {"LeftFoot","LeftLowerLeg","RightFoot","RightLowerLeg"}
     else
         names = {"LeftHand","LeftLowerArm","RightHand","RightLowerArm"}
     end
+    coloredParts[hakiPlayer] = {}
+    originalColors[hakiPlayer] = {}
     for _, partName in ipairs(names) do
         local part = char:FindFirstChild(partName)
         if part and part:IsA("BasePart") then
-            originalColors[part] = part.Color
-            table.insert(coloredParts, part)
+            originalColors[hakiPlayer][part] = part.Color
+            table.insert(coloredParts[hakiPlayer], part)
             part.Color = Color3.new(0,0,0)
         end
     end
 end
 
-local function clearColor()
-    for _, part in ipairs(coloredParts) do
-        local col = originalColors[part]
+local function clearColor(hakiPlayer)
+    for _, part in ipairs(coloredParts[hakiPlayer] or {}) do
+        local col = originalColors[hakiPlayer] and originalColors[hakiPlayer][part]
         if part and col then
             part.Color = col
         end
     end
-    coloredParts = {}
-    originalColors = {}
+    coloredParts[hakiPlayer] = nil
+    originalColors[hakiPlayer] = nil
 end
 
-local function applyTextures(char)
+local function applyTextures(char, hakiPlayer)
     if not hakiTemplate then return end
+    addedTextures[hakiPlayer] = {}
     for _, src in ipairs(hakiTemplate:GetDescendants()) do
         if src:IsA("BasePart") then
             local target = char:FindFirstChild(src.Name)
@@ -62,7 +65,7 @@ local function applyTextures(char)
                     if child:IsA("Texture") or child:IsA("Decal") or child:IsA("SurfaceAppearance") then
                         local clone = child:Clone()
                         clone.Parent = target
-                        table.insert(addedTextures, clone)
+                        table.insert(addedTextures[hakiPlayer], clone)
                     end
                 end
             end
@@ -70,27 +73,33 @@ local function applyTextures(char)
     end
 end
 
-local function clearTextures()
-    for _, obj in ipairs(addedTextures) do
+local function clearTextures(hakiPlayer)
+    for _, obj in ipairs(addedTextures[hakiPlayer] or {}) do
         if obj and obj.Parent then
             obj:Destroy()
         end
     end
-    addedTextures = {}
+    addedTextures[hakiPlayer] = nil
 end
 
 HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
-    if hakiPlayer ~= player then return end
     if typeof(state) ~= "boolean" then return end
-    local char = player.Character
+
+    local char = hakiPlayer.Character
     if not char then return end
 
-    active = state
+    active[hakiPlayer] = state
 
     if state then
-        local style = ToolController.GetEquippedStyleKey()
-        applyColor(char, style)
-        applyTextures(char)
+        local style
+        if hakiPlayer == player then
+            style = ToolController.GetEquippedStyleKey()
+        else
+            local tool = hakiPlayer.Character and hakiPlayer.Character:FindFirstChildOfClass("Tool")
+            style = tool and tool.Name
+        end
+        applyColor(char, style, hakiPlayer)
+        applyTextures(char, hakiPlayer)
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if hrp then
             local soundId = SoundConfig.Haki and SoundConfig.Haki.Activate
@@ -99,8 +108,8 @@ HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
             end
         end
     else
-        clearColor()
-        clearTextures()
+        clearColor(hakiPlayer)
+        clearTextures(hakiPlayer)
     end
 end)
 
@@ -110,7 +119,7 @@ function HakiClient.OnInputBegan(input, gp)
     if input.KeyCode ~= KEY then return end
 
     if HakiService.GetHaki(player) <= 0 then return end
-    local newState = not active
+    local newState = not active[player]
     HakiEvent:FireServer(newState)
 end
 
