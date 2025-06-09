@@ -4,7 +4,7 @@ local VFXConfig = {}
 
 VFXConfig.TempestKickVFX = {
     Position = { X = 0, Y = 0, Z = 0 },
-    Scale = { X = 1, Y = 1, Z = 5 },
+    Scale = { X = 8, Y = 2, Z = 3 },
 }
 
 return VFXConfig
