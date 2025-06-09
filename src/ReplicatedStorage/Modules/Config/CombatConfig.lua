@@ -8,8 +8,11 @@ CombatConfig.M1 = {
 	ComboResetTime = 2,
 	ComboCooldown = 2,
 
-	HitDelay = 0.12, -- Delay before damage applies after animation starts
-	M1StunDuration = 0.5,
+        HitDelay = 0.12, -- Delay before damage applies after animation starts
+        -- Time window where two attacks may clash. When enabled, the player who
+        -- pressed attack first wins the exchange and the other's hit is ignored.
+        ClashWindow = 0.15,
+        M1StunDuration = 0.5,
 	M1_5StunDuration = 1.5,
 
 	KnockbackDistance = 25,
