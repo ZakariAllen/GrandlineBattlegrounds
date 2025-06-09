@@ -26,6 +26,7 @@ local dashConn = nil
 
 -- Store original Enabled states for Gui objects so we can restore them
 local originalGuiState = setmetatable({}, {__mode = "k"})
+local originalHidePlayer = setmetatable({}, {__mode = "k"})
 
 -- Utility used for RokuDash to hide or show a character model
 local function setCharacterInvisible(character, invisible, owner)
@@ -42,19 +43,32 @@ local function setCharacterInvisible(character, invisible, owner)
             if invisible then
                 -- Remember previous state so it can be restored later
                 originalGuiState[obj] = obj.Enabled
-                obj.Enabled = false
+                if obj:IsA("BillboardGui") then
+                    originalHidePlayer[obj] = obj.PlayerToHideFrom
+                    pcall(function()
+                        obj.PlayerToHideFrom = player
+                    end)
+                end
             else
                 local prev = originalGuiState[obj]
                 if prev ~= nil and obj.Enabled == false then
                     obj.Enabled = prev
                 end
                 originalGuiState[obj] = nil
-            end
-            -- Only update PlayerToHideFrom for the local player's own GUI
-            if not invisible and owner == player and obj:IsA("BillboardGui") then
-                pcall(function()
-                    obj.PlayerToHideFrom = owner
-                end)
+
+                if obj:IsA("BillboardGui") then
+                    local prevPlayer = originalHidePlayer[obj]
+                    if prevPlayer ~= nil then
+                        pcall(function()
+                            obj.PlayerToHideFrom = prevPlayer
+                        end)
+                    elseif owner == player then
+                        pcall(function()
+                            obj.PlayerToHideFrom = owner
+                        end)
+                    end
+                    originalHidePlayer[obj] = nil
+                end
             end
         elseif obj:IsA("Highlight") then
             obj.Enabled = not invisible
