@@ -31,6 +31,9 @@ local AttackerLockouts = {}
 local HitReservations = {}
 local ActiveAnimations = {}
 
+-- forward declaration for sendStatus so callbacks defined below can reference it
+local sendStatus
+
 local function cleanupPlayer(player)
     local data = StunnedPlayers[player]
     if data then
@@ -60,7 +63,7 @@ if RunService:IsServer() then
     end)
 end
 
-local function sendStatus(player)
+sendStatus = function(player)
     if RunService:IsServer() and StunStatusEvent and player then
         local data = {
             Stunned = StunnedPlayers[player] ~= nil,
