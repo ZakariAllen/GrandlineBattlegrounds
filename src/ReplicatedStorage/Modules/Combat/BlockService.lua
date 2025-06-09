@@ -15,6 +15,7 @@ local TekkaiService = require(ReplicatedStorage.Modules.Combat.TekkaiService)
 local remotes = ReplicatedStorage:WaitForChild("Remotes")
 local combatFolder = remotes:WaitForChild("Combat")
 local VFXEvent = combatFolder:WaitForChild("BlockVFX")
+local BlockEvent = combatFolder:WaitForChild("BlockEvent")
 
 -- 🧠 Block state
 local BlockingPlayers = {}    -- [player] = true/false
@@ -93,6 +94,9 @@ function BlockService.StopBlocking(player)
 
        if VFXEvent then
                VFXEvent:FireAllClients(player, false)
+       end
+       if BlockEvent and hadBlock then
+               BlockEvent:FireClient(player, false)
        end
        OverheadBarService.SetBlockActive(player, false)
        OverheadBarService.UpdateBlock(player, 0)
