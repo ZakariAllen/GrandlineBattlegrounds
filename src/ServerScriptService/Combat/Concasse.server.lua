@@ -111,8 +111,12 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         humanoid.AutoRotate = false
 
         -- Travel time is derived from a constant travel speed so the
-        -- move feels the same at any distance
-        local travelTime = (ConcasseConfig.TravelTime or (dist / (ConcasseConfig.TravelSpeed or 10)))
+        -- move feels the same at any distance. Enforce a minimum so
+        -- short distances don't finish instantly.
+        local travelTime = math.max(
+            ConcasseConfig.TravelTime or (dist / (ConcasseConfig.TravelSpeed or 10)),
+            ConcasseConfig.MinTravelTime or 0
+        )
 
         task.delay(travelTime, function()
             hrp.CFrame = CFrame.new(dest)

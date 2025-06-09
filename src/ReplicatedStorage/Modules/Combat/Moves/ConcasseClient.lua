@@ -90,9 +90,13 @@ local function performMove(targetPos)
     dest = start + horiz
     StartEvent:FireServer(dest)
 
-    local height = dist * 0.5 + 25
-    -- Calculate travel time from a constant travel speed
-    local travelTime = (cfg.TravelTime or (dist / (cfg.TravelSpeed or 10)))
+    local height = math.max(dist * 0.5 + 25, 15)
+    -- Calculate travel time from a constant travel speed with a floor so short
+    -- distances don't feel instantaneous
+    local travelTime = math.max(
+        cfg.TravelTime or (dist / (cfg.TravelSpeed or 10)),
+        cfg.MinTravelTime or 0
+    )
     local startTime = tick()
     while tick() - startTime < travelTime do
         local t = (tick() - startTime) / travelTime
