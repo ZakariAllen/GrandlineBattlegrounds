@@ -175,7 +175,8 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 hitLanded = true
 
                 local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration
-                StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, isFinal)
+                local preserve = isFinal and CombatConfig.M1.KnockbackDuration or false
+                StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, preserve)
 
                 -- 💥 Knockback logic
                 if isFinal then

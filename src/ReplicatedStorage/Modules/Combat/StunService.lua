@@ -111,9 +111,10 @@ end
                 * a string/number representing a custom animation id to play
 ]]
 --[[
-    @param preserveVelocity boolean? When true, horizontal velocity will not be
+    @param preserveVelocity boolean|number? When true, horizontal velocity will not be
     zeroed during the stun. Used for knockback moves so the target continues
-    moving while stunned.
+    moving while stunned. If a number is supplied, velocity is preserved only for
+    the given duration in seconds.
 ]]
 function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity)
         local targetPlayer = getPlayer(targetHumanoid)
@@ -131,6 +132,12 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
 
     local prevWalkSpeed = targetHumanoid.WalkSpeed
     local prevJumpPower = targetHumanoid.JumpPower
+
+    local preserveVelocityDuration
+    if typeof(preserveVelocity) == "number" then
+        preserveVelocityDuration = preserveVelocity
+        preserveVelocity = true
+    end
 
     local existing = StunnedPlayers[targetPlayer]
     if existing then
@@ -161,6 +168,15 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
         if preserveVelocity then
             hrp:SetAttribute("StunPreserveVelocity", true)
+            if preserveVelocityDuration then
+                task.delay(preserveVelocityDuration, function()
+                    local data = StunnedPlayers[targetPlayer]
+                    if data and data.HRP == hrp then
+                        hrp:SetAttribute("StunPreserveVelocity", nil)
+                        data.PreserveVelocity = false
+                    end
+                end)
+            end
         end
     end
 
