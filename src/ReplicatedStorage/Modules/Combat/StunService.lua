@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -29,6 +30,35 @@ local StunnedPlayers = {}
 local AttackerLockouts = {}
 local HitReservations = {}
 local ActiveAnimations = {}
+
+local function cleanupPlayer(player)
+    local data = StunnedPlayers[player]
+    if data then
+        if data.Conn then data.Conn:Disconnect() end
+        if data.HRP and data.PreserveVelocity then
+            data.HRP:SetAttribute("StunPreserveVelocity", nil)
+        end
+        StunnedPlayers[player] = nil
+    end
+    AttackerLockouts[player] = nil
+    HitReservations[player] = nil
+    local track = ActiveAnimations[player]
+    if track then
+        track:Stop()
+        track:Destroy()
+        ActiveAnimations[player] = nil
+    end
+end
+
+if RunService:IsServer() then
+    Players.PlayerRemoving:Connect(cleanupPlayer)
+    Players.PlayerAdded:Connect(function(p)
+        p.CharacterAdded:Connect(function()
+            cleanupPlayer(p)
+            sendStatus(p)
+        end)
+    end)
+end
 
 local function sendStatus(player)
     if RunService:IsServer() and StunStatusEvent and player then
@@ -143,16 +173,7 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         if not skipAnim then
                 local animator = targetHumanoid:FindFirstChildOfClass("Animator")
                 if animator and stunAnimId then
-                        local anim = Instance.new("Animation")
-                        if tostring(stunAnimId):match("^rbxassetid://") then
-                                anim.AnimationId = tostring(stunAnimId)
-                        else
-                                anim.AnimationId = "rbxassetid://" .. tostring(stunAnimId)
-                        end
-                        local track = animator:LoadAnimation(anim)
-                        track.Priority = Enum.AnimationPriority.Action
-                        track.Looped = false
-                        track:Play()
+                        local track = AnimationUtils.PlayAnimation(animator, stunAnimId)
                         ActiveAnimations[targetPlayer] = track
                 end
         end

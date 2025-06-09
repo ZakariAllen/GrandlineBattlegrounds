@@ -17,6 +17,7 @@ local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
+local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -31,6 +32,18 @@ local activeTracks = {
         Attack = {},
         Knockback = {},
 }
+
+-- Clean up per-player state when they leave or respawn
+local function cleanup(player)
+    comboTimestamps[player] = nil
+end
+
+Players.PlayerRemoving:Connect(cleanup)
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        cleanup(player)
+    end)
+end)
 
 local function ShouldApplyHit(attacker, defender)
     -- If the defender was just hit, ignore further hits for a short window
@@ -53,29 +66,19 @@ end
 
 -- 🎬 Play animation server-side for others
 local function PlayAnimation(humanoid, animId, category)
-	if not animId or not humanoid then return end
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-	if not animator then return end
+        if not animId or not humanoid then return end
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if not animator then return end
 
-	animId = tostring(animId)
-	if not animId:match("^rbxassetid://") then
-		animId = "rbxassetid://" .. animId
-	end
+        category = category or "Attack"
+        local trackStore = activeTracks[category]
+        local current = trackStore[humanoid]
+        if current and current.IsPlaying then
+                current:Stop(0.05)
+        end
 
-	category = category or "Attack"
-	local trackStore = activeTracks[category]
-	local current = trackStore[humanoid]
-	if current and current.IsPlaying then
-		current:Stop(0.05)
-	end
-
-	local anim = Instance.new("Animation")
-	anim.AnimationId = animId
-	local track = animator:LoadAnimation(anim)
-	track.Priority = Enum.AnimationPriority.Action
-	track:Play()
-
-	trackStore[humanoid] = track
+        local track = AnimationUtils.PlayAnimation(animator, animId)
+        trackStore[humanoid] = track
 end
 
 -- 🔥 Client triggers animation (server replicates for others)
