@@ -45,14 +45,14 @@ DashConfig.Settings = {
 -- Separate dash settings for the Rokushiki style. These can be tuned
 -- independently from the regular dash distances and durations.
 DashConfig.RokuSettings = {
-    Forward = { Distance = 18, Duration = 0.22 },
-    Backward = { Distance = 18, Duration = 0.22 },
-    Left = { Distance = 18, Duration = 0.22 },
-    Right = { Distance = 18, Duration = 0.22 },
-    ForwardLeft = { Distance = 18, Duration = 0.22 },
-    ForwardRight = { Distance = 18, Duration = 0.22 },
-    BackwardLeft = { Distance = 18, Duration = 0.22 },
-    BackwardRight = { Distance = 18, Duration = 0.22 },
+    Forward = { Distance = 15, Duration = 0.22 },
+    Backward = { Distance = 15, Duration = 0.22 },
+    Left = { Distance = 15, Duration = 0.22 },
+    Right = { Distance = 15, Duration = 0.22 },
+    ForwardLeft = { Distance = 15, Duration = 0.22 },
+    ForwardRight = { Distance = 15, Duration = 0.22 },
+    BackwardLeft = { Distance = 15, Duration = 0.22 },
+    BackwardRight = { Distance = 15, Duration = 0.22 },
 }
 
 return DashConfig
