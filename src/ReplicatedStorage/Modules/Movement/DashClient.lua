@@ -63,16 +63,10 @@ local function setCharacterInvisible(character, invisible, owner)
 
                 if obj:IsA("BillboardGui") then
                     local prevPlayer = originalHidePlayer[obj]
-                    if prevPlayer ~= nil then
-                        pcall(function()
-                            obj.PlayerToHideFrom = prevPlayer
-                        end)
-                        originalHidePlayer[obj] = nil
-                    elseif owner == player then
-                        pcall(function()
-                            obj.PlayerToHideFrom = owner
-                        end)
-                    end
+                    originalHidePlayer[obj] = nil
+                    pcall(function()
+                        obj.PlayerToHideFrom = prevPlayer
+                    end)
                 end
             end
         elseif obj:IsA("Highlight") then
