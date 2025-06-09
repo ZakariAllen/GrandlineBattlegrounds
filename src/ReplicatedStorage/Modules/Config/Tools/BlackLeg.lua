@@ -46,17 +46,18 @@ local BlackLeg = {
     },
     Concasse = {
         Damage = 75,
-        StunDuration = 1.5,
-        Startup = 0,
+        StunDuration = 1,
+        Startup = 0.2,
         HyperArmor = false,
         GuardBreak = false,
         PerfectBlockable = true,
-        Endlag = 0,
+        Endlag = 0.1,
         Range = 65,
         -- Constant travel speed for consistent feel across distances
         TravelSpeed = 65,
-        -- Minimum time before landing to prevent instant "teleport" feel
-        MinTravelTime = 0.4,
+        -- Travel time scales with distance
+        MinTravelTime = 1,
+        MaxTravelTime = 2,
         HitboxDuration = 0.1,
         Cooldown = 12,
         Hitbox = {
