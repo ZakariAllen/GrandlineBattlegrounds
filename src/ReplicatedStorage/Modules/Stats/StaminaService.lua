@@ -37,6 +37,14 @@ function StaminaService.ResumeRegen(player)
     StaminaService._regenPaused[player] = nil
 end
 
+function StaminaService.ResetStamina(player)
+    local cur = player:FindFirstChild("Stamina")
+    local max = player:FindFirstChild("MaxStamina")
+    if cur and max then
+        cur.Value = max.Value
+    end
+end
+
 if RunService:IsServer() then
     Players.PlayerAdded:Connect(setupPlayer)
     for _, p in ipairs(Players:GetPlayers()) do
