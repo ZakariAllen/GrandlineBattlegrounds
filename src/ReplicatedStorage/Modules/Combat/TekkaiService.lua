@@ -63,9 +63,15 @@ function TekkaiService.Stop(player)
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
 
     local prev = PREV_MOVEMENT[player]
-    if humanoid and prev then
-        humanoid.WalkSpeed = prev.Walk or humanoid.WalkSpeed
-        humanoid.JumpPower = prev.Jump or humanoid.JumpPower
+    if humanoid then
+        if prev then
+            humanoid.WalkSpeed = prev.Walk or humanoid.WalkSpeed
+            humanoid.JumpPower = prev.Jump or humanoid.JumpPower
+        else
+            local Config = require(ReplicatedStorage.Modules.Config.Config)
+            humanoid.WalkSpeed = Config.GameSettings.DefaultWalkSpeed
+            humanoid.JumpPower = Config.GameSettings.DefaultJumpPower
+        end
     end
 
     OverheadBarService.SetTekkaiActive(player, false)

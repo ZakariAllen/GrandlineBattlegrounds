@@ -11,6 +11,7 @@ local TekkaiEvent = CombatRemotes:WaitForChild("TekkaiEvent")
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
 local TekkaiConfig = AbilityConfig.Rokushiki.Tekkai or {}
+local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
@@ -49,8 +50,8 @@ TekkaiEvent.OnClientEvent:Connect(function(tekkaiPlayer, state)
     if not humanoid then return end
     if state then
         active = true
-        prevWalk = humanoid.WalkSpeed
-        prevJump = humanoid.JumpPower
+        if not prevWalk then prevWalk = humanoid.WalkSpeed end
+        if not prevJump then prevJump = humanoid.JumpPower end
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
         track = playAnimation(animator, Animations.Blocking.TekkaiHold)
@@ -61,8 +62,8 @@ TekkaiEvent.OnClientEvent:Connect(function(tekkaiPlayer, state)
             track:Destroy()
             track = nil
         end
-        humanoid.WalkSpeed = prevWalk or humanoid.WalkSpeed
-        humanoid.JumpPower = prevJump or humanoid.JumpPower
+        humanoid.WalkSpeed = prevWalk or Config.GameSettings.DefaultWalkSpeed
+        humanoid.JumpPower = prevJump or Config.GameSettings.DefaultJumpPower
         prevWalk = nil
         prevJump = nil
     end
@@ -79,6 +80,11 @@ function Tekkai.OnInputBegan(input, gp)
     if not ToolController.IsValidCombatTool() then return end
     if StaminaService.GetStamina(Players.LocalPlayer) <= 0 then return end
 
+    local _, humanoid = getCharacter()
+    if humanoid then
+        prevWalk = humanoid.WalkSpeed
+        prevJump = humanoid.JumpPower
+    end
     MovementClient.StopSprint()
     TekkaiEvent:FireServer(true)
 end
