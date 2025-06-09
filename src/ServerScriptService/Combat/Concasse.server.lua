@@ -90,13 +90,23 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
 
     if typeof(targetPos) == "Vector3" and hrp then
         local start = hrp.Position
-        local dest = targetPos
-        local dir = dest - start
-        local dist = dir.Magnitude
+        local dir = targetPos - start
+        local horiz = Vector3.new(dir.X, 0, dir.Z)
+        local dist = horiz.Magnitude
         if dist > (ConcasseConfig.Range or 65) then
-            dest = start + dir.Unit * (ConcasseConfig.Range or 65)
+            horiz = horiz.Unit * (ConcasseConfig.Range or 65)
             dist = (ConcasseConfig.Range or 65)
         end
+        local dest = start + horiz
+
+        -- Temporarily anchor and disable physics to avoid jitter
+        local prevAnchor = hrp.Anchored
+        local prevPlat = humanoid.PlatformStand
+        local prevAuto = humanoid.AutoRotate
+        hrp.Anchored = true
+        humanoid.PlatformStand = true
+        humanoid.AutoRotate = false
+
         local height = dist * 0.5 + 25
         local travelTime = dist / (ConcasseConfig.TravelSpeed or 10)
         local startTime = tick()
@@ -108,6 +118,10 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
             RunService.Heartbeat:Wait()
         end
         hrp.CFrame = CFrame.new(dest)
+
+        hrp.Anchored = prevAnchor
+        humanoid.PlatformStand = prevPlat
+        humanoid.AutoRotate = prevAuto
     end
 end)
 
@@ -129,6 +143,10 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool or tool.Name ~= "BlackLeg" then
         if DEBUG then print("[Concasse] Invalid tool during hit") end
+        return
+    end
+    if humanoid.FloorMaterial == Enum.Material.Air then
+        if DEBUG then print("[Concasse] Hit attempted before landing") end
         return
     end
 
