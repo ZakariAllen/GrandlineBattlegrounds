@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local HealthService = require(ReplicatedStorage.Modules.Stats.HealthService)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
 -- ✅ Updated remote path
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -58,6 +59,7 @@ local function spawnPlayerWithTool(player, toolName)
         if humanoid then
                 HealthService.SetupHumanoid(humanoid)
         end
+        StaminaService.ResetStamina(player)
         local hrp = char:WaitForChild("HumanoidRootPart", 5)
 
 	if hrp then
