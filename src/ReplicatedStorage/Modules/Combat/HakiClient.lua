@@ -20,6 +20,9 @@ local KEY = Enum.KeyCode.J
 local active = false
 local coloredParts = {}
 local originalColors = {}
+local hakiTemplate = ReplicatedStorage:FindFirstChild("Assets") and
+    ReplicatedStorage.Assets:FindFirstChild("HakiEnabled")
+local addedTextures = {}
 
 local function applyColor(char, style)
     local names
@@ -49,6 +52,33 @@ local function clearColor()
     originalColors = {}
 end
 
+local function applyTextures(char)
+    if not hakiTemplate then return end
+    for _, src in ipairs(hakiTemplate:GetDescendants()) do
+        if src:IsA("BasePart") then
+            local target = char:FindFirstChild(src.Name)
+            if target then
+                for _, child in ipairs(src:GetChildren()) do
+                    if child:IsA("Texture") or child:IsA("Decal") or child:IsA("SurfaceAppearance") then
+                        local clone = child:Clone()
+                        clone.Parent = target
+                        table.insert(addedTextures, clone)
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function clearTextures()
+    for _, obj in ipairs(addedTextures) do
+        if obj and obj.Parent then
+            obj:Destroy()
+        end
+    end
+    addedTextures = {}
+end
+
 HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
     if hakiPlayer ~= player then return end
     if typeof(state) ~= "boolean" then return end
@@ -60,6 +90,7 @@ HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
     if state then
         local style = ToolController.GetEquippedStyleKey()
         applyColor(char, style)
+        applyTextures(char)
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if hrp then
             local soundId = SoundConfig.Haki and SoundConfig.Haki.Activate
@@ -69,6 +100,7 @@ HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
         end
     else
         clearColor()
+        clearTextures()
     end
 end)
 
