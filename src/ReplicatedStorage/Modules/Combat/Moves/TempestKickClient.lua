@@ -68,10 +68,8 @@ local function performMove()
     playAnimation(animator, Animations.SpecialMoves.PowerKick)
     StartEvent:FireServer()
 
-    local startTime = tick()
-    while tick() - startTime < cfg.Startup do
-        RunService.RenderStepped:Wait()
-    end
+    -- No extra logic during startup, so a simple timed wait is fine
+    task.wait(cfg.Startup)
 
     local dir = hrp.CFrame.LookVector
     HitboxClient.CastHitbox(

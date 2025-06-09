@@ -88,10 +88,8 @@ local function performMove()
     playAnimation(animator, Animations.SpecialMoves.PowerPunch)
     StartEvent:FireServer()
 
-    local startTime = tick()
-    while tick() - startTime < cfg.Startup do
-        RunService.RenderStepped:Wait()
-    end
+    -- Wait for startup without a busy loop
+    task.wait(cfg.Startup)
 
     -- Cast the hitbox while movement is still locked
     local dir = hrp.CFrame.LookVector

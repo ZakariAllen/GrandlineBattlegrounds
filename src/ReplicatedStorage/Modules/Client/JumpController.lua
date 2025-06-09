@@ -16,7 +16,7 @@ local DEBUG = Config.GameSettings.DebugEnabled
 
 local jumpBlockedUntil = 0
 local character, humanoid
-local heartbeatConn
+local cooldownTask
 
 -- 🔒 Forcefully disable jumping
 local function blockJump()
@@ -39,21 +39,18 @@ function JumpController.StartCooldown(duration)
 	jumpBlockedUntil = tick() + time
 	if DEBUG then print("[JumpController] Jump cooldown started:", time, "s") end
 
-	if heartbeatConn then
-		heartbeatConn:Disconnect()
-	end
+        if cooldownTask then
+                task.cancel(cooldownTask)
+                cooldownTask = nil
+        end
 
-	heartbeatConn = RunService.Heartbeat:Connect(function()
-		if tick() < jumpBlockedUntil then
-			blockJump()
-		else
-			restoreJump()
-			if heartbeatConn then
-				heartbeatConn:Disconnect()
-				heartbeatConn = nil
-			end
-		end
-	end)
+        blockJump()
+        cooldownTask = task.delay(time, function()
+                if tick() >= jumpBlockedUntil then
+                        restoreJump()
+                        cooldownTask = nil
+                end
+        end)
 end
 
 -- 📦 Handle jump input
