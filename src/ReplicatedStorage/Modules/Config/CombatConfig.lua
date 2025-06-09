@@ -15,14 +15,10 @@ CombatConfig.M1 = {
         M1StunDuration = 0.5,
 	M1_5StunDuration = 1.5,
 
-	KnockbackDistance = 25,
-	KnockbackDuration = 0.4,
+        KnockbackDistance = 25,
+        KnockbackDuration = 0.4,
         KnockbackLift = 3,
         KnockbackDirection = "AttackerFacingDirection",
-
-	HitboxSize = Vector3.new(4, 5, 4),
-	HitboxOffset = CFrame.new(0, 0, -2.4),
-	HitboxDuration = 0.1,
 
 	HitSoundDelay = 0.05,
 	MissSoundDelay = 0.05,
