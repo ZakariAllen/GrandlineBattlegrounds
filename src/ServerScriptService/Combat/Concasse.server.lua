@@ -91,8 +91,14 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
     if typeof(targetPos) == "Vector3" and hrp then
         local start = hrp.Position
         local dest = targetPos
-        local height = (dest - start).Magnitude * 0.5 + 25
-        local travelTime = 0.75
+        local dir = dest - start
+        local dist = dir.Magnitude
+        if dist > (ConcasseConfig.Range or 65) then
+            dest = start + dir.Unit * (ConcasseConfig.Range or 65)
+            dist = (ConcasseConfig.Range or 65)
+        end
+        local height = dist * 0.5 + 25
+        local travelTime = dist / (ConcasseConfig.TravelSpeed or 10)
         local startTime = tick()
         while tick() - startTime < travelTime do
             local t = (tick() - startTime) / travelTime
