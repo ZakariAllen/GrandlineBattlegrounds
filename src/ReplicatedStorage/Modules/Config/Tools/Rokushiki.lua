@@ -48,6 +48,10 @@ local Rokushiki = {
     Tekkai = {
         BlockHP = 750,
         StaminaDrain = 10,
+        Startup = 0.1,
+        Endlag = 0.1,
+        HyperArmor = false,
+        Cooldown = 10,
     },
 }
 

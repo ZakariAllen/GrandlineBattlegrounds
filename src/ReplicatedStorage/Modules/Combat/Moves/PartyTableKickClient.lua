@@ -91,8 +91,9 @@ local function performMove()
     end
 
     local startTime = tick()
+    local canCancel = cfg.Cancelable ~= false
     while tick() - startTime < cfg.Startup do
-        if not held or (not cfg.HyperArmor and StunStatusClient.IsStunned()) then
+        if not held or (canCancel and not cfg.HyperArmor and StunStatusClient.IsStunned()) then
             if DEBUG then print("[PartyTableKickClient] Startup cancelled") end
             endMove()
             return
@@ -102,7 +103,7 @@ local function performMove()
 
     local interval = cfg.Duration / math.max(cfg.Hits - 1, 1)
     for i = 1, cfg.Hits do
-        if not held or StunStatusClient.IsStunned() then
+        if not held or (canCancel and StunStatusClient.IsStunned()) then
             if DEBUG then print("[PartyTableKickClient] Move interrupted") end
             endMove()
             return
@@ -119,7 +120,7 @@ local function performMove()
         if i < cfg.Hits then
             local waitStart = tick()
             while tick() - waitStart < interval do
-                if not held or StunStatusClient.IsStunned() then
+                if not held or (canCancel and StunStatusClient.IsStunned()) then
                     endMove()
                     return
                 end
