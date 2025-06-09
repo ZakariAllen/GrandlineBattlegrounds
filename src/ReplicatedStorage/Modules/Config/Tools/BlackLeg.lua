@@ -1,12 +1,12 @@
 local BlackLeg = {
     PartyTableKick = {
         Hits = 10,
-        Duration = 2.4,
+        Duration = 2.25,
         DamagePerHit = 15,
         StunDuration = 0.75,
         Startup = 1.3,
         HyperArmor = false,
-        Cancelable = false,
+        Cancelable = true,
         GuardBreak = false,
         Endlag = 1.3,
         HitboxDuration = 0.1,
