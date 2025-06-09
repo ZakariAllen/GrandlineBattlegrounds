@@ -24,6 +24,23 @@ local DASH_KEY = Enum.KeyCode.Q
 local currentTrack = nil
 local dashConn = nil
 
+-- Immediately stop any active dash and clear velocity
+function DashClient.CancelDash()
+    if dashConn then
+        dashConn:Disconnect()
+        dashConn = nil
+    end
+    local character, humanoid, _, hrp = getCharacterComponents()
+    if hrp then
+        local v = hrp.AssemblyLinearVelocity
+        hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+    end
+    if humanoid then
+        humanoid.AutoRotate = true
+    end
+end
+-- Cancel active dash on stun
+
 -- Store original Enabled states for Gui objects so we can restore them
 local originalGuiState = setmetatable({}, {__mode = "k"})
 local originalHidePlayer = setmetatable({}, {__mode = "k"})

@@ -55,6 +55,8 @@ local function playAnimation(humanoid, animId)
     end)
 end
 
+local playerState = {}
+
 local function stopAnimation(humanoid)
     local current = activeTracks[humanoid]
     if current and current.IsPlaying then
@@ -105,6 +107,7 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         local prevAuto = humanoid.AutoRotate
         humanoid.PlatformStand = true
         humanoid.AutoRotate = false
+        playerState[player] = {prevPlat, prevAuto}
 
         -- Travel time scales between configured min/max based on distance
         local range = ConcasseConfig.Range or 65
@@ -114,11 +117,11 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         local travelTime = minTime + (maxTime - minTime) * ratio
 
         task.delay(travelTime, function()
-            if hrp.Parent then
-                hrp.CFrame = CFrame.new(dest)
+            if playerState[player] then
+                humanoid.PlatformStand = playerState[player][1]
+                humanoid.AutoRotate = playerState[player][2]
+                playerState[player] = nil
             end
-            humanoid.PlatformStand = prevPlat
-            humanoid.AutoRotate = prevAuto
         end)
     end
 end)
@@ -141,10 +144,6 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool or tool.Name ~= "BlackLeg" then
         if DEBUG then print("[Concasse] Invalid tool during hit") end
-        return
-    end
-    if humanoid.FloorMaterial == Enum.Material.Air then
-        if DEBUG then print("[Concasse] Hit attempted before landing") end
         return
     end
 
@@ -206,6 +205,13 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if hitSfx then
             SoundUtils:PlaySpatialSound(hitSfx, hrp)
         end
+    end
+
+    local state = playerState[player]
+    if state then
+        humanoid.PlatformStand = state[1]
+        humanoid.AutoRotate = state[2]
+        playerState[player] = nil
     end
 end)
 

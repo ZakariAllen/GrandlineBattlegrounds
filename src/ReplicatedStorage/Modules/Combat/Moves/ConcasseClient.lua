@@ -91,7 +91,7 @@ local function performMove(targetPos)
 
     local height = math.max(dist * 0.5 + 25, 20)
 
-    -- Determine final destination by raycasting along the arc
+    -- Initial raycast along the arc to pick the first static obstacle
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
     params.FilterDescendantsInstances = { char }
@@ -99,21 +99,19 @@ local function performMove(targetPos)
 
     local steps = 20
     local last = start
-    local final = dest
     for i = 1, steps do
         local t = i / steps
         local nextPos = start:Lerp(dest, t)
         nextPos += Vector3.new(0, math.sin(math.pi * t) * height, 0)
         local result = Workspace:Raycast(last, nextPos - last, params)
         if result then
-            final = Vector3.new(result.Position.X, start.Y, result.Position.Z)
+            dest = result.Position
+            dist = (dest - start).Magnitude
+            height = math.max(dist * 0.5 + 25, 20)
             break
         end
         last = nextPos
     end
-    dest = final
-    dist = (dest - start).Magnitude
-    height = math.max(dist * 0.5 + 25, 20)
 
     StartEvent:FireServer(dest)
 
@@ -123,19 +121,38 @@ local function performMove(targetPos)
     local minTime = cfg.MinTravelTime or 0
     local maxTime = cfg.MaxTravelTime or minTime
     local travelTime = minTime + (maxTime - minTime) * ratio
+
+    local look = Vector3.new(hrp.CFrame.LookVector.X, 0, hrp.CFrame.LookVector.Z)
+    if look.Magnitude == 0 then
+        look = Vector3.new(0, 0, -1)
+    else
+        look = look.Unit
+    end
+
     local startTime = tick()
+    local lastPos = start
     while tick() - startTime < travelTime do
         local t = (tick() - startTime) / travelTime
-        local pos = start:Lerp(dest, t)
-        pos = pos + Vector3.new(0, math.sin(math.pi * t) * height, 0)
-        hrp.CFrame = CFrame.new(pos, dest)
+        local nextPos = start:Lerp(dest, t)
+        nextPos += Vector3.new(0, math.sin(math.pi * t) * height, 0)
+        local result = Workspace:Raycast(lastPos, nextPos - lastPos, params)
+        if result then
+            nextPos = result.Position
+            hrp.CFrame = CFrame.lookAt(nextPos, nextPos + look)
+            dest = nextPos
+            break
+        end
+        hrp.CFrame = CFrame.lookAt(nextPos, nextPos + look)
+        lastPos = nextPos
+        if humanoid.FloorMaterial ~= Enum.Material.Air then
+            dest = nextPos
+            break
+        end
         RunService.RenderStepped:Wait()
     end
-    hrp.CFrame = CFrame.new(dest)
+    hrp.CFrame = CFrame.lookAt(dest, dest + look)
     humanoid.PlatformStand = prevPlat
     humanoid.AutoRotate = prevAuto
-
-    waitForLanding(humanoid)
 
     HitboxClient.CastHitbox(
         MoveHitboxConfig.Concasse.Offset,

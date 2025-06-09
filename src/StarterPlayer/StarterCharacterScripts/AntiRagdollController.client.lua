@@ -1,6 +1,9 @@
 -- StarterCharacterScripts > AntiRagdollController.lua
 
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
 local character = script.Parent
 local humanoid = character:WaitForChild("Humanoid")
@@ -39,10 +42,10 @@ local lastCorrection = 0
 RunService.Heartbeat:Connect(function()
 	if not humanoid or not hrp then return end
 
-	-- Ensure autorotate is always on
-	if humanoid.AutoRotate == false then
-		humanoid.AutoRotate = true
-	end
+    -- Ensure autorotate is always on when not stunned
+    if humanoid.AutoRotate == false and not StunStatusClient.IsStunned() then
+            humanoid.AutoRotate = true
+    end
 
 	-- Reset invalid physics states on delay
 	if tick() - lastCorrection >= CORRECTION_DELAY then
