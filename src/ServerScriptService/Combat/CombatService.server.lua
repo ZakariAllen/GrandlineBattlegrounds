@@ -134,15 +134,21 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	local animSet = AnimationData.M1[styleKey]
 
 	for _, enemyPlayer in ipairs(targetPlayers) do
-		if not enemyPlayer or not enemyPlayer.Character then continue end
+                if not enemyPlayer or not enemyPlayer.Character then continue end
 
-		local enemyChar = enemyPlayer.Character
-		local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
-		if not enemyHumanoid then continue end
+                local enemyChar = enemyPlayer.Character
+                local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
+                if not enemyHumanoid then continue end
                 if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
-                if not ShouldApplyHit(player, enemyPlayer) then continue end
 
-               local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
+                local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
+
+                -- If the enemy blocked the hit, bypass clash prevention so the
+                -- block still registers even if the enemy attacked slightly
+                -- earlier.
+                if not blockResult and not ShouldApplyHit(player, enemyPlayer) then
+                        continue
+                end
                 if blockResult == "Perfect" then
                         blockHit = true
                         StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, player)
