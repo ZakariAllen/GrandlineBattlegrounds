@@ -14,7 +14,9 @@ local MainMenu = PlayerGui:WaitForChild("MainMenu")
 local MainMenuFrame = MainMenu:WaitForChild("MainMenuFrame")
 local MainMenuBG = MainMenuFrame:WaitForChild("MainMenuBG")
 local SelectionFrame = MainMenu:WaitForChild("SelectionFrame")
-local SelectionBG = SelectionFrame:WaitForChild("SelectionBG")
+local StyleList = SelectionFrame
+    :WaitForChild("FightingStyles")
+    :WaitForChild("StyleList")
 local ShopFrame = MainMenu:WaitForChild("ShopFrame")
 local ShopBG = ShopFrame:WaitForChild("ShopBG")
 
@@ -79,7 +81,7 @@ local function wireSelectionButtons()
 	if selectionWired then return end
 	selectionWired = true
 
-	wireGenericButtons(ButtonCfg.Selection, SelectionBG, function(toolName)
+    wireGenericButtons(ButtonCfg.Selection, StyleList, function(toolName)
 		SelectionFrame.Visible = false
 		if toolSelectedCallback then
 			toolSelectedCallback(toolName)

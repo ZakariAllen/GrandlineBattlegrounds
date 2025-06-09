@@ -59,7 +59,7 @@ local function setButtonsEnabled(enabled)
 		end
 	end
 	apply(menuUI.MainMenuFrame.MainMenuBG)
-	apply(menuUI.SelectionFrame.SelectionBG)
+    apply(menuUI.SelectionFrame.FightingStyles.StyleList)
 end
 
 -- 🔁 Transition screen
