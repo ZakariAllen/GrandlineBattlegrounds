@@ -131,6 +131,7 @@ local function performMove(targetPos)
 
     local startTime = tick()
     local lastPos = start
+    local airborne = humanoid.FloorMaterial == Enum.Material.Air
     while tick() - startTime < travelTime do
         local t = (tick() - startTime) / travelTime
         local nextPos = start:Lerp(dest, t)
@@ -144,7 +145,9 @@ local function performMove(targetPos)
         end
         hrp.CFrame = CFrame.lookAt(nextPos, nextPos + look)
         lastPos = nextPos
-        if humanoid.FloorMaterial ~= Enum.Material.Air then
+        if not airborne and humanoid.FloorMaterial == Enum.Material.Air then
+            airborne = true
+        elseif airborne and humanoid.FloorMaterial ~= Enum.Material.Air then
             dest = nextPos
             break
         end
