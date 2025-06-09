@@ -52,8 +52,8 @@ local BlackLeg = {
         PerfectBlockable = true,
         Endlag = 0,
         Range = 65,
-        -- Increased travel speed for faster aerial movement
-        TravelSpeed = 30,
+        -- TravelTime provides consistent airtime regardless of distance
+        TravelTime = 1.2,
         HitboxDuration = 0.1,
         Cooldown = 12,
         Hitbox = {
