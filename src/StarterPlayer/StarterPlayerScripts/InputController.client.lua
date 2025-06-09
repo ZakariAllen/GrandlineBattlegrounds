@@ -44,6 +44,9 @@ local StunStatusEvent = Stun:WaitForChild("StunStatusRequestEvent")
 -- Update stun status using the provided helper instead of overwriting the API
 StunStatusEvent.OnClientEvent:Connect(function(data)
         StunStatusClient.SetStatus(data.Stunned, data.AttackerLock)
+        if data.Stunned then
+                DashClient.CancelDash()
+        end
 end)
 
 -- 🔗 Tool event connection
