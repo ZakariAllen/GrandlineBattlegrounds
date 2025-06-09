@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("ConcasseStart")
@@ -81,16 +82,43 @@ local function performMove(targetPos)
     local dir = dest - start
     local horiz = Vector3.new(dir.X, 0, dir.Z)
     local dist = horiz.Magnitude
-    if dist > (cfg.Range or 65) then
-        horiz = horiz.Unit * (cfg.Range or 65)
-        dist = (cfg.Range or 65)
+    local range = cfg.Range or 65
+    if dist > range then
+        horiz = horiz.Unit * range
+        dist = range
     end
     dest = start + horiz
-    StartEvent:FireServer(dest)
 
     local height = math.max(dist * 0.5 + 25, 20)
+
+    -- Determine final destination by raycasting along the arc
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = { char }
+    params.IgnoreWater = true
+
+    local steps = 20
+    local last = start
+    local final = dest
+    for i = 1, steps do
+        local t = i / steps
+        local nextPos = start:Lerp(dest, t)
+        nextPos += Vector3.new(0, math.sin(math.pi * t) * height, 0)
+        local result = Workspace:Raycast(last, nextPos - last, params)
+        if result then
+            final = Vector3.new(result.Position.X, start.Y, result.Position.Z)
+            break
+        end
+        last = nextPos
+    end
+    dest = final
+    dist = (dest - start).Magnitude
+    height = math.max(dist * 0.5 + 25, 20)
+
+    StartEvent:FireServer(dest)
+
     -- Travel time scales between configured min and max based on distance
-    local range = cfg.Range or 65
+    range = cfg.Range or 65
     local ratio = math.clamp(dist / range, 0, 1)
     local minTime = cfg.MinTravelTime or 0
     local maxTime = cfg.MaxTravelTime or minTime
