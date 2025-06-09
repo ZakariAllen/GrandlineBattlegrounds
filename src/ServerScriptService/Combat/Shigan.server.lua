@@ -117,7 +117,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             continue
         end
 
-        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, ShiganConfig.Damage, false)
+        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, ShiganConfig.Damage, false, hrp)
         if blockResult == "Perfect" then
             if DEBUG then print("[Shigan] Perfect block by", enemyPlayer.Name) end
             stopAnimation(humanoid)

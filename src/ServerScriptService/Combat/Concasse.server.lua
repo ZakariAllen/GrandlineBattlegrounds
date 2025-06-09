@@ -162,7 +162,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             continue
         end
 
-        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, ConcasseConfig.Damage, false)
+        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, ConcasseConfig.Damage, false, hrp)
         if blockResult == "Perfect" then
             if DEBUG then print("[Concasse] Perfect block by", enemyPlayer.Name) end
             stopAnimation(humanoid)

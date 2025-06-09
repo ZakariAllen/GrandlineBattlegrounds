@@ -126,12 +126,12 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         if PowerKickConfig.GuardBreak then
             if PowerKickConfig.PerfectBlockable then
                 local dmg = BlockService.GetBlockHP(enemyPlayer)
-                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, dmg, false)
+                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, dmg, false, hrp)
             else
-                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerKickConfig.Damage, true)
+                blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerKickConfig.Damage, true, hrp)
             end
         else
-            blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerKickConfig.Damage, false)
+            blockResult = BlockService.ApplyBlockDamage(enemyPlayer, PowerKickConfig.Damage, false, hrp)
         end
         if blockResult == "Perfect" then
             if DEBUG then print("[PowerKick] Perfect block by", enemyPlayer.Name) end
