@@ -10,6 +10,7 @@ local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local TeleportVFX = require(ReplicatedStorage.Modules.Effects.TeleportVFX)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -34,7 +35,14 @@ TeleportEvent.OnServerEvent:Connect(function(player, position)
         return
     end
 
+    if not StaminaService.Consume(player, TeleportConfig.StaminaCost or 0) then
+        if DEBUG then print("[TeleportServer] Not enough stamina") end
+        return
+    end
+
+    TeleportVFX.Play(hrp.CFrame)
     hrp.CFrame = CFrame.new(position)
+    TeleportVFX.Play(CFrame.new(position))
 
     local soundId = TeleportConfig.Sound and TeleportConfig.Sound.Use
     if soundId then

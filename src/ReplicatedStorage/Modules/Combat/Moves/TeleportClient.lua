@@ -14,8 +14,12 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local TeleportVFX = require(ReplicatedStorage.Modules.Effects.TeleportVFX)
+local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
 local KEY = Enum.KeyCode.T
+local active = false
 local lastUse = 0
 
 local player = Players.LocalPlayer
@@ -30,6 +34,7 @@ end
 
 function Teleport.OnInputBegan(input, gp)
     if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
+    if active then return end
     if tick() - lastUse < (TeleportConfig.Cooldown or 0) then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
 
@@ -37,32 +42,48 @@ function Teleport.OnInputBegan(input, gp)
     if style ~= "Rokushiki" then return end
     if not ToolController.IsValidCombatTool() then return end
 
-    local _, _, hrp = getCharacter()
-    if not hrp then return end
+    if StaminaService.GetStamina(Players.LocalPlayer) < (TeleportConfig.StaminaCost or 0) then return end
 
+    local _, humanoid, hrp = getCharacter()
+    if not hrp or not humanoid then return end
+
+    active = true
     lastUse = tick()
 
-    local pos = mouse.Hit and mouse.Hit.Position or hrp.Position
-    local delta = pos - hrp.Position
-    local maxDist = TeleportConfig.MaxDistance or 20
-    if delta.Magnitude > maxDist then
-        delta = delta.Unit * maxDist
-        pos = hrp.Position + delta
-    end
+    MovementClient.StopSprint()
+    local lockTime = (TeleportConfig.Startup or 0) + (TeleportConfig.Endlag or 0)
+    StunStatusClient.LockFor(lockTime)
 
-    -- Move the character locally first so the server update isn't overwritten
-    -- by client-side physics when the player is in motion. The server will
-    -- validate the request and replicate the same position back to all clients.
-    hrp.CFrame = CFrame.new(pos)
-    local vel = hrp.AssemblyLinearVelocity
-    hrp.AssemblyLinearVelocity = Vector3.new(0, vel.Y, 0)
+    task.spawn(function()
+        task.wait(TeleportConfig.Startup or 0)
 
-    TeleportEvent:FireServer(pos)
+        local startCF = hrp.CFrame
+        local pos = mouse.Hit and mouse.Hit.Position or hrp.Position
+        local delta = pos - hrp.Position
+        local maxDist = TeleportConfig.MaxDistance or 20
+        if delta.Magnitude > maxDist then
+            delta = delta.Unit * maxDist
+            pos = hrp.Position + delta
+        end
 
-    local sfx = TeleportConfig.Sound and TeleportConfig.Sound.Use
-    if sfx then
-        SoundServiceUtils:PlaySpatialSound(sfx, hrp)
-    end
+        TeleportVFX.Play(startCF)
+
+        hrp.CFrame = CFrame.new(pos)
+        local vel = hrp.AssemblyLinearVelocity
+        hrp.AssemblyLinearVelocity = Vector3.new(0, vel.Y, 0)
+
+        TeleportEvent:FireServer(pos)
+
+        TeleportVFX.Play(CFrame.new(pos))
+
+        local sfx = TeleportConfig.Sound and TeleportConfig.Sound.Use
+        if sfx then
+            SoundServiceUtils:PlaySpatialSound(sfx, hrp)
+        end
+
+        task.wait(TeleportConfig.Endlag or 0)
+        active = false
+    end)
 end
 
 function Teleport.OnInputEnded() end
