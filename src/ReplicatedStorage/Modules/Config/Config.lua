@@ -4,6 +4,7 @@ local Config = {}
 
 -- Import additional sub-configurations
 local HitEffectConfig = require(script.Parent.HitEffectConfig)
+local VFXConfig = require(script.Parent.VFXConfig)
 
 Config.GameSettings = {
 	DefaultSprintSpeed = 20,
@@ -16,5 +17,6 @@ Config.GameSettings = {
 }
 
 Config.HitEffect = HitEffectConfig
+Config.VFX = VFXConfig
 
 return Config
