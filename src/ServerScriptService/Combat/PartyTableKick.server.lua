@@ -140,7 +140,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             continue
         end
 
-        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, cfg.DamagePerHit, false)
+        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, cfg.DamagePerHit, false, hrp)
         if blockResult == "Perfect" then
             if DEBUG then print("[PartyTableKick] Perfect block by", enemyPlayer.Name) end
             blockHit = true

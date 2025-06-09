@@ -141,6 +141,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 if not enemyHumanoid then continue end
                 if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
 
+
                 local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
 
                 -- If the enemy blocked the hit, bypass clash prevention so the

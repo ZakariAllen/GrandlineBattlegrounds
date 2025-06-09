@@ -136,7 +136,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             continue
         end
 
-        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, TempestKickConfig.Damage, false)
+        local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, TempestKickConfig.Damage, false, hrp)
         if blockResult == "Perfect" then
             if DEBUG then print("[TempestKick] Perfect block by", enemyPlayer.Name) end
             stopAnimation(humanoid)

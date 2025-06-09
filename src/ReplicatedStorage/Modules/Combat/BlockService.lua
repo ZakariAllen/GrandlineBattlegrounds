@@ -101,12 +101,22 @@ end
 -- ⚔️ Handles damage application to a blocking player
 -- Returns: "Perfect", "Damaged", "Broken", or nil (not blocking)
 -- @param isBlockBreaker boolean? whether the attack ignores blocking
-function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker)
+-- @param attackerRoot Instance? HumanoidRootPart of the attacking player
+function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker, attackerRoot)
        if TekkaiService.IsActive(player) then
                return TekkaiService.ApplyDamage(player, damage)
        end
 
        if not BlockingPlayers[player] then return nil end
+
+       local defenderRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+       if attackerRoot and defenderRoot then
+               local relative = (attackerRoot.Position - defenderRoot.Position).Unit
+               if relative:Dot(defenderRoot.CFrame.LookVector) < 0 then
+                       BlockService.StopBlocking(player)
+                       return nil
+               end
+       end
 
        local hp = BlockHP[player] or 0
        local timeSinceStart = tick() - (PerfectBlockTimers[player] or 0)
