@@ -50,7 +50,8 @@ local function setCharacterInvisible(character, invisible, owner)
                 end
                 originalGuiState[obj] = nil
             end
-            if not invisible and owner and obj:IsA("BillboardGui") then
+            -- Only update PlayerToHideFrom for the local player's own GUI
+            if not invisible and owner == player and obj:IsA("BillboardGui") then
                 pcall(function()
                     obj.PlayerToHideFrom = owner
                 end)
