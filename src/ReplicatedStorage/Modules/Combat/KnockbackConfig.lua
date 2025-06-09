@@ -13,22 +13,22 @@ KnockbackConfig.Type = {
 KnockbackConfig.Params = {
     [KnockbackConfig.Type.AttackerFacingDirection] = {
         Distance = 18,
-        Duration = 0.4,
+        Duration = 0.5,
         Lift = 1,
     },
     [KnockbackConfig.Type.HitboxVelocityDirection] = {
         Distance = 18,
-        Duration = 0.4,
+        Duration = 0.5,
         Lift = 1,
     },
     [KnockbackConfig.Type.HitboxTravelDirection] = {
         Distance = 18,
-        Duration = 0.4,
+        Duration = 0.5,
         Lift = 1,
     },
     [KnockbackConfig.Type.AwayFromAttacker] = {
         Distance = 18,
-        Duration = 0.4,
+        Duration = 0.5,
         Lift = 1,
     },
 }
