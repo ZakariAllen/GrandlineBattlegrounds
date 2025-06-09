@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("TempestKickStart")
 local HitEvent = CombatRemotes:WaitForChild("TempestKickHit")
+local VFXEvent = CombatRemotes:WaitForChild("TempestKickVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
@@ -125,5 +126,27 @@ end
 function TempestKick.OnInputEnded()
     -- move cannot be cancelled
 end
+
+-- Play VFX for other players when the server notifies us
+VFXEvent.OnClientEvent:Connect(function(kickPlayer, startCF)
+    if kickPlayer == Players.LocalPlayer then return end
+    if typeof(startCF) ~= "CFrame" then return end
+
+    local dir = startCF.LookVector
+    local hitbox = HitboxClient.CastHitbox(
+        MoveHitboxConfig.TempestKick.Offset,
+        MoveHitboxConfig.TempestKick.Size,
+        TempestKickConfig.HitboxDuration,
+        nil,
+        {dir},
+        MoveHitboxConfig.TempestKick.Shape,
+        false,
+        TempestKickConfig.HitboxDistance,
+        false
+    )
+    if hitbox then
+        TempestKickVFX.Create(hitbox)
+    end
+end)
 
 return TempestKick

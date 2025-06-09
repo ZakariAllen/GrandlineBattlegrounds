@@ -99,14 +99,10 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         end
         local dest = start + horiz
 
-        -- Temporarily anchor to keep the character stable while the
-        -- client animates the actual movement. The server simply
-        -- teleports to the final position after the travel time to
-        -- avoid fighting against client-side interpolation.
-        local prevAnchor = hrp.Anchored
+        -- Allow the client to control the movement so other players see it
+        -- by only disabling platform stand and autorotate.
         local prevPlat = humanoid.PlatformStand
         local prevAuto = humanoid.AutoRotate
-        hrp.Anchored = true
         humanoid.PlatformStand = true
         humanoid.AutoRotate = false
 
@@ -118,8 +114,9 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         local travelTime = minTime + (maxTime - minTime) * ratio
 
         task.delay(travelTime, function()
-            hrp.CFrame = CFrame.new(dest)
-            hrp.Anchored = prevAnchor
+            if hrp.Parent then
+                hrp.CFrame = CFrame.new(dest)
+            end
             humanoid.PlatformStand = prevPlat
             humanoid.AutoRotate = prevAuto
         end)

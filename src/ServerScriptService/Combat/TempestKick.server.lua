@@ -4,6 +4,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("TempestKickStart")
 local HitEvent = CombatRemotes:WaitForChild("TempestKickHit")
+local VFXEvent = CombatRemotes:WaitForChild("TempestKickVFX")
 
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
 local TempestKickConfig = AbilityConfig.Rokushiki.TempestKick
@@ -87,6 +88,10 @@ StartEvent.OnServerEvent:Connect(function(player)
     end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerKick)
     if DEBUG then print("[TempestKick] Animation triggered") end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        VFXEvent:FireAllClients(player, hrp.CFrame)
+    end
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, dir)
