@@ -108,7 +108,7 @@ StartEvent.OnServerEvent:Connect(function(player, targetPos)
         humanoid.AutoRotate = false
 
         local height = dist * 0.5 + 25
-        local travelTime = dist / (ConcasseConfig.TravelSpeed or 10)
+        local travelTime = (ConcasseConfig.TravelTime or (dist / (ConcasseConfig.TravelSpeed or 10)))
         local startTime = tick()
         while tick() - startTime < travelTime do
             local t = (tick() - startTime) / travelTime
