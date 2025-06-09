@@ -28,9 +28,28 @@ local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 -- 🧠 State
 local comboTimestamps = {} -- [player] = { LastClick = time, CooldownEnd = time }
 local activeTracks = {
-	Attack = {},
-	Knockback = {},
+        Attack = {},
+        Knockback = {},
 }
+
+local function ShouldApplyHit(attacker, defender)
+    -- If the defender was just hit, ignore further hits for a short window
+    if StunService:WasRecentlyHit(defender) then
+        return false
+    end
+
+    -- Determine which player initiated their attack first
+    local atk = comboTimestamps[attacker]
+    local def = comboTimestamps[defender]
+    if atk and def then
+        local diff = def.LastClick - atk.LastClick
+        if diff > 0 and diff <= CombatConfig.M1.ClashWindow then
+            -- Defender started attacking slightly earlier, so cancel this hit
+            return false
+        end
+    end
+    return true
+end
 
 -- 🎬 Play animation server-side for others
 local function PlayAnimation(humanoid, animId, category)
@@ -117,7 +136,8 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 		local enemyChar = enemyPlayer.Character
 		local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
 		if not enemyHumanoid then continue end
-		if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
+                if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
+                if not ShouldApplyHit(player, enemyPlayer) then continue end
 
                local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false)
                 if blockResult == "Perfect" then
