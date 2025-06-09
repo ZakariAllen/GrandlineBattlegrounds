@@ -132,17 +132,17 @@ VFXEvent.OnClientEvent:Connect(function(kickPlayer, startCF)
     if kickPlayer == Players.LocalPlayer then return end
     if typeof(startCF) ~= "CFrame" then return end
 
-    local dir = startCF.LookVector
     local hitbox = HitboxClient.CastHitbox(
         MoveHitboxConfig.TempestKick.Offset,
         MoveHitboxConfig.TempestKick.Size,
         TempestKickConfig.HitboxDuration,
         nil,
-        {dir},
+        nil,
         MoveHitboxConfig.TempestKick.Shape,
         false,
         TempestKickConfig.HitboxDistance,
-        false
+        false,
+        startCF
     )
     if hitbox then
         TempestKickVFX.Create(hitbox)
