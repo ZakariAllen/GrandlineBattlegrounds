@@ -54,6 +54,8 @@ local BlackLeg = {
         Range = 65,
         -- Constant travel speed for consistent feel across distances
         TravelSpeed = 65,
+        -- Minimum time before landing to prevent instant "teleport" feel
+        MinTravelTime = 0.4,
         HitboxDuration = 0.1,
         Cooldown = 12,
         Hitbox = {
