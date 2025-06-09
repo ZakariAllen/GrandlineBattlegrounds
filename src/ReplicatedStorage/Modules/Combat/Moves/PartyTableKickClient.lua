@@ -10,6 +10,7 @@ local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Co
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
+local VFXEvent = CombatRemotes:WaitForChild("PartyTableKickVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
 local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
@@ -18,6 +19,7 @@ local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConf
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
+local PartyTableKickVFX = require(ReplicatedStorage.Modules.Effects.PartyTableKickVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 
@@ -108,7 +110,7 @@ local function performMove()
             endMove()
             return
         end
-        HitboxClient.CastHitbox(
+        local hitbox = HitboxClient.CastHitbox(
             MoveHitboxConfig.PartyTableKick.Offset,
             MoveHitboxConfig.PartyTableKick.Size,
             MoveHitboxConfig.PartyTableKick.Duration,
@@ -117,6 +119,9 @@ local function performMove()
             MoveHitboxConfig.PartyTableKick.Shape,
             true
         )
+        if hitbox then
+            PartyTableKickVFX.Create(hitbox)
+        end
         if i < cfg.Hits then
             local waitStart = tick()
             while tick() - waitStart < interval do
@@ -194,5 +199,16 @@ function PartyTableKick.OnInputEnded(input)
     StunStatusClient.ReduceLockTo(PartyTableKickConfig.Endlag or 0)
     if DEBUG then print("[PartyTableKickClient] Input ended") end
 end
+
+VFXEvent.OnClientEvent:Connect(function(kickPlayer)
+    if typeof(kickPlayer) ~= "Instance" then return end
+    if kickPlayer == Players.LocalPlayer then return end
+
+    local char = kickPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        PartyTableKickVFX.Create(hrp)
+    end
+end)
 
 return PartyTableKick
