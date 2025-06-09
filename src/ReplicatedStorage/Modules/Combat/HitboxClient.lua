@@ -16,10 +16,10 @@ local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Co
 local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
 
 -- ✅ Create visual debug hitbox (attached to HRP)
-local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
+local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape, startCF)
         local part = Instance.new("Part")
         part.Size = size
-        part.CFrame = hrp.CFrame * offsetCFrame
+        part.CFrame = (startCF or hrp.CFrame) * offsetCFrame
         if shape == "Cylinder" then
                 part.Shape = Enum.PartType.Cylinder
                 -- Rotate the cylinder 90 degrees for a flat disc effect.
@@ -27,18 +27,20 @@ local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
                 -- using local space calculations.
                 part.Orientation = Vector3.new(0, 0, 90)
         end
-        part.Anchored = false
+        part.Anchored = startCF and true or false
         part.CanCollide = false
-	part.Transparency = Config.GameSettings.DebugEnabled and 0.6 or 1
-	part.Material = Enum.Material.ForceField
-	part.BrickColor = BrickColor.new("Bright red")
-	part.Name = "ClientHitbox"
-	part.Parent = Workspace
+        part.Transparency = Config.GameSettings.DebugEnabled and 0.6 or 1
+        part.Material = Enum.Material.ForceField
+        part.BrickColor = BrickColor.new("Bright red")
+        part.Name = "ClientHitbox"
+        part.Parent = Workspace
 
-	local weld = Instance.new("WeldConstraint")
-	weld.Part0 = hrp
-	weld.Part1 = part
-	weld.Parent = part
+        if not startCF then
+                local weld = Instance.new("WeldConstraint")
+                weld.Part0 = hrp
+                weld.Part1 = part
+                weld.Parent = part
+        end
 
         -- Give the hitbox a small lifetime buffer so it isn't destroyed
         -- before the final RenderStepped update completes
@@ -58,23 +60,26 @@ function HitboxClient.CastHitbox(
     shape,
     fireOnMiss,
     travelDistance,
-    fireOnHit
+    fireOnHit,
+    startCFrame
 )
-	local player = Players.LocalPlayer
-	local char = player.Character
-	if not char then return end
+        local player = Players.LocalPlayer
+        local char = player.Character
+        if not char then return end
 
-	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
 
-    local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration, shape)
+        local skipNetwork = startCFrame ~= nil and remoteEvent == nil
+
+    local hitbox = createWeldedHitbox(hrp, offsetCFrame, size, duration, shape, startCFrame)
     if not hitbox then return end
     if Config.GameSettings.DebugEnabled then
         print("[HitboxClient] CastHitbox", offsetCFrame, size, duration, travelDistance)
     end
 
         local originCF = hitbox.CFrame
-        local dir = hrp.CFrame.LookVector
+        local dir = (startCFrame or hrp.CFrame).LookVector
         if travelDistance and travelDistance ~= 0 then
                 local weld = hitbox:FindFirstChildOfClass("WeldConstraint")
                 if weld then weld:Destroy() end
@@ -82,9 +87,9 @@ function HitboxClient.CastHitbox(
         end
 
     local alreadyHit = {}
-	local overlapParams = OverlapParams.new()
-	overlapParams.FilterType = Enum.RaycastFilterType.Exclude
-	overlapParams.FilterDescendantsInstances = { char }
+        local overlapParams = OverlapParams.new()
+        overlapParams.FilterType = Enum.RaycastFilterType.Exclude
+        overlapParams.FilterDescendantsInstances = { char }
 
 	local startTime = tick()
 	local connection
@@ -102,70 +107,74 @@ function HitboxClient.CastHitbox(
                         end
                         connection:Disconnect()
 
-                        local targets = {}
-                        for humanoid in pairs(alreadyHit) do
-                                table.insert(targets, humanoid)
-                        end
-
-                        local playerTargets = {}
-                        for _, humanoid in ipairs(targets) do
-                                local model = humanoid.Parent
-                                local enemyPlayer = Players:GetPlayerFromCharacter(model)
-                                if enemyPlayer then
-                                        table.insert(playerTargets, enemyPlayer)
+                        if not skipNetwork then
+                                local targets = {}
+                                for humanoid in pairs(alreadyHit) do
+                                        table.insert(targets, humanoid)
                                 end
-                        end
 
-                        if fireOnHit then
-                                if #playerTargets == 0 and fireOnMiss and remoteEvent then
-                                        if Config.GameSettings.DebugEnabled then
-                                                print("[HitboxClient] Miss -> firing remote with dir", extraArgs)
+                                local playerTargets = {}
+                                for _, humanoid in ipairs(targets) do
+                                        local model = humanoid.Parent
+                                        local enemyPlayer = Players:GetPlayerFromCharacter(model)
+                                        if enemyPlayer then
+                                                table.insert(playerTargets, enemyPlayer)
                                         end
-                                        remoteEvent:FireServer({}, table.unpack(extraArgs or {}))
                                 end
-                        else
-                                if #playerTargets > 0 or fireOnMiss then
-                                        if remoteEvent then
+
+                                if fireOnHit then
+                                        if #playerTargets == 0 and fireOnMiss and remoteEvent then
                                                 if Config.GameSettings.DebugEnabled then
-                                                        print("[HitboxClient] Firing remote with targets", playerTargets, extraArgs)
+                                                        print("[HitboxClient] Miss -> firing remote with dir", extraArgs)
                                                 end
-                                                remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
-                                        else
-                                                local comboIndex = CombatConfig._lastUsedComboIndex or 1
-                                                local isFinal = comboIndex == CombatConfig.M1.ComboHits
-                                                HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
+                                                remoteEvent:FireServer({}, table.unpack(extraArgs or {}))
+                                        end
+                                else
+                                        if #playerTargets > 0 or fireOnMiss then
+                                                if remoteEvent then
+                                                        if Config.GameSettings.DebugEnabled then
+                                                                print("[HitboxClient] Firing remote with targets", playerTargets, extraArgs)
+                                                        end
+                                                        remoteEvent:FireServer(playerTargets, table.unpack(extraArgs or {}))
+                                                else
+                                                        local comboIndex = CombatConfig._lastUsedComboIndex or 1
+                                                        local isFinal = comboIndex == CombatConfig.M1.ComboHits
+                                                        HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
+                                                end
                                         end
                                 end
                         end
                         return
                 end
 
-                local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
-                local center = hitbox.CFrame.Position
-                local radius = hitbox.Size.X * 0.5
-                local height = hitbox.Size.Y
-                for _, part in ipairs(parts) do
-                        local model = part:FindFirstAncestorOfClass("Model")
-                        local humanoid = model and model:FindFirstChildOfClass("Humanoid")
-                        local otherPlayer = model and Players:GetPlayerFromCharacter(model)
+                if not skipNetwork then
+                        local parts = Workspace:GetPartBoundsInBox(hitbox.CFrame, hitbox.Size, overlapParams)
+                        local center = hitbox.CFrame.Position
+                        local radius = hitbox.Size.X * 0.5
+                        local height = hitbox.Size.Y
+                        for _, part in ipairs(parts) do
+                                local model = part:FindFirstAncestorOfClass("Model")
+                                local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+                                local otherPlayer = model and Players:GetPlayerFromCharacter(model)
 
-                        if humanoid and otherPlayer and otherPlayer ~= player then
-                                local newHit = false
-                                if shape == "Cylinder" then
-                                        local rel = hitbox.CFrame:PointToObjectSpace(part.Position)
-                                        local dx = rel.X
-                                        local dz = rel.Z
-                                        if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(rel.Y) <= height * 0.5 then
+                                if humanoid and otherPlayer and otherPlayer ~= player then
+                                        local newHit = false
+                                        if shape == "Cylinder" then
+                                                local rel = hitbox.CFrame:PointToObjectSpace(part.Position)
+                                                local dx = rel.X
+                                                local dz = rel.Z
+                                                if math.sqrt(dx * dx + dz * dz) <= radius and math.abs(rel.Y) <= height * 0.5 then
+                                                        newHit = true
+                                                end
+                                        else
                                                 newHit = true
                                         end
-                                else
-                                        newHit = true
-                                end
 
-                                if newHit and not alreadyHit[humanoid] then
-                                        alreadyHit[humanoid] = true
-                                        if fireOnHit and remoteEvent then
-                                                remoteEvent:FireServer({ otherPlayer }, table.unpack(extraArgs or {}))
+                                        if newHit and not alreadyHit[humanoid] then
+                                                alreadyHit[humanoid] = true
+                                                if fireOnHit and remoteEvent then
+                                                        remoteEvent:FireServer({ otherPlayer }, table.unpack(extraArgs or {}))
+                                                end
                                         end
                                 end
                         end
