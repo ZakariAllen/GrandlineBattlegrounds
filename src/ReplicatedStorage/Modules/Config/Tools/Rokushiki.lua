@@ -1,8 +1,8 @@
 local Rokushiki = {
     Teleport = {
-        Startup = 0.1,
+        Startup = 0.2,
         Endlag = 0.05,
-        Cooldown = 8,
+        Cooldown = 15,
         StaminaCost = 35,
         MaxDistance = 40,
         Sound = {
@@ -18,7 +18,7 @@ local Rokushiki = {
         PerfectBlockable = true,
         Endlag = 0.25,
         HitboxDuration = 0.1,
-        Cooldown = 8,
+        Cooldown = 12,
         Hitbox = {
             Size = Vector3.new(5, 6, 5),
             Offset = CFrame.new(0, 0, -2.4),
@@ -30,21 +30,21 @@ local Rokushiki = {
         },
     },
     TempestKick = {
-        Damage = 100,
-        StunDuration = 0.75,
-        Startup = 0.83,
+        Damage = 75,
+        StunDuration = 1,
+        Startup = 1,
         HyperArmor = false,
         GuardBreak = false,
         PerfectBlockable = true,
         Endlag = 0.5,
-        HitboxDuration = 0.4,
+        HitboxDuration = 0.3,
         HitboxDistance = 25,
-        Cooldown = 7,
+        Cooldown = 12,
         KnockbackDirection = "AttackerFacingDirection",
         Hitbox = {
             Size = Vector3.new(8, 6, 6),
             Offset = CFrame.new(0, 0, -3.2),
-            Duration = 0.4,
+            Duration = 0.3,
             Shape = "Block",
         },
     },
