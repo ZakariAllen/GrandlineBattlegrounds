@@ -67,12 +67,10 @@ local function performMove(targetPos)
     currentHumanoid = humanoid
     prevWalkSpeed = humanoid.WalkSpeed
     prevJumpPower = humanoid.JumpPower
-    local prevAnchored = hrp.Anchored
     local prevPlat = humanoid.PlatformStand
     local prevAuto = humanoid.AutoRotate
     humanoid.PlatformStand = true
     humanoid.AutoRotate = false
-    hrp.Anchored = true
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
@@ -106,7 +104,6 @@ local function performMove(targetPos)
         RunService.RenderStepped:Wait()
     end
     hrp.CFrame = CFrame.new(dest)
-    hrp.Anchored = prevAnchored
     humanoid.PlatformStand = prevPlat
     humanoid.AutoRotate = prevAuto
 
