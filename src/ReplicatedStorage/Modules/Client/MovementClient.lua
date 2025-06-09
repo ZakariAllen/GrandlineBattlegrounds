@@ -74,7 +74,8 @@ function MovementClient.OnInputBegan(input, gameProcessed)
 end
 
 function MovementClient.OnInputEnded(input, gameProcessed)
-	local key = input.KeyCode.Name
+        if gameProcessed then return end
+        local key = input.KeyCode.Name
 
 	if movementKeys[key] ~= nil then
 		movementKeys[key] = false
