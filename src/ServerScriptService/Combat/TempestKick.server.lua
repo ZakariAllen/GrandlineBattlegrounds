@@ -88,10 +88,17 @@ StartEvent.OnServerEvent:Connect(function(player)
     end
     playAnimation(humanoid, AnimationData.SpecialMoves.PowerKick)
     if DEBUG then print("[TempestKick] Animation triggered") end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        VFXEvent:FireAllClients(player, hrp.CFrame)
+
+    local function fireVFX()
+        local currentChar = player.Character
+        local root = currentChar and currentChar:FindFirstChild("HumanoidRootPart")
+        if root then
+            VFXEvent:FireAllClients(player, root.CFrame)
+        end
     end
+
+    -- Delay the VFX so it lines up with the actual hitbox spawn on the attacker
+    task.delay(TempestKickConfig.Startup, fireVFX)
 end)
 
 HitEvent.OnServerEvent:Connect(function(player, targets, dir)
