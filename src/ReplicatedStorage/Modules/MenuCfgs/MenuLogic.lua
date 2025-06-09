@@ -2,13 +2,13 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
 local ButtonCfg = require(ReplicatedStorage.Modules.MenuCfgs.ButtonCfg)
-local SelectionButtonCfg = require(ReplicatedStorage.Modules.MenuCfgs.SelectionButtonCfg)
-local ShopButtonCfg = require(ReplicatedStorage.Modules.MenuCfgs.ShopButtonCfg)
 
 local MainMenu = PlayerGui:WaitForChild("MainMenu")
 local MainMenuFrame = MainMenu:WaitForChild("MainMenuFrame")
@@ -34,47 +34,72 @@ end
 
 -- Generic button connector
 local function wireGenericButtons(cfgList, container, callback)
-	for _, btnCfg in ipairs(cfgList) do
-		local btn = safeGet(container, btnCfg.Name)
-		if btn then
-			btn.MouseButton1Click:Connect(function()
-				if callback then
-					callback(btnCfg.Name:match("%- (.+)$") or btnCfg.Name)
-				end
-			end)
-		end
-	end
+        local defaultHover = SoundConfig.UI.Hover
+        local defaultClick = SoundConfig.UI.Click
+
+        for _, btnCfg in ipairs(cfgList) do
+                local btn = safeGet(container, btnCfg.Name)
+                if btn then
+                        local hoverSound = btnCfg.HoverSound or defaultHover
+                        local clickSound = btnCfg.ClickSound or defaultClick
+
+                        btn.MouseEnter:Connect(function()
+                                SoundServiceUtils:PlayLocalSound(hoverSound)
+                        end)
+
+                        btn.MouseButton1Click:Connect(function()
+                                SoundServiceUtils:PlayLocalSound(clickSound)
+                                if callback then
+                                        callback(btnCfg.Name:match("%- (.+)$") or btnCfg.Name)
+                                end
+                        end)
+                end
+        end
 end
 
 local function wireMainMenuButtons()
-	if mainMenuWired then return end
-	mainMenuWired = true
+        if mainMenuWired then return end
+        mainMenuWired = true
 
-	local playBtn      = safeGet(MainMenuBG, "1 - Play")
-	local customizeBtn = safeGet(MainMenuBG, "2 - Customize")
-	local shopBtn      = safeGet(MainMenuBG, "3 - Shop")
-	local settingsBtn  = safeGet(MainMenuBG, "4 - Settings")
+        local defaultHover = SoundConfig.UI.Hover
+        local defaultClick = SoundConfig.UI.Click
 
-	if playBtn then
-		playBtn.MouseButton1Click:Connect(function()
-			MenuLogic.ShowToolSelection(toolSelectedCallback)
-		end)
-	end
-	if customizeBtn then
-		customizeBtn.MouseButton1Click:Connect(function()
-			print("[MenuLogic] Customize clicked (placeholder)")
-		end)
-	end
-	if shopBtn then
-		shopBtn.MouseButton1Click:Connect(function()
-			MenuLogic.ShowShopMenu()
-		end)
-	end
-	if settingsBtn then
-		settingsBtn.MouseButton1Click:Connect(function()
-			print("[MenuLogic] Settings clicked (placeholder)")
-		end)
-	end
+        local function connect(btn, cfg, onClick)
+                if not btn then return end
+
+                local hoverSound = cfg.HoverSound or defaultHover
+                local clickSound = cfg.ClickSound or defaultClick
+
+                btn.MouseEnter:Connect(function()
+                        SoundServiceUtils:PlayLocalSound(hoverSound)
+                end)
+
+                btn.MouseButton1Click:Connect(function()
+                        SoundServiceUtils:PlayLocalSound(clickSound)
+                        if onClick then onClick() end
+                end)
+        end
+
+        local playBtn      = safeGet(MainMenuBG, "1 - Play")
+        local customizeBtn = safeGet(MainMenuBG, "2 - Customize")
+        local shopBtn      = safeGet(MainMenuBG, "3 - Shop")
+        local settingsBtn  = safeGet(MainMenuBG, "4 - Settings")
+
+        connect(playBtn, ButtonCfg.MainMenu[1], function()
+                MenuLogic.ShowToolSelection(toolSelectedCallback)
+        end)
+
+        connect(customizeBtn, ButtonCfg.MainMenu[2], function()
+                print("[MenuLogic] Customize clicked (placeholder)")
+        end)
+
+        connect(shopBtn, ButtonCfg.MainMenu[3], function()
+                MenuLogic.ShowShopMenu()
+        end)
+
+        connect(settingsBtn, ButtonCfg.MainMenu[4], function()
+                print("[MenuLogic] Settings clicked (placeholder)")
+        end)
 end
 
 local function wireSelectionButtons()
