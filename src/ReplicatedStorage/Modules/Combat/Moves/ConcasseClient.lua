@@ -84,7 +84,7 @@ local function performMove(targetPos)
     StartEvent:FireServer(dest)
 
     local height = dist * 0.5 + 25
-    local travelTime = dist / (cfg.TravelSpeed or 10)
+    local travelTime = (cfg.TravelTime or (dist / (cfg.TravelSpeed or 10)))
     local startTime = tick()
     while tick() - startTime < travelTime do
         local t = (tick() - startTime) / travelTime
