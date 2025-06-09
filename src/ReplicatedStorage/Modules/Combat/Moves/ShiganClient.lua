@@ -67,10 +67,8 @@ local function performMove()
     playAnimation(animator, Animations.SpecialMoves.Shigan)
     StartEvent:FireServer()
 
-    local startTime = tick()
-    while tick() - startTime < cfg.Startup do
-        RunService.RenderStepped:Wait()
-    end
+    -- No checks needed during startup, simple wait suffices
+    task.wait(cfg.Startup)
 
     local dir = hrp.CFrame.LookVector
     HitboxClient.CastHitbox(

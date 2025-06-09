@@ -27,6 +27,13 @@ local prevWalkSpeed
 local prevJumpPower
 local currentHumanoid
 
+-- Wait until the humanoid touches the ground without busy-waiting
+local function waitForLanding(hum)
+    while hum and hum.Parent and hum.FloorMaterial == Enum.Material.Air do
+        hum:GetPropertyChangedSignal("FloorMaterial"):Wait()
+    end
+end
+
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
@@ -99,9 +106,7 @@ local function performMove(targetPos)
     humanoid.PlatformStand = prevPlat
     humanoid.AutoRotate = prevAuto
 
-    while humanoid.FloorMaterial == Enum.Material.Air do
-        RunService.RenderStepped:Wait()
-    end
+    waitForLanding(humanoid)
 
     HitboxClient.CastHitbox(
         MoveHitboxConfig.Concasse.Offset,
