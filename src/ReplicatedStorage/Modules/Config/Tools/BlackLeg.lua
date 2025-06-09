@@ -45,8 +45,8 @@ local BlackLeg = {
         },
     },
     Concasse = {
-        Damage = 75,
-        StunDuration = 1,
+        Damage = 45,
+        StunDuration = 0.25,
         Startup = 0.2,
         HyperArmor = false,
         GuardBreak = false,
