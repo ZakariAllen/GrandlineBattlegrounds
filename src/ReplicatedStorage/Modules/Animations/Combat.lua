@@ -44,6 +44,7 @@ Animation.Stun = {
 
 Animation.Blocking = {
         BlockHold = "rbxassetid://120302594310426",
+        TekkaiHold = "rbxassetid://109637374943375",
 
 }
 
