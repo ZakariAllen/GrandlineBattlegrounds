@@ -4,6 +4,7 @@ local PlayerGuiManager = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
@@ -15,15 +16,20 @@ local screenGui
 local healthBar
 local staminaBar
 local hakiBar
+local ultBar
 local healthText
 local staminaText
 local hakiText
 local baseSize
 local staminaBase
 local hakiBase
+local ultBase
+local ultColor
 local connection
 local staminaConnection
 local hakiConnection
+local ultConnection
+local rainbowConnection
 
 -- Clone the existing PlayerGUI from ReplicatedStorage.Assets
 local function ensureGui()
@@ -46,11 +52,15 @@ local function ensureGui()
     local hpFrame = screenGui:WaitForChild("HP")
     local stamFrame = screenGui:WaitForChild("Stam")
     local hakiFrame = screenGui:FindFirstChild("Haki")
+    local ultFrame = screenGui:FindFirstChild("Ult")
 
     healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
     staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
     if hakiFrame then
         hakiBar = hakiFrame:WaitForChild("Middle"):WaitForChild("HakiBar")
+    end
+    if ultFrame then
+        ultBar = ultFrame:WaitForChild("Middle"):WaitForChild("Ultbar")
     end
 
     healthText = hpFrame:FindFirstChild("Value")
@@ -66,6 +76,14 @@ local function ensureGui()
     end
     if hakiBar and not hakiBase then
         hakiBase = hakiBar.Size
+    end
+    if ultBar and not ultBase then
+        ultBase = ultBar.Size
+        if ultBar:IsA("ImageLabel") or ultBar:IsA("ImageButton") then
+            ultColor = ultBar.ImageColor3
+        else
+            ultColor = ultBar.BackgroundColor3
+        end
     end
 end
 
@@ -177,6 +195,67 @@ function PlayerGuiManager.BindHaki(hakiValue)
 
     update()
     hakiConnection = hakiValue.Changed:Connect(update)
+    if maxVal then
+        maxVal.Changed:Connect(update)
+    end
+end
+
+function PlayerGuiManager.BindUlt(ultValue)
+    if ultConnection then
+        ultConnection:Disconnect()
+        ultConnection = nil
+    end
+    if rainbowConnection then
+        rainbowConnection:Disconnect()
+        rainbowConnection = nil
+    end
+
+    if not ultValue then return end
+
+    ensureGui()
+
+    local parent = ultValue.Parent
+    local maxVal = parent and parent:FindFirstChild("MaxUlt")
+    local hue = 0
+
+    local function update()
+        if not ultBase or not ultBar then return end
+        local max = maxVal and maxVal.Value or 100
+        local ratio = math.clamp(ultValue.Value / max, 0, 1)
+        ultBar.Size = UDim2.new(
+            ultBase.X.Scale * ratio,
+            ultBase.X.Offset * ratio,
+            ultBase.Y.Scale,
+            ultBase.Y.Offset
+        )
+
+        if ratio >= 1 then
+            if not rainbowConnection then
+                rainbowConnection = RunService.RenderStepped:Connect(function(dt)
+                    hue = (hue + dt * 0.3) % 1
+                    local col = Color3.fromHSV(hue, 1, 1)
+                    if ultBar:IsA("ImageLabel") or ultBar:IsA("ImageButton") then
+                        ultBar.ImageColor3 = col
+                    else
+                        ultBar.BackgroundColor3 = col
+                    end
+                end)
+            end
+        else
+            if rainbowConnection then
+                rainbowConnection:Disconnect()
+                rainbowConnection = nil
+                if ultBar:IsA("ImageLabel") or ultBar:IsA("ImageButton") then
+                    ultBar.ImageColor3 = ultColor
+                else
+                    ultBar.BackgroundColor3 = ultColor
+                end
+            end
+        end
+    end
+
+    update()
+    ultConnection = ultValue.Changed:Connect(update)
     if maxVal then
         maxVal.Changed:Connect(update)
     end

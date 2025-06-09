@@ -113,6 +113,10 @@ local function spawnAndFollow(toolName)
         if hakiVal then
                 PlayerGuiManager.BindHaki(hakiVal)
         end
+        local ultVal = player:FindFirstChild("Ult") or player:WaitForChild("Ult", 5)
+        if ultVal then
+                PlayerGuiManager.BindUlt(ultVal)
+        end
         PlayerGuiManager.Show()
 
 	local camera = workspace.CurrentCamera

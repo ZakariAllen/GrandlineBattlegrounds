@@ -17,6 +17,8 @@ local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
+local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
+local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
 local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
 
 -- 🔁 Remotes
@@ -172,6 +174,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 		-- ✅ Deal damage and apply stun
                 enemyHumanoid:TakeDamage(damage)
                 DamageText.Show(enemyHumanoid, damage)
+                UltService.RegisterHit(player, enemyHumanoid, UltConfig.M1s)
                 hitLanded = true
 
                 local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration
