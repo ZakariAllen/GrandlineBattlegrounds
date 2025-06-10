@@ -16,6 +16,20 @@ if success and remotes then
     end
 end
 
+-- Lazily fetch the remote if it wasn't available at load time
+local function fetchStunEvent()
+    if StunStatusEvent then return StunStatusEvent end
+    local remotesFolder = ReplicatedStorage:FindFirstChild("Remotes")
+    if not remotesFolder then return nil end
+    local stunFolder = remotesFolder:FindFirstChild("Stun")
+    if not stunFolder then return nil end
+    StunStatusEvent = stunFolder:FindFirstChild("StunStatusRequestEvent")
+    return StunStatusEvent
+end
+
+-- Attempt to resolve the remote immediately in case RemoteSetup already ran
+fetchStunEvent()
+
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
@@ -83,7 +97,7 @@ if RunService:IsServer() then
 end
 
 sendStatus = function(player)
-    if RunService:IsServer() and StunStatusEvent and player then
+    if RunService:IsServer() and fetchStunEvent() and player then
         local data = {
             Stunned = StunnedPlayers[player] ~= nil,
             AttackerLock = AttackerLockouts[player] ~= nil and tick() < (AttackerLockouts[player] or 0)
