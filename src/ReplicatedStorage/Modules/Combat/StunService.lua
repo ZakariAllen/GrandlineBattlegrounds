@@ -17,13 +17,24 @@ if success and remotes then
 end
 
 -- Lazily fetch the remote if it wasn't available at load time
+local fetchedOnce = false
 local function fetchStunEvent()
     if StunStatusEvent then return StunStatusEvent end
     local remotesFolder = ReplicatedStorage:FindFirstChild("Remotes")
     if not remotesFolder then return nil end
     local stunFolder = remotesFolder:FindFirstChild("Stun")
     if not stunFolder then return nil end
-    StunStatusEvent = stunFolder:FindFirstChild("StunStatusRequestEvent")
+    local evt = stunFolder:FindFirstChild("StunStatusRequestEvent")
+    if not evt then return nil end
+    StunStatusEvent = evt
+    if not fetchedOnce then
+        fetchedOnce = true
+        for _, p in ipairs(Players:GetPlayers()) do
+            if sendStatus then
+                sendStatus(p)
+            end
+        end
+    end
     return StunStatusEvent
 end
 
