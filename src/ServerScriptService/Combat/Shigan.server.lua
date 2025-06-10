@@ -18,6 +18,7 @@ local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
+local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -112,6 +113,9 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
         if not enemyHumanoid then
             if DEBUG then print("[Shigan] Target has no humanoid") end
+            continue
+        end
+        if EvasiveService.IsActive(enemyPlayer) then
             continue
         end
         if not StunService:CanBeHitBy(player, enemyPlayer) then

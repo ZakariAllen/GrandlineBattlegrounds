@@ -23,6 +23,7 @@ end)
 -- 🔁 Client Modules
 local M1InputClient = require(ReplicatedStorage.Modules.Combat.M1InputClient)
 local DashClient = require(ReplicatedStorage.Modules.Movement.DashClient) -- updated path: Movement folder
+local EvasiveClient = require(ReplicatedStorage.Modules.Movement.EvasiveClient)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
@@ -109,6 +110,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         end
         M1InputClient.OnInputBegan(input, gameProcessed)
         DashClient.OnInputBegan(input, gameProcessed)
+        EvasiveClient.OnInputBegan(input, gameProcessed)
         BlockClient.OnInputBegan(input, gameProcessed)
         HakiClient.OnInputBegan(input, gameProcessed)
         MovementClient.OnInputBegan(input, gameProcessed)
@@ -130,6 +132,7 @@ UserInputService.InputEnded:Connect(function(input, gameProcessed)
         end
         M1InputClient.OnInputEnded(input, gameProcessed)
         DashClient.OnInputEnded(input, gameProcessed)
+        EvasiveClient.OnInputEnded(input, gameProcessed)
         BlockClient.OnInputEnded(input, gameProcessed)
         HakiClient.OnInputEnded(input, gameProcessed)
         MovementClient.OnInputEnded(input, gameProcessed)

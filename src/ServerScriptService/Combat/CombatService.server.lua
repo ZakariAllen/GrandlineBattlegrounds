@@ -14,6 +14,7 @@ local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
+local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
@@ -139,8 +140,11 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 		if not enemyPlayer or not enemyPlayer.Character then continue end
 
 		local enemyChar = enemyPlayer.Character
-		local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
-		if not enemyHumanoid then continue end
+                local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
+                if not enemyHumanoid then continue end
+                if EvasiveService and EvasiveService.IsActive(enemyPlayer) then
+                        continue
+                end
                 if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
                 if not ShouldApplyHit(player, enemyPlayer) then continue end
 
