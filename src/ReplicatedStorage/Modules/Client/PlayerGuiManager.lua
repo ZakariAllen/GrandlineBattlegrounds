@@ -93,6 +93,10 @@ function PlayerGuiManager.Show()
 end
 
 function PlayerGuiManager.Hide()
+    -- Ensure the GUI exists so it can be hidden immediately when the
+    -- menu script starts. This preloads the interface upfront instead
+    -- of waiting until the player selects a style.
+    ensureGui()
     if screenGui then
         screenGui.Enabled = false
     end
