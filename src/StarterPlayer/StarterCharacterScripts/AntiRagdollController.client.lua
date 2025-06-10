@@ -48,15 +48,16 @@ RunService.Heartbeat:Connect(function()
     end
 
 	-- Reset invalid physics states on delay
-	if tick() - lastCorrection >= CORRECTION_DELAY then
-		local state = humanoid:GetState()
-		if state == Enum.HumanoidStateType.Ragdoll
-			or state == Enum.HumanoidStateType.FallingDown
-			or state == Enum.HumanoidStateType.PlatformStanding then
-			humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
-			lastCorrection = tick()
-		end
-	end
+        if tick() - lastCorrection >= CORRECTION_DELAY then
+                local state = humanoid:GetState()
+                local knockback = hrp:GetAttribute("KnockbackActive") or hrp:GetAttribute("Ragdolled")
+                if not knockback and (state == Enum.HumanoidStateType.Ragdoll
+                        or state == Enum.HumanoidStateType.FallingDown
+                        or state == Enum.HumanoidStateType.PlatformStanding) then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+                        lastCorrection = tick()
+                end
+        end
 
 	-- Prevent sitting from weird physics
 	if humanoid.Sit then
