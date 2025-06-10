@@ -176,24 +176,14 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             -- Apply knockback even though the hit was blocked
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
-                local knockback = CombatConfig.M1
                 if DEBUG then
                     print("[PowerPunch] Knockback params", PowerPunchConfig.KnockbackDirection)
                 end
                 KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                    DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+                    DirectionType = PowerPunchConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
                     AttackerRoot = hrp,
                     TargetRoot = enemyRoot,
-                    Distance = knockback.KnockbackDistance,
-                    Duration = knockback.KnockbackDuration,
-                    Lift = knockback.KnockbackLift,
                 })
-
-                local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
-                if knockbackAnim then
-                    playAnimation(enemyHumanoid, knockbackAnim)
-                    if DEBUG then print("[PowerPunch] Knockback animation played for", enemyPlayer.Name) end
-                end
             end
 
             -- fallthrough to apply damage on block break
@@ -215,24 +205,14 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
-            local knockback = CombatConfig.M1
             if DEBUG then
                 print("[PowerPunch] Knockback params", PowerPunchConfig.KnockbackDirection)
             end
             KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                DirectionType = PowerPunchConfig.KnockbackDirection or knockback.KnockbackDirection,
+                DirectionType = PowerPunchConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
                 AttackerRoot = hrp,
                 TargetRoot = enemyRoot,
-                Distance = knockback.KnockbackDistance,
-                Duration = knockback.KnockbackDuration,
-                Lift = knockback.KnockbackLift,
             })
-
-            local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
-            if knockbackAnim then
-                playAnimation(enemyHumanoid, knockbackAnim)
-                if DEBUG then print("[PowerPunch] Knockback animation played for", enemyPlayer.Name) end
-            end
         end
     end
 

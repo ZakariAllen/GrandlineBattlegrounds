@@ -203,20 +203,11 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             if DEBUG then print("[PartyTableKick] Final hit on", enemyPlayer.Name) end
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
-                local knockback = CombatConfig.M1
                 KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                    DirectionType = PartyTableKickConfig.KnockbackDirection or knockback.KnockbackDirection,
+                    DirectionType = PartyTableKickConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
                     AttackerRoot = hrp,
                     TargetRoot = enemyRoot,
-                    Distance = knockback.KnockbackDistance,
-                    Duration = knockback.KnockbackDuration,
-                    Lift = knockback.KnockbackLift,
                 })
-
-                local knockbackAnim = AnimationData.M1.BasicCombat and AnimationData.M1.BasicCombat.Knockback
-                if knockbackAnim then
-                    playAnimation(enemyHumanoid, knockbackAnim)
-                end
             end
         end
 
