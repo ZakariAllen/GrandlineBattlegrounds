@@ -182,20 +182,11 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
 
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
-            local knockback = CombatConfig.M1
             KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                DirectionType = TempestKickConfig.KnockbackDirection or knockback.KnockbackDirection,
+                DirectionType = TempestKickConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
                 AttackerRoot = hrp,
                 TargetRoot = enemyRoot,
-                Distance = knockback.KnockbackDistance,
-                Duration = knockback.KnockbackDuration,
-                Lift = knockback.KnockbackLift,
             })
-
-            local knockbackAnim = AnimationData.M1.Rokushiki and AnimationData.M1.Rokushiki.Knockback
-            if knockbackAnim then
-                playAnimation(enemyHumanoid, knockbackAnim)
-            end
         end
     end
 

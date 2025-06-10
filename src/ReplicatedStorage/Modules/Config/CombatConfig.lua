@@ -13,14 +13,8 @@ CombatConfig.M1 = {
         -- pressed attack first wins the exchange and the other's hit is ignored.
         ClashWindow = 0.15,
         M1StunDuration = 0.5,
-	M1_5StunDuration = 1.5,
-
-        KnockbackDistance = 25,
-        KnockbackDuration = 0.4,
-        KnockbackLift = 3,
-        KnockbackDirection = "AttackerFacingDirection",
-
-	HitSoundDelay = 0.05,
+        M1_5StunDuration = 1.5,
+        HitSoundDelay = 0.05,
 	MissSoundDelay = 0.05,
 	DefaultM1Damage = 1,
 }
