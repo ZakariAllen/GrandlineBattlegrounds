@@ -18,6 +18,7 @@ local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundService
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local lastDashTime = 0
 local DASH_KEY = Enum.KeyCode.Q
@@ -180,6 +181,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
         end
 
         lastDashTime = tick()
+        MoveListManager.StartCooldown(DASH_KEY.Name, DashConfig.Cooldown or 0)
         playDashAnimation(direction)
 
         local character, humanoid, _, hrp = getCharacterComponents()

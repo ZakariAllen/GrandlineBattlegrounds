@@ -14,6 +14,7 @@ local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local BlockVFX = require(ReplicatedStorage.Modules.Effects.BlockVFX)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 -- Lazy reference to avoid circular require with MovementClient
 local MovementClient
 
@@ -89,6 +90,7 @@ BlockEvent.OnClientEvent:Connect(function(active)
         else
                 lastBlockEnd = tick()
                 stopBlockAnimation()
+                MoveListManager.StartCooldown(Enum.KeyCode.F.Name, blockCooldown)
         end
 end)
 
