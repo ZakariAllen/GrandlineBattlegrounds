@@ -20,5 +20,6 @@ MoveHitboxConfig.Concasse = Tools.BlackLeg.Concasse.Hitbox
 MoveHitboxConfig.AntiMannerKickCourse = Tools.BlackLeg.AntiMannerKickCourse.Hitbox
 MoveHitboxConfig.Shigan = Tools.Rokushiki.Shigan.Hitbox
 MoveHitboxConfig.TempestKick = Tools.Rokushiki.TempestKick.Hitbox
+MoveHitboxConfig.Rokugan = Tools.Rokushiki.Rokugan.Hitbox
 
 return MoveHitboxConfig

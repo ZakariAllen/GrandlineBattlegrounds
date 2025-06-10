@@ -13,6 +13,7 @@ local MoveSoundConfig = {
     Teleport = Tools.Rokushiki.Teleport.Sound,
     Shigan = Tools.Rokushiki.Shigan.Sound,
     TempestKick = Tools.Rokushiki.TempestKick.Sound,
+    Rokugan = Tools.Rokushiki.Rokugan.Sound,
 }
 
 return MoveSoundConfig

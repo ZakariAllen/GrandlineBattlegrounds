@@ -56,6 +56,24 @@ local Rokushiki = {
         HyperArmor = false,
         Cooldown = 15,
     },
+    Rokugan = {
+        Damage = 350,
+        StunDuration = 3,
+        Startup = 0.1,
+        Endlag = 0.25,
+        HitboxDuration = 0.1,
+        HyperArmor = false,
+        GuardBreak = true,
+        PerfectBlockable = false,
+        Cooldown = 120,
+        StaminaCost = 80,
+        Hitbox = {
+            Size = Vector3.new(5, 6, 30),
+            Offset = CFrame.new(0, 0, -15),
+            Duration = 0.1,
+            Shape = "Block",
+        },
+    },
 }
 
 return Rokushiki
