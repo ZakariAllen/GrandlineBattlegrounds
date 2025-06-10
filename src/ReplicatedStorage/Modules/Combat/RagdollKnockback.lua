@@ -66,7 +66,8 @@ function RagdollKnockback.ApplyKnockback(humanoid, direction, force, lift, durat
     root:SetNetworkOwner(nil)
     root:SetAttribute("KnockbackActive", true)
 
-    local impulse = Vector3.new(direction.X, lift, direction.Z) * force * root.AssemblyMass
+    -- The vertical lift should be independent of the horizontal knockback force
+    local impulse = Vector3.new(direction.X * force, lift, direction.Z * force) * root.AssemblyMass
     if root.ApplyImpulse then
         root:ApplyImpulse(impulse)
     else
