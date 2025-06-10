@@ -54,7 +54,7 @@ local Rokushiki = {
         Startup = 0.1,
         Endlag = 0.1,
         HyperArmor = false,
-        Cooldown = 10,
+        Cooldown = 15,
     },
 }
 

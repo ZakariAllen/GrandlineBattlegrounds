@@ -17,9 +17,11 @@ local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local KEY = Enum.KeyCode.E
 local active = false
+local lastUse = 0
 local track
 local prevWalk
 local prevJump
@@ -73,6 +75,7 @@ function Tekkai.OnInputBegan(input, gp)
     if gp then return end
     if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
     if active then return end
+    if tick() - lastUse < (TekkaiConfig.Cooldown or 0) then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
     if BlockClient.IsBlocking() then return end
     local style = ToolController.GetEquippedStyleKey()
@@ -86,6 +89,8 @@ function Tekkai.OnInputBegan(input, gp)
         prevJump = humanoid.JumpPower
     end
     MovementClient.StopSprint()
+    lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, TekkaiConfig.Cooldown or 0)
     TekkaiEvent:FireServer(true)
 end
 
