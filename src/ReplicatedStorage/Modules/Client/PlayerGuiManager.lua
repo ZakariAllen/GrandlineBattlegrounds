@@ -60,7 +60,10 @@ local function ensureGui()
         hakiBar = hakiFrame:WaitForChild("Middle"):WaitForChild("HakiBar")
     end
     if ultFrame then
-        ultBar = ultFrame:WaitForChild("Middle"):WaitForChild("Ultbar")
+        local middle = ultFrame:WaitForChild("Middle", 5)
+        if middle then
+            ultBar = middle:FindFirstChild("Ultbar") or middle:FindFirstChild("UltBar")
+        end
     end
 
     healthText = hpFrame:FindFirstChild("Value")
