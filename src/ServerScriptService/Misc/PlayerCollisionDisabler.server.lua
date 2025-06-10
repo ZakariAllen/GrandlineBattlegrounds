@@ -22,29 +22,33 @@ end
 PhysicsService:CollisionGroupSetCollidable(COLLISION_GROUP, COLLISION_GROUP, false)
 
 -- ✅ Recursively set collision group on all BaseParts
-local function setCollisionGroupRecursive(model)
-    for _, part in ipairs(model:GetDescendants()) do
-        if part:IsA("BasePart") and not part:IsDescendantOf(Workspace.Terrain) then
-            -- Avoid errors on locked or non-editable parts
-            pcall(function()
-                part.CollisionGroup = COLLISION_GROUP
-            end)
-        end
+local function setPartCollision(part)
+    if part:IsA("BasePart") and not part:IsDescendantOf(Workspace.Terrain) then
+        pcall(function()
+            part.CollisionGroup = COLLISION_GROUP
+        end)
     end
+end
+
+local function setupCharacter(model)
+    for _, part in ipairs(model:GetDescendants()) do
+        setPartCollision(part)
+    end
+    model.DescendantAdded:Connect(setPartCollision)
 end
 
 -- ✅ Assign when character spawns
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
         character:WaitForChild("HumanoidRootPart", 5)
-        setCollisionGroupRecursive(character)
+        setupCharacter(character)
     end)
 end)
 
 -- ✅ For any characters already present (e.g., in Studio or on hot reload)
 for _, player in ipairs(Players:GetPlayers()) do
     if player.Character then
-        setCollisionGroupRecursive(player.Character)
+        setupCharacter(player.Character)
     end
 end
 

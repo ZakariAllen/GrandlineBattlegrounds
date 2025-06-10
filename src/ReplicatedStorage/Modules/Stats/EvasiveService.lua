@@ -17,6 +17,9 @@ EvasiveService.DAMAGE_RATIO = EvasiveService.DEFAULT_MAX / EvasiveService.DAMAGE
 
 local ACTIVE = {} -- [player] = true while iframe active
 local HEALTH_TRACK = {} -- [humanoid] = lastHealth
+local HEALTH_CONNS = {} -- [humanoid] = {healthConn, ancConn}
+local REGEN_LIST = {} -- [player] = true while not at max
+local VALUE_CONNS = {} -- [player] = connection to value changed
 
 local function setupPlayer(player)
     local max = player:FindFirstChild("MaxEvasive")
@@ -34,12 +37,22 @@ local function setupPlayer(player)
         cur.Value = EvasiveService.DEFAULT_MAX * 0.5
         cur.Parent = player
     end
+    local function update()
+        local maxVal = max.Value
+        if cur.Value < maxVal then
+            REGEN_LIST[player] = true
+        else
+            REGEN_LIST[player] = nil
+        end
+    end
+    VALUE_CONNS[player] = cur.Changed:Connect(update)
+    update()
 end
 
 local function trackHumanoid(player, humanoid)
     if not humanoid then return end
     HEALTH_TRACK[humanoid] = humanoid.Health
-    humanoid.HealthChanged:Connect(function(hp)
+    local healthConn = humanoid.HealthChanged:Connect(function(hp)
         local prev = HEALTH_TRACK[humanoid] or hp
         local delta = prev - hp
         HEALTH_TRACK[humanoid] = hp
@@ -48,11 +61,18 @@ local function trackHumanoid(player, humanoid)
             EvasiveService.AddEvasive(player, points)
         end
     end)
-    humanoid.AncestryChanged:Connect(function(_, parent)
+    local ancConn = humanoid.AncestryChanged:Connect(function(_, parent)
         if not parent then
             HEALTH_TRACK[humanoid] = nil
+            local conns = HEALTH_CONNS[humanoid]
+            if conns then
+                if conns[1] then conns[1]:Disconnect() end
+                if conns[2] then conns[2]:Disconnect() end
+            end
+            HEALTH_CONNS[humanoid] = nil
         end
     end)
+    HEALTH_CONNS[humanoid] = {healthConn, ancConn}
 end
 
 if RunService:IsServer() then
@@ -69,6 +89,13 @@ if RunService:IsServer() then
             if hum then trackHumanoid(player, hum) end
         end
     end)
+
+    Players.PlayerRemoving:Connect(function(p)
+        REGEN_LIST[p] = nil
+        local conn = VALUE_CONNS[p]
+        if conn then conn:Disconnect() end
+        VALUE_CONNS[p] = nil
+    end)
     for _, p in ipairs(Players:GetPlayers()) do
         setupPlayer(p)
         if p.Character then
@@ -78,11 +105,16 @@ if RunService:IsServer() then
     end
 
     RunService.Heartbeat:Connect(function(dt)
-        for _, player in ipairs(Players:GetPlayers()) do
+        for player in pairs(REGEN_LIST) do
             local max = player:FindFirstChild("MaxEvasive")
             local cur = player:FindFirstChild("Evasive")
             if max and cur then
                 cur.Value = math.min(cur.Value + EvasiveService.REGEN_RATE * dt, max.Value)
+                if cur.Value >= max.Value then
+                    REGEN_LIST[player] = nil
+                end
+            else
+                REGEN_LIST[player] = nil
             end
         end
     end)
@@ -104,6 +136,11 @@ function EvasiveService.AddEvasive(player, amount)
     local max = player:FindFirstChild("MaxEvasive")
     if not cur or not max then return end
     cur.Value = math.clamp(cur.Value + (amount or 0), 0, max.Value)
+    if cur.Value < max.Value then
+        REGEN_LIST[player] = true
+    else
+        REGEN_LIST[player] = nil
+    end
 end
 
 function EvasiveService.Consume(player)
@@ -113,6 +150,7 @@ function EvasiveService.Consume(player)
     if not cur or not max then return false end
     if cur.Value < max.Value then return false end
     cur.Value = 0
+    REGEN_LIST[player] = true
     return true
 end
 

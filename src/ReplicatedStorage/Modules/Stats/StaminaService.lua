@@ -10,6 +10,7 @@ local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 StaminaService.DEFAULT_MAX = PlayerStats.Stamina
 StaminaService.REGEN_RATE = PlayerStats.StaminaRegen
 StaminaService._regenPaused = {}
+local _regenList = {} -- [player] = true while stamina not full
 
 local function setupPlayer(player)
     local max = player:FindFirstChild("MaxStamina")
@@ -29,12 +30,28 @@ local function setupPlayer(player)
     end
 end
 
+local function updateRegen(player)
+    local cur = player:FindFirstChild("Stamina")
+    local max = player:FindFirstChild("MaxStamina")
+    if not cur or not max then
+        _regenList[player] = nil
+        return
+    end
+    if StaminaService._regenPaused[player] or cur.Value >= max.Value then
+        _regenList[player] = nil
+    else
+        _regenList[player] = true
+    end
+end
+
 function StaminaService.PauseRegen(player)
     StaminaService._regenPaused[player] = true
+    _regenList[player] = nil
 end
 
 function StaminaService.ResumeRegen(player)
     StaminaService._regenPaused[player] = nil
+    updateRegen(player)
 end
 
 function StaminaService.ResetStamina(player)
@@ -43,24 +60,24 @@ function StaminaService.ResetStamina(player)
     if cur and max then
         cur.Value = max.Value
     end
+    updateRegen(player)
 end
 
 if RunService:IsServer() then
-    local activePlayers = {}
-
     local function addPlayer(player)
         setupPlayer(player)
-        table.insert(activePlayers, player)
+        updateRegen(player)
+        local cur = player:FindFirstChild("Stamina")
+        if cur then
+            cur.Changed:Connect(function()
+                updateRegen(player)
+            end)
+        end
     end
 
     local function removePlayer(player)
         StaminaService._regenPaused[player] = nil
-        for i, p in ipairs(activePlayers) do
-            if p == player then
-                table.remove(activePlayers, i)
-                break
-            end
-        end
+        _regenList[player] = nil
     end
 
     Players.PlayerAdded:Connect(addPlayer)
@@ -71,14 +88,20 @@ if RunService:IsServer() then
     end
 
     RunService.Heartbeat:Connect(function(dt)
-        for _, player in ipairs(activePlayers) do
+        for player in pairs(_regenList) do
             if StaminaService._regenPaused[player] then
-                continue
-            end
-            local max = player:FindFirstChild("MaxStamina")
-            local cur = player:FindFirstChild("Stamina")
-            if max and cur then
-                cur.Value = math.min(cur.Value + StaminaService.REGEN_RATE * dt, max.Value)
+                _regenList[player] = nil
+            else
+                local max = player:FindFirstChild("MaxStamina")
+                local cur = player:FindFirstChild("Stamina")
+                if max and cur then
+                    cur.Value = math.min(cur.Value + StaminaService.REGEN_RATE * dt, max.Value)
+                    if cur.Value >= max.Value then
+                        _regenList[player] = nil
+                    end
+                else
+                    _regenList[player] = nil
+                end
             end
         end
     end)
@@ -101,6 +124,7 @@ function StaminaService.Consume(player, amount)
     if not cur or not max then return false end
     if cur.Value < amount then return false end
     cur.Value -= amount
+    updateRegen(player)
     return true
 end
 

@@ -310,5 +310,8 @@ function PlayerGuiManager.BindEvasive(evasiveValue)
     end
 end
 
+-- Preload the GUI once on module load to avoid delays
+ensureGui()
+
 return PlayerGuiManager
 

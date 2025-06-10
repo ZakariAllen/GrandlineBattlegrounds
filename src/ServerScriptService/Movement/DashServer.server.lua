@@ -27,6 +27,7 @@ DashEvent.OnServerEvent:Connect(function(player, direction, dashVector)
                 warn("[DashServer] Invalid dash direction:", tostring(direction))
                 return
         end
+        if not player.Character then return end
 
        if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then
                return
