@@ -25,7 +25,7 @@ local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -203,8 +203,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             if DEBUG then print("[PartyTableKick] Final hit on", enemyPlayer.Name) end
             local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
             if enemyRoot then
-                KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                    DirectionType = PartyTableKickConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
+                RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                    DirectionType = PartyTableKickConfig.KnockbackDirection or RagdollKnockback.DirectionType.AttackerFacingDirection,
                     AttackerRoot = hrp,
                     TargetRoot = enemyRoot,
                 })

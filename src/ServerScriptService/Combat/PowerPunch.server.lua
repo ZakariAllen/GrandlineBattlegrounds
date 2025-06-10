@@ -19,7 +19,7 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
@@ -179,8 +179,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
                 if DEBUG then
                     print("[PowerPunch] Knockback params", PowerPunchConfig.KnockbackDirection)
                 end
-                KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                    DirectionType = PowerPunchConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
+                RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                    DirectionType = PowerPunchConfig.KnockbackDirection or RagdollKnockback.DirectionType.AttackerFacingDirection,
                     AttackerRoot = hrp,
                     TargetRoot = enemyRoot,
                 })
@@ -208,8 +208,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             if DEBUG then
                 print("[PowerPunch] Knockback params", PowerPunchConfig.KnockbackDirection)
             end
-            KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                DirectionType = PowerPunchConfig.KnockbackDirection or KnockbackService.DirectionType.AttackerFacingDirection,
+            RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                DirectionType = PowerPunchConfig.KnockbackDirection or RagdollKnockback.DirectionType.AttackerFacingDirection,
                 AttackerRoot = hrp,
                 TargetRoot = enemyRoot,
             })

@@ -44,7 +44,7 @@ fetchStunEvent()
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -96,7 +96,7 @@ if RunService:IsServer() then
             local hrp = data.HRP
             if hrp then
                 local v = hrp.AssemblyLinearVelocity
-                if not KnockbackService.IsKnockbackActive(hrp)
+                if not RagdollKnockback.IsKnockbackActive(hrp)
                     and not hrp:GetAttribute("StunPreserveVelocity") then
                     hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
                 elseif DEBUG then

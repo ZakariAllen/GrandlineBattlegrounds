@@ -16,8 +16,7 @@ local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
-local KnockbackConfig = require(ReplicatedStorage.Modules.Combat.KnockbackConfig)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
@@ -183,15 +182,15 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 hitLanded = true
 
                 local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration
-                local preserve = isFinal and (KnockbackConfig.Params[KnockbackService.DirectionType.AttackerFacingDirection].Duration) or false
+                local preserve = isFinal and 0.5 or false
                 StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, preserve)
 
                 -- 💥 Knockback logic
                 if isFinal then
                         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                         if enemyRoot then
-                                KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                                        DirectionType = KnockbackService.DirectionType.AttackerFacingDirection,
+                                RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                                        DirectionType = RagdollKnockback.DirectionType.AttackerFacingDirection,
                                         AttackerRoot = hrp,
                                         TargetRoot = enemyRoot,
                                 })
