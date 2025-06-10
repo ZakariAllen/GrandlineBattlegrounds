@@ -39,7 +39,7 @@ local function clearForces(root)
     end
 end
 
--- Applies a knockback impulse and force to the humanoid
+-- Applies a knockback impulse while ragdolling the humanoid
 function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration, lift)
     if not humanoid then return end
     local root = humanoid.Parent and humanoid.Parent:FindFirstChild("HumanoidRootPart")
@@ -62,7 +62,8 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
 
 
 
-    humanoid.PlatformStand = false
+    -- Put the character in ragdoll mode for the duration of the knockback
+    RagdollUtils.Enable(humanoid)
     root.Anchored = false
 
     local previousOwner = nil
@@ -104,6 +105,7 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
                 print("[KnockbackService] Knockback ended for", humanoid.Parent.Name)
             end
         end
+        RagdollUtils.Disable(humanoid)
     end)
 end
 
