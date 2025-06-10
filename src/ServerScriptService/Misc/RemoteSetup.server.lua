@@ -52,6 +52,8 @@ ensureEvent(combat, "ShiganHit")
 ensureEvent(combat, "TempestKickStart")
 ensureEvent(combat, "TempestKickHit")
 ensureEvent(combat, "TempestKickVFX")
+ensureEvent(combat, "RokuganStart")
+ensureEvent(combat, "RokuganHit")
 ensureEvent(combat, "HakiEvent")
 ensureEvent(combat, "TekkaiEvent")
 
