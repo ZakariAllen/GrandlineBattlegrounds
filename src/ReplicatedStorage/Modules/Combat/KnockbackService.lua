@@ -5,6 +5,7 @@ local Debris = game:GetService("Debris")
 
 local KnockbackConfig = require(script.Parent.KnockbackConfig)
 local Config = require(game:GetService("ReplicatedStorage").Modules.Config.Config)
+local RagdollUtils = require(script.Parent.RagdollUtils)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -106,6 +107,62 @@ function KnockbackService.ApplyKnockback(humanoid, direction, distance, duration
     end)
 end
 
+-- Applies knockback while putting the humanoid into a ragdoll state
+function KnockbackService.ApplyRagdollKnockback(humanoid, direction, distance, duration, lift)
+    if not humanoid then return end
+    local root = humanoid.Parent and humanoid.Parent:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    direction = typeof(direction) == "Vector3" and direction or root.CFrame.LookVector
+    if direction.Magnitude == 0 then
+        direction = root.CFrame.LookVector
+    else
+        direction = direction.Unit
+    end
+    distance = distance or 25
+    duration = duration or 0.4
+    lift = lift or 3
+
+    RagdollUtils.Enable(humanoid)
+    root.Anchored = false
+
+    local previousOwner = nil
+    if root.GetNetworkOwner then
+        previousOwner = root:GetNetworkOwner()
+    end
+    root:SetNetworkOwner(nil)
+    clearForces(root)
+    root:SetAttribute("KnockbackActive", true)
+
+    local velocity = direction * (distance / duration)
+    velocity = Vector3.new(velocity.X, lift, velocity.Z)
+
+    local bv = Instance.new("BodyVelocity")
+    bv.Velocity = velocity
+    bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    bv.P = 1500
+    bv.Parent = root
+    Debris:AddItem(bv, duration)
+
+    root.CFrame = CFrame.new(root.Position, root.Position - direction)
+
+    task.delay(duration, function()
+        if root.Parent then
+            root:SetAttribute("KnockbackActive", nil)
+            if previousOwner then
+                root:SetNetworkOwner(previousOwner)
+            else
+                local char = humanoid.Parent
+                local player = char and Players:GetPlayerFromCharacter(char)
+                if player then
+                    root:SetNetworkOwner(player)
+                end
+            end
+        end
+        RagdollUtils.Disable(humanoid)
+    end)
+end
+
 -- Convenience API to compute direction internally
 function KnockbackService.ApplyDirectionalKnockback(humanoid, options)
     options = options or {}
@@ -123,6 +180,21 @@ function KnockbackService.ApplyDirectionalKnockback(humanoid, options)
         print("[KnockbackService] Dir computed", dir, "distance", distance, "duration", duration, "lift", lift)
     end
     KnockbackService.ApplyKnockback(humanoid, dir, distance, duration, lift)
+end
+
+function KnockbackService.ApplyDirectionalRagdollKnockback(humanoid, options)
+    options = options or {}
+    local dir = KnockbackService.ComputeDirection(
+        options.DirectionType,
+        options.AttackerRoot,
+        options.TargetRoot,
+        options.HitboxDirection
+    )
+    local params = KnockbackConfig.Params and KnockbackConfig.Params[options.DirectionType] or {}
+    local distance = options.Distance or params.Distance
+    local duration = options.Duration or params.Duration
+    local lift = options.Lift or params.Lift
+    KnockbackService.ApplyRagdollKnockback(humanoid, dir, distance, duration, lift)
 end
 
 return KnockbackService
