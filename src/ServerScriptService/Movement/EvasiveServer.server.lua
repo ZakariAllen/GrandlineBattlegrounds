@@ -25,6 +25,8 @@ EvasiveEvent.OnServerEvent:Connect(function(player, direction, dashVector)
         return
     end
 
+    if not StunService:IsStunned(player) then return end
+
     if not EvasiveService.Consume(player) then return end
 
     StunService.ClearStun(player)
