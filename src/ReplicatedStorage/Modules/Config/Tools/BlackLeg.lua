@@ -68,6 +68,26 @@ local BlackLeg = {
         },
         Sound = {},
     },
+    AntiMannerKickCourse = {
+        Damage = 350,
+        StunDuration = 3,
+        Startup = 1,
+        HyperArmor = true,
+        GuardBreak = true,
+        PerfectBlockable = false,
+        Endlag = 0.5,
+        Cooldown = 120,
+        StaminaCost = 100,
+        Hitbox = {
+            Size = Vector3.new(6, 6, 6),
+            Offset = CFrame.new(0, 0, -3.5),
+            Duration = 0.1,
+            Shape = "Block",
+        },
+        Sound = {
+            Hit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
+        },
+    },
 }
 
 return BlackLeg
