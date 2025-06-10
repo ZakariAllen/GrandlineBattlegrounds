@@ -9,8 +9,8 @@ RagdollKnockback.DirectionType = {
 }
 
 local DEFAULT_FORCE = 50
-local DEFAULT_LIFT = 0.5
-local DEFAULT_DURATION = 0.5
+local DEFAULT_LIFT = 2
+local DEFAULT_DURATION = 1
 
 local function getRoot(humanoid)
     local char = humanoid and humanoid.Parent
