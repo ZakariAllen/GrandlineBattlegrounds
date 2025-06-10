@@ -20,6 +20,7 @@ local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -109,6 +110,7 @@ function PowerKick.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, PowerKickConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = PowerKickConfig.Startup + (PowerKickConfig.Endlag or 0)

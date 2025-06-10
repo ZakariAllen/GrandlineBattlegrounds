@@ -17,6 +17,7 @@ local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundService
 local TeleportVFX = require(ReplicatedStorage.Modules.Effects.TeleportVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local KEY = Enum.KeyCode.T
 local active = false
@@ -49,6 +50,7 @@ function Teleport.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, TeleportConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = (TeleportConfig.Startup or 0) + (TeleportConfig.Endlag or 0)

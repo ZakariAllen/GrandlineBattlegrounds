@@ -20,6 +20,7 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local KEY = Enum.KeyCode.T
 local active = false
@@ -192,6 +193,7 @@ function Concasse.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, ConcasseConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     StunStatusClient.LockFor(ConcasseConfig.Startup + (ConcasseConfig.Endlag or 0))

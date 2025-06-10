@@ -22,6 +22,7 @@ local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -135,6 +136,7 @@ function PowerPunch.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, PowerPunchConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = PowerPunchConfig.Startup + (PowerPunchConfig.Endlag or 0)

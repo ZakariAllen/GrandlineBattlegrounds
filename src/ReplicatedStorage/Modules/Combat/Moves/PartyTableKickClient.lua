@@ -22,6 +22,7 @@ local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local PartyTableKickVFX = require(ReplicatedStorage.Modules.Effects.PartyTableKickVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
@@ -178,6 +179,7 @@ function PartyTableKick.OnInputBegan(input, gp)
     held = true
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, cfg.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = cfg.Startup + cfg.Duration + (cfg.Endlag or 0)
