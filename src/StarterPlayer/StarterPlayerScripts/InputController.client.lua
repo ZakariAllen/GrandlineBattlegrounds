@@ -28,12 +28,16 @@ local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local HakiClient = require(ReplicatedStorage.Modules.Combat.HakiClient)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local MovesFolder = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Combat"):WaitForChild("Moves")
 local Moves = require(MovesFolder:WaitForChild("MovesConfig"))
 if DEBUG then
     print("[InputController] Loaded moves:", #Moves)
 end
+
+-- Hide style-specific moves until a tool is equipped
+MoveListManager.UpdateVisibleMoves(nil)
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")

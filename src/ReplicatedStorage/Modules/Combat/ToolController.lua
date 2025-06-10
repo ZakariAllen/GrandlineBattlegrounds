@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 -- 🔁 Config & Animation
 local ToolAnimations = require(ReplicatedStorage.Modules.Animations.Tool)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 -- Internal state
 local equippedTool = nil
@@ -48,15 +49,15 @@ function ToolController.SetEquippedTool(tool)
 		activeStance = nil
 	end
 
-	-- Equip new tool
-	if tool then
+        -- Equip new tool
+        if tool then
             local styleKey = tool.Name
-		local styleConfig = ToolAnimations[styleKey]
+                local styleConfig = ToolAnimations[styleKey]
 
 		equippedTool = tool
 		equippedStyleKey = styleKey
 
-		if styleConfig and styleConfig.EquipStance then
+                if styleConfig and styleConfig.EquipStance then
 			local char = player.Character
 			local humanoid = char and char:FindFirstChildOfClass("Humanoid")
 			local animId = styleConfig.EquipStance
@@ -78,15 +79,17 @@ function ToolController.SetEquippedTool(tool)
 					warn("[ToolController] No animator found")
 				end
 			end
-		end
+                end
 
-		return
-	end
+                MoveListManager.UpdateVisibleMoves(styleKey)
+                return
+        end
 
-	-- Clear state if no valid tool
-	equippedTool = nil
-	equippedStyleKey = nil
-	print("[ToolController] Tool unequipped or invalid.")
+        -- Clear state if no valid tool
+        equippedTool = nil
+        equippedStyleKey = nil
+        print("[ToolController] Tool unequipped or invalid.")
+        MoveListManager.UpdateVisibleMoves(nil)
 end
 
 -- ✅ Combat tool validation using ToolConfig

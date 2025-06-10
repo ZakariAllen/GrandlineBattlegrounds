@@ -11,6 +11,15 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 -- add default keybinds including Q, F and J which are universal
 local keys = {"C","Z","X","T","R","E","Q","F","J"}
+
+-- mapping of style -> available move keys
+local styleMoves = {
+    BasicCombat = {"R"},
+    BlackLeg = {"E", "R", "T"},
+    Rokushiki = {"E", "R", "T", "X"},
+}
+
+local universalKeys = { Q = true, F = true, J = true }
 local entries = {}
 
 local function populateEntries()
@@ -35,10 +44,17 @@ local function populateEntries()
                 local bar = container:FindFirstChild("Cooldown")
                 local timer = container:FindFirstChild("Timer")
                 local move = container:FindFirstChild("Move")
+                if bar then
+                    bar.Visible = false
+                end
+                if timer then
+                    timer.Text = ""
+                end
                 entries[key] = {
                     bar = bar,
                     timer = timer,
                     move = move,
+                    container = container,
                     base = bar and bar.Size,
                     color = move and move.TextColor3,
                 }
@@ -52,6 +68,30 @@ local function getEntry(letter)
         populateEntries()
     end
     return entries[letter]
+end
+
+local function styleAllowsKey(styleKey, key)
+    if universalKeys[key] then
+        return true
+    end
+    local list = styleMoves[styleKey]
+    if not list then return false end
+    for _, k in ipairs(list) do
+        if k == key then
+            return true
+        end
+    end
+    return false
+end
+
+function MoveListManager.UpdateVisibleMoves(styleKey)
+    populateEntries()
+    for key, entry in pairs(entries) do
+        local container = entry.container
+        if container then
+            container.Visible = styleAllowsKey(styleKey, key)
+        end
+    end
 end
 
 function MoveListManager.StartCooldown(letter, duration)
