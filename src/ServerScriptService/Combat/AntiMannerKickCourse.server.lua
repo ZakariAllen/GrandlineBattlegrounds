@@ -16,7 +16,7 @@ local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
-local KnockbackService = require(ReplicatedStorage.Modules.Combat.KnockbackService)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
@@ -181,11 +181,11 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         if enemyRoot then
             local lift = math.sqrt(2 * workspace.Gravity * 50)
-            KnockbackService.ApplyDirectionalKnockback(enemyHumanoid, {
-                DirectionType = KnockbackService.DirectionType.AttackerFacingDirection,
+            RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                DirectionType = RagdollKnockback.DirectionType.AttackerFacingDirection,
                 AttackerRoot = hrp,
                 TargetRoot = enemyRoot,
-                Distance = 0,
+                Force = 50,
                 Duration = 0.6,
                 Lift = lift,
             })

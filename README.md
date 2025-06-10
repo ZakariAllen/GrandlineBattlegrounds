@@ -14,12 +14,12 @@ simply return values from these tool modules. For example,
 `Tools/BlackLeg.lua` defines both `PartyTableKick` and `PowerKick` in a single
 table.
 
-### Knockback Types
+### Ragdoll Knockback
 
-`ReplicatedStorage.Modules.Combat.KnockbackConfig` defines different
-knockback direction modes. A mode called `HitboxTravelDirection`
-uses the velocity of the hitbox that triggered the attack. No moves
-currently use this mode.
+Knockback is now handled through the ragdoll system. The module
+`ReplicatedStorage.Modules.Combat.RagdollKnockback` exposes helper
+functions for applying a knockback impulse while putting the target in
+a ragdolled state.
 
 ## Hit Effect Settings
 
