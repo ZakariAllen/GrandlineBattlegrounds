@@ -117,6 +117,10 @@ local function spawnAndFollow(toolName)
         if ultVal then
                 PlayerGuiManager.BindUlt(ultVal)
         end
+        local evasiveVal = player:FindFirstChild("Evasive") or player:WaitForChild("Evasive", 5)
+        if evasiveVal then
+                PlayerGuiManager.BindEvasive(evasiveVal)
+        end
         PlayerGuiManager.Show()
 
 	local camera = workspace.CurrentCamera

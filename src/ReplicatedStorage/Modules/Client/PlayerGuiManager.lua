@@ -17,6 +17,7 @@ local healthBar
 local staminaBar
 local hakiBar
 local ultBar
+local evasiveBar
 local healthText
 local staminaText
 local hakiText
@@ -24,11 +25,13 @@ local baseSize
 local staminaBase
 local hakiBase
 local ultBase
+local evasiveBase
 local ultColor
 local connection
 local staminaConnection
 local hakiConnection
 local ultConnection
+local evasiveConnection
 local rainbowConnection
 
 -- Clone the existing PlayerGUI from ReplicatedStorage.Assets
@@ -53,6 +56,7 @@ local function ensureGui()
     local stamFrame = screenGui:WaitForChild("Stam")
     local hakiFrame = screenGui:FindFirstChild("Haki")
     local ultFrame = screenGui:FindFirstChild("Ult")
+    local evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
 
     healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
     staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
@@ -64,6 +68,9 @@ local function ensureGui()
         if middle then
             ultBar = middle:FindFirstChild("Ultbar") or middle:FindFirstChild("UltBar")
         end
+    end
+    if evasiveObj then
+        evasiveBar = evasiveObj
     end
 
     healthText = hpFrame:FindFirstChild("Value")
@@ -87,6 +94,9 @@ local function ensureGui()
         else
             ultColor = ultBar.BackgroundColor3
         end
+    end
+    if evasiveBar and not evasiveBase then
+        evasiveBase = evasiveBar.Size
     end
 end
 
@@ -263,6 +273,38 @@ function PlayerGuiManager.BindUlt(ultValue)
 
     update()
     ultConnection = ultValue.Changed:Connect(update)
+    if maxVal then
+        maxVal.Changed:Connect(update)
+    end
+end
+
+function PlayerGuiManager.BindEvasive(evasiveValue)
+    if evasiveConnection then
+        evasiveConnection:Disconnect()
+        evasiveConnection = nil
+    end
+
+    if not evasiveValue then return end
+
+    ensureGui()
+
+    local parent = evasiveValue.Parent
+    local maxVal = parent and parent:FindFirstChild("MaxEvasive")
+
+    local function update()
+        if not evasiveBar or not evasiveBase then return end
+        local max = maxVal and maxVal.Value or 100
+        local ratio = math.clamp(evasiveValue.Value / max, 0, 1)
+        evasiveBar.Size = UDim2.new(
+            evasiveBase.X.Scale * ratio,
+            evasiveBase.X.Offset * ratio,
+            evasiveBase.Y.Scale,
+            evasiveBase.Y.Offset
+        )
+    end
+
+    update()
+    evasiveConnection = evasiveValue.Changed:Connect(update)
     if maxVal then
         maxVal.Changed:Connect(update)
     end

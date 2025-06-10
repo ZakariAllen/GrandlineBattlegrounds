@@ -11,6 +11,7 @@ local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
@@ -117,6 +118,9 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
         if not enemyHumanoid then
             if DEBUG then print("[PowerKick] Target has no humanoid") end
+            continue
+        end
+        if EvasiveService.IsActive(enemyPlayer) then
             continue
         end
         if not StunService:CanBeHitBy(player, enemyPlayer) then

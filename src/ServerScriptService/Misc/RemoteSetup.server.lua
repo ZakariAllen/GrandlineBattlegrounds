@@ -58,6 +58,7 @@ local movement = ensureFolder(remotes, "Movement")
 ensureEvent(movement, "DashEvent")
 ensureEvent(movement, "SprintStateEvent")
 ensureEvent(movement, "TeleportEvent")
+ensureEvent(movement, "EvasiveEvent")
 
 -- Stun events
 local stun = ensureFolder(remotes, "Stun")

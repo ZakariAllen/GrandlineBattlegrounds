@@ -275,4 +275,43 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         end)
 end
 
+function StunService.ClearStun(player)
+    local data = StunnedPlayers[player]
+    if data then
+        if data.Conn then data.Conn:Disconnect() end
+        StunnedPlayers[player] = nil
+
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
+            humanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
+            humanoid.JumpPower = data.PrevJumpPower or Config.GameSettings.DefaultJumpPower
+        end
+        if data.HRP and data.PreserveVelocity then
+            data.HRP:SetAttribute("StunPreserveVelocity", nil)
+        end
+        local track = ActiveAnimations[player]
+        if track then
+            track:Stop()
+            track:Destroy()
+            ActiveAnimations[player] = nil
+        end
+        sendStatus(player)
+    end
+end
+
+function StunService.LockAttacker(player, duration)
+    if not RunService:IsServer() then return end
+    duration = duration or (Config.GameSettings.AttackerLockoutDuration or 0.5)
+    local unlockTime = tick() + duration
+    AttackerLockouts[player] = unlockTime
+    sendStatus(player)
+    task.delay(duration, function()
+        if AttackerLockouts[player] and tick() >= unlockTime then
+            AttackerLockouts[player] = nil
+            sendStatus(player)
+        end
+    end)
+end
+
 return StunService
