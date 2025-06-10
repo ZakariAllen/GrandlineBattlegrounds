@@ -17,6 +17,7 @@ MoveHitboxConfig.PartyTableKick = Tools.BlackLeg.PartyTableKick.Hitbox
 MoveHitboxConfig.PowerPunch = Tools.BasicCombat.PowerPunch.Hitbox
 MoveHitboxConfig.PowerKick = Tools.BlackLeg.PowerKick.Hitbox
 MoveHitboxConfig.Concasse = Tools.BlackLeg.Concasse.Hitbox
+MoveHitboxConfig.AntiMannerKickCourse = Tools.BlackLeg.AntiMannerKickCourse.Hitbox
 MoveHitboxConfig.Shigan = Tools.Rokushiki.Shigan.Hitbox
 MoveHitboxConfig.TempestKick = Tools.Rokushiki.TempestKick.Hitbox
 

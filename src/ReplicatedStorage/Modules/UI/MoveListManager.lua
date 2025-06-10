@@ -15,7 +15,7 @@ local keys = {"C","Z","X","T","R","E","Q","F","J"}
 -- mapping of style -> available move keys
 local styleMoves = {
     BasicCombat = {"R"},
-    BlackLeg = {"E", "R", "T"},
+    BlackLeg = {"C", "E", "R", "T"},
     Rokushiki = {"E", "R", "T", "X"},
 }
 
