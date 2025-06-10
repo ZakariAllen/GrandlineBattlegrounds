@@ -37,7 +37,6 @@ local sendStatus
 local function cleanupPlayer(player)
     local data = StunnedPlayers[player]
     if data then
-        if data.Conn then data.Conn:Disconnect() end
         if data.HRP and data.PreserveVelocity then
             data.HRP:SetAttribute("StunPreserveVelocity", nil)
         end
@@ -60,6 +59,26 @@ if RunService:IsServer() then
             cleanupPlayer(p)
             sendStatus(p)
         end)
+    end)
+    RunService.Heartbeat:Connect(function()
+        for player, data in pairs(StunnedPlayers) do
+            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = 0
+                hum.Jump = false
+            end
+            local hrp = data.HRP
+            if hrp then
+                local v = hrp.AssemblyLinearVelocity
+                if not KnockbackService.IsKnockbackActive(hrp)
+                    and not hrp:GetAttribute("StunPreserveVelocity") then
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
+                elseif DEBUG then
+                    print("[StunService] Preserving velocity for", player.Name)
+                end
+                hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            end
+        end
     end)
 end
 
@@ -141,7 +160,6 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
 
     local existing = StunnedPlayers[targetPlayer]
     if existing then
-            if existing.Conn then existing.Conn:Disconnect() end
             if existing.HRP and existing.PreserveVelocity then
                     existing.HRP:SetAttribute("StunPreserveVelocity", nil)
             end
@@ -196,30 +214,9 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                         ActiveAnimations[targetPlayer] = track
                 end
         end
-        local conn
-        conn = RunService.Heartbeat:Connect(function()
-                if targetHumanoid and targetHumanoid.Parent then
-                        targetHumanoid.WalkSpeed = 0
-                        targetHumanoid.Jump = false
-                        if hrp then
-                                local v = hrp.AssemblyLinearVelocity
-                               -- Preserve applied knockback forces by not
-                               -- zeroing horizontal velocity when a knockback force is present
-                               if not KnockbackService.IsKnockbackActive(hrp)
-                                       and not hrp:GetAttribute("StunPreserveVelocity") then
-                                       hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
-                               elseif DEBUG then
-                                       print("[StunService] Preserving velocity for", targetPlayer.Name)
-                               end
-                                hrp.AssemblyAngularVelocity = Vector3.new(0,0,0)
-                        end
-                end
-        end)
-
         local endTime = tick() + duration
         StunnedPlayers[targetPlayer] = {
             EndsAt = endTime,
-            Conn = conn,
             HRP = hrp,
             PrevAutoRotate = prevAutoRotate,
             PreserveVelocity = preserveVelocity,
@@ -231,7 +228,6 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         task.delay(duration, function()
                 local data = StunnedPlayers[targetPlayer]
                 if data and tick() >= data.EndsAt then
-                        if data.Conn then data.Conn:Disconnect() end
                         StunnedPlayers[targetPlayer] = nil
                         if data.HRP then
                                 targetHumanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
@@ -278,7 +274,6 @@ end
 function StunService.ClearStun(player)
     local data = StunnedPlayers[player]
     if data then
-        if data.Conn then data.Conn:Disconnect() end
         StunnedPlayers[player] = nil
 
         local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")

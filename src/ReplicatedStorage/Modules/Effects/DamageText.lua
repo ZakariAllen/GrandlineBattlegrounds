@@ -4,7 +4,47 @@ local DamageText = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
-local Debris = game:GetService("Debris")
+
+local MAX_POOL_SIZE = 20
+local POOL = {}
+
+local function acquire()
+    local gui = table.remove(POOL)
+    if gui then return gui end
+    local tmpl = getTemplate()
+    if tmpl then
+        return tmpl:Clone()
+    end
+    gui = Instance.new("BillboardGui")
+    gui.Size = UDim2.fromScale(2, 1)
+    gui.AlwaysOnTop = true
+    local label = Instance.new("TextLabel")
+    label.Name = "TextLabel"
+    label.BackgroundTransparency = 1
+    label.Size = UDim2.fromScale(1, 1)
+    label.TextColor3 = Color3.new(1, 0, 0)
+    label.TextStrokeTransparency = 0
+    label.Font = Enum.Font.SourceSansBold
+    label.TextScaled = true
+    label.Parent = gui
+    return gui
+end
+
+local function release(gui)
+    gui.Adornee = nil
+    gui.Parent = nil
+    gui.StudsOffset = Vector3.new()
+    local label = gui:FindFirstChildOfClass("TextLabel")
+    if label then
+        label.TextTransparency = 0
+        label.TextStrokeTransparency = 0
+    end
+    if #POOL < MAX_POOL_SIZE then
+        table.insert(POOL, gui)
+    else
+        gui:Destroy()
+    end
+end
 
 local template
 local function getTemplate()
@@ -27,27 +67,10 @@ function DamageText.Show(target: Instance, amount: number)
     local root = char and char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    local gui
-    local tmpl = getTemplate()
-    if tmpl then
-        gui = tmpl:Clone()
-    else
-        gui = Instance.new("BillboardGui")
-        gui.Size = UDim2.fromScale(2, 1)
-        gui.AlwaysOnTop = true
-        local label = Instance.new("TextLabel")
-        label.Name = "TextLabel"
-        label.BackgroundTransparency = 1
-        label.Size = UDim2.fromScale(1, 1)
-        label.TextColor3 = Color3.new(1, 0, 0)
-        label.TextStrokeTransparency = 0
-        label.Font = Enum.Font.SourceSansBold
-        label.TextScaled = true
-        label.Parent = gui
-    end
-
+    local gui = acquire()
     gui.Name = "DamageText"
     gui.Adornee = root
+
     local label = gui:FindFirstChildOfClass("TextLabel")
     if label then
         label.Text = tostring(math.floor(amount))
@@ -68,7 +91,9 @@ function DamageText.Show(target: Instance, amount: number)
 
     gui.Parent = char
 
-    Debris:AddItem(gui, 1.05)
+    task.delay(1.05, function()
+        release(gui)
+    end)
 end
 
 return DamageText
