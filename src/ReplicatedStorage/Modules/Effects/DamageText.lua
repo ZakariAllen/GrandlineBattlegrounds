@@ -8,6 +8,10 @@ local TweenService = game:GetService("TweenService")
 local MAX_POOL_SIZE = 20
 local POOL = {}
 
+-- Forward declare so that acquire() captures the local
+-- version rather than a global lookup
+local getTemplate
+
 local function acquire()
     local gui = table.remove(POOL)
     if gui then return gui end
@@ -47,7 +51,7 @@ local function release(gui)
 end
 
 local template
-local function getTemplate()
+function getTemplate()
     if template then return template end
     local assets = ReplicatedStorage:FindFirstChild("Assets")
     if assets then
