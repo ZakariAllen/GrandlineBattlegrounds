@@ -72,6 +72,8 @@ function EvasiveClient.OnInputBegan(input, gp)
     local maxVal = player:FindFirstChild("MaxEvasive")
     if not evasiveVal or not maxVal or evasiveVal.Value < maxVal.Value then return end
 
+    if not StunStatusClient.IsStunned() then return end
+
     local direction, dashVector = getDashInputAndVector()
     if not direction or not dashVector then return end
 
