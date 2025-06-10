@@ -19,7 +19,9 @@ table.
 Knockback is now handled through the ragdoll system. The module
 `ReplicatedStorage.Modules.Combat.RagdollKnockback` exposes helper
 functions for applying a knockback impulse while putting the target in
-a ragdolled state.
+a ragdolled state. While ragdolled all character motors and active
+animations are disabled so the body goes completely limp until the
+knockback duration ends.
 
 ## Hit Effect Settings
 
