@@ -23,6 +23,10 @@ a ragdolled state. While ragdolled all character motors and active
 animations are disabled so the body goes completely limp until the
 knockback duration ends.
 
+The vertical lift value is now treated independently from the horizontal
+force so moves can launch characters without multiplying the upward
+impulse by the knockback force.
+
 ## Hit Effect Settings
 
 The hit highlight shown when a character is damaged is configured in
