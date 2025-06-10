@@ -46,17 +46,32 @@ function StaminaService.ResetStamina(player)
 end
 
 if RunService:IsServer() then
-    Players.PlayerAdded:Connect(setupPlayer)
-    for _, p in ipairs(Players:GetPlayers()) do
-        setupPlayer(p)
+    local activePlayers = {}
+
+    local function addPlayer(player)
+        setupPlayer(player)
+        table.insert(activePlayers, player)
     end
 
-    Players.PlayerRemoving:Connect(function(player)
+    local function removePlayer(player)
         StaminaService._regenPaused[player] = nil
-    end)
+        for i, p in ipairs(activePlayers) do
+            if p == player then
+                table.remove(activePlayers, i)
+                break
+            end
+        end
+    end
+
+    Players.PlayerAdded:Connect(addPlayer)
+    Players.PlayerRemoving:Connect(removePlayer)
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        addPlayer(p)
+    end
 
     RunService.Heartbeat:Connect(function(dt)
-        for _, player in ipairs(Players:GetPlayers()) do
+        for _, player in ipairs(activePlayers) do
             if StaminaService._regenPaused[player] then
                 continue
             end
