@@ -108,6 +108,10 @@ end
 -- @param attackerRoot Instance? HumanoidRootPart of the attacking player
 function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker, attackerRoot)
        if TekkaiService.IsActive(player) then
+               if isBlockBreaker then
+                       -- Guard break moves should not deplete Tekkai HP
+                       return "Damaged"
+               end
                return TekkaiService.ApplyDamage(player, damage)
        end
 
