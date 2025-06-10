@@ -41,6 +41,10 @@ local function setupConstraints(humanoid)
         if c then table.insert(created, c) end
     end
 
+    -- Keep the root part attached to the torso so knockback moves the
+    -- entire character instead of separating the body from the HP bar
+    add(ragdollJoint(char, char.HumanoidRootPart, char.LowerTorso, "Root", "BallSocket"))
+
     add(ragdollJoint(char, char.LowerTorso, char.UpperTorso, "Waist", "BallSocket", {
         {"LimitsEnabled", true},
         {"UpperAngle", 5},
