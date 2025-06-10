@@ -11,6 +11,7 @@ local humanoid = character:WaitForChild("Humanoid")
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
+local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
@@ -37,7 +38,12 @@ StunStatusEvent.OnClientEvent:Connect(function(data)
 end)
 
 local function beginSprint()
-       if not sprinting and not isStunned and not isLocked and not BlockClient.IsBlocking() then
+       if not sprinting
+               and not isStunned
+               and not isLocked
+               and not StunStatusClient.IsStunned()
+               and not StunStatusClient.IsAttackerLocked()
+               and not BlockClient.IsBlocking() then
                sprinting = true
                humanoid.WalkSpeed = Config.GameSettings.DefaultSprintSpeed
                SprintEvent:FireServer(true)
