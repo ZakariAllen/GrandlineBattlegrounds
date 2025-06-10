@@ -18,6 +18,7 @@ local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClie
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -106,6 +107,7 @@ function Shigan.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, ShiganConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = ShiganConfig.Startup + (ShiganConfig.Endlag or 0)

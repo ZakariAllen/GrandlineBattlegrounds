@@ -22,6 +22,7 @@ local TempestKickVFX = require(ReplicatedStorage.Modules.Effects.TempestKickVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local DEBUG = Config.GameSettings.DebugEnabled
 
@@ -115,6 +116,7 @@ function TempestKick.OnInputBegan(input, gp)
 
     active = true
     lastUse = tick()
+    MoveListManager.StartCooldown(KEY.Name, TempestKickConfig.Cooldown or 0)
 
     MovementClient.StopSprint()
     local lockTime = TempestKickConfig.Startup + (TempestKickConfig.Endlag or 0)
