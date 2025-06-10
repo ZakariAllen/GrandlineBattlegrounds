@@ -163,6 +163,8 @@ function RagdollUtils.Disable(humanoid)
     local root = getHumanoidRoot(humanoid)
     if root then
         root:SetAttribute("Ragdolled", nil)
+        root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+        root.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
     end
 end
 
