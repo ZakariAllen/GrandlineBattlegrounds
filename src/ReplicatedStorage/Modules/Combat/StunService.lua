@@ -236,6 +236,10 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         end
         stunAnimId = stunAnimId or CombatAnimations.Stun.Default
 
+        if hrp and hrp:GetAttribute("Ragdolled") then
+            skipAnim = true
+        end
+
         if not skipAnim then
                 local animator = targetHumanoid:FindFirstChildOfClass("Animator")
                 if animator and stunAnimId then

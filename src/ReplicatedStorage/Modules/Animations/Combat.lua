@@ -10,7 +10,6 @@ Animation.M1 = {
 			[4] = "rbxassetid://96320001137526",
 			[5] = "rbxassetid://70382508234278",
 		},
-		Knockback = "rbxassetid://130846337993501"
 	},
 
         BlackLeg = {
@@ -21,7 +20,6 @@ Animation.M1 = {
                         [4] = "rbxassetid://126344683553001",
                         [5] = "rbxassetid://84882475157331",
                 },
-                Knockback = "rbxassetid://130846337993501"
         },
 
         Rokushiki = {
@@ -32,7 +30,6 @@ Animation.M1 = {
                         [4] = "rbxassetid://96320001137526",
                         [5] = "rbxassetid://70382508234278",
                 },
-                Knockback = "rbxassetid://130846337993501"
         }
 }
 
