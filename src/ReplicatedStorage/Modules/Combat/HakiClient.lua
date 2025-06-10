@@ -15,8 +15,10 @@ local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
+local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 local KEY = Enum.KeyCode.J
+local TOGGLE_COOLDOWN = 1
 local active = {}
 local coloredParts = {}
 local originalColors = {}
@@ -121,6 +123,7 @@ function HakiClient.OnInputBegan(input, gp)
     if HakiService.GetHaki(player) <= 0 then return end
     local newState = not active[player]
     HakiEvent:FireServer(newState)
+    MoveListManager.StartCooldown(KEY.Name, TOGGLE_COOLDOWN)
 end
 
 function HakiClient.OnInputEnded() end
