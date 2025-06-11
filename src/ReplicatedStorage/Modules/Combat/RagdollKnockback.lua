@@ -8,8 +8,8 @@ RagdollKnockback.DirectionType = {
     AwayFromAttacker = "AwayFromAttacker",
 }
 
-local DEFAULT_FORCE = 50
-local DEFAULT_LIFT = 2
+local DEFAULT_FORCE = 250
+local DEFAULT_LIFT = 5
 local DEFAULT_DURATION = 1
 
 local function getRoot(humanoid)
