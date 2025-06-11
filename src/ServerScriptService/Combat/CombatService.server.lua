@@ -186,15 +186,14 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, preserve)
 
                 -- 💥 Knockback logic
-                if isFinal then
-                        local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
-                        if enemyRoot then
-                                RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
-                                        DirectionType = RagdollKnockback.DirectionType.AttackerFacingDirection,
-                                        AttackerRoot = hrp,
-                                        TargetRoot = enemyRoot,
-                                })
-                        end
+                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+                local enemyDied = enemyHumanoid.Health <= 0
+                if (isFinal or enemyDied) and enemyRoot then
+                        RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                                DirectionType = RagdollKnockback.DirectionType.AttackerFacingDirection,
+                                AttackerRoot = hrp,
+                                TargetRoot = enemyRoot,
+                        })
                 end
 
 		-- ✨ VFX & Hit SFX
