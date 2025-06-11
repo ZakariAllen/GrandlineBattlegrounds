@@ -11,6 +11,11 @@ local BlackLeg = {
         Endlag = 1.3,
         HitboxDuration = 0.1,
         Cooldown = 12,
+        Knockback = {
+            Force = 300,
+            Lift = 150,
+            Duration = 1,
+        },
         KnockbackDirection = "AwayFromAttacker",
         Hitbox = {
             Size = Vector3.new(7, 9, 9),
@@ -34,6 +39,11 @@ local BlackLeg = {
         Endlag = 0.5,
         HitboxDuration = 0.2,
         Cooldown = 12,
+        Knockback = {
+            Force = 0,
+            Lift = 0,
+            Duration = 0,
+        },
         Hitbox = {
             Size = Vector3.new(6, 6, 6),
             Offset = CFrame.new(0, 0, -3.5),
@@ -60,6 +70,11 @@ local BlackLeg = {
         MaxTravelTime = 2,
         HitboxDuration = 0.1,
         Cooldown = 12,
+        Knockback = {
+            Force = 0,
+            Lift = 0,
+            Duration = 0,
+        },
         Hitbox = {
             Size = Vector3.new(8, 8, 8),
             Offset = CFrame.new(0, 0, 0.0),
@@ -78,6 +93,11 @@ local BlackLeg = {
         Endlag = 0.5,
         Cooldown = 120,
         StaminaCost = 100,
+        Knockback = {
+            Force = 50,
+            Lift = 140,
+            Duration = 0.6,
+        },
         Hitbox = {
             Size = Vector3.new(6, 6, 6),
             Offset = CFrame.new(0, 0, -3.5),
