@@ -78,12 +78,25 @@ local function setupConstraints(humanoid)
     add(ragdollJoint(char, char.LeftLowerLeg, char.LeftFoot, "LeftAnkle", "Hinge", footProps))
     add(ragdollJoint(char, char.RightLowerLeg, char.RightFoot, "RightAnkle", "Hinge", footProps))
 
-    add(ragdollJoint(char, char.UpperTorso, char.LeftUpperArm, "LeftShoulder", "BallSocket"))
-    add(ragdollJoint(char, char.LeftUpperArm, char.LeftLowerArm, "LeftElbow", "BallSocket"))
-    add(ragdollJoint(char, char.UpperTorso, char.RightUpperArm, "RightShoulder", "BallSocket"))
-    add(ragdollJoint(char, char.RightUpperArm, char.RightLowerArm, "RightElbow", "BallSocket"))
-    add(ragdollJoint(char, char.LowerTorso, char.LeftUpperLeg, "LeftHip", "BallSocket"))
-    add(ragdollJoint(char, char.LowerTorso, char.RightUpperLeg, "RightHip", "BallSocket"))
+    local shoulderProps = {
+        {"LimitsEnabled", true},
+        {"UpperAngle", 45},
+    }
+    local elbowProps = {
+        {"LimitsEnabled", true},
+        {"UpperAngle", 70},
+    }
+    local hipProps = {
+        {"LimitsEnabled", true},
+        {"UpperAngle", 45},
+    }
+
+    add(ragdollJoint(char, char.UpperTorso, char.LeftUpperArm, "LeftShoulder", "BallSocket", shoulderProps))
+    add(ragdollJoint(char, char.LeftUpperArm, char.LeftLowerArm, "LeftElbow", "BallSocket", elbowProps))
+    add(ragdollJoint(char, char.UpperTorso, char.RightUpperArm, "RightShoulder", "BallSocket", shoulderProps))
+    add(ragdollJoint(char, char.RightUpperArm, char.RightLowerArm, "RightElbow", "BallSocket", elbowProps))
+    add(ragdollJoint(char, char.LowerTorso, char.LeftUpperLeg, "LeftHip", "BallSocket", hipProps))
+    add(ragdollJoint(char, char.LowerTorso, char.RightUpperLeg, "RightHip", "BallSocket", hipProps))
 
     CreatedConstraints[humanoid] = created
 end
@@ -149,9 +162,13 @@ function RagdollUtils.Disable(humanoid)
     removeConstraints(humanoid)
     local motors = DisabledMotors[humanoid]
     if motors then
+        local TweenService = game:GetService("TweenService")
         for _, motor in ipairs(motors) do
             if motor.Parent then
+                local current = motor.Part0.CFrame:ToObjectSpace(motor.Part1.CFrame)
                 motor.Enabled = true
+                motor.Transform = current
+                TweenService:Create(motor, TweenInfo.new(0.3), {Transform = CFrame.new()}):Play()
             end
         end
         DisabledMotors[humanoid] = nil
