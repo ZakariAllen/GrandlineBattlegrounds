@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 -- Hide the default backpack UI
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
@@ -19,8 +20,8 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Clone hotbar template from ReplicatedStorage.Assets
-local assets = ReplicatedStorage:WaitForChild("Assets")
+-- Clone hotbar template from ReplicatedFirst.Assets
+local assets = ReplicatedFirst:WaitForChild("Assets")
 local template = assets:WaitForChild("CustomHotbar")
 
 local hotbar = template:Clone()

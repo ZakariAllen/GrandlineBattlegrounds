@@ -3,6 +3,7 @@
 local DamageText = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local TweenService = game:GetService("TweenService")
 
 local MAX_POOL_SIZE = 20
@@ -53,7 +54,7 @@ end
 local template
 function getTemplate()
     if template then return template end
-    local assets = ReplicatedStorage:FindFirstChild("Assets")
+    local assets = ReplicatedFirst:FindFirstChild("Assets")
     if assets then
         template = assets:FindFirstChild("DamageText")
     end
