@@ -21,7 +21,6 @@ function LoadingManager.BeginLoading(onComplete)
 	print("[LoadingManager] Starting loading screen")
 
     local loadingTemplate = ReplicatedFirst
-        :WaitForChild("LocalScript")
         :WaitForChild("Assets")
         :WaitForChild("LoadingScreen")
 	local config = MenuGlobalCfg.LoadingScreen

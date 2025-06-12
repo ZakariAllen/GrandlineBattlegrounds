@@ -15,7 +15,6 @@ local function ensureUI(name)
 	if existing then return existing end
 
     local template = ReplicatedFirst
-        :WaitForChild("LocalScript")
         :WaitForChild("Assets")
         :WaitForChild(name)
 	local clone = template:Clone()
