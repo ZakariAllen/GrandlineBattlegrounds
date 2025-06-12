@@ -4,6 +4,8 @@ local PlayerGuiManager = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local FirstScript = ReplicatedFirst:WaitForChild("LocalScript")
 local RunService = game:GetService("RunService")
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
@@ -34,11 +36,12 @@ local ultConnection
 local evasiveConnection
 local rainbowConnection
 
--- Clone the existing PlayerGUI from ReplicatedStorage.Assets
+-- Clone the existing PlayerGUI from the Assets folder located under
+-- `ReplicatedFirst.LocalScript`
 local function ensureGui()
     if screenGui then return end
 
-    local assets = ReplicatedStorage:WaitForChild("Assets")
+    local assets = FirstScript:WaitForChild("Assets")
     local template = assets:WaitForChild("PlayerGUI")
 
     screenGui = PlayerGui:FindFirstChild("PlayerGUI")

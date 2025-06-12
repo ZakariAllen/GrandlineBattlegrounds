@@ -2,6 +2,8 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local FirstScript = ReplicatedFirst:WaitForChild("LocalScript")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 
@@ -19,7 +21,7 @@ local LoadingManager = {}
 function LoadingManager.BeginLoading(onComplete)
 	print("[LoadingManager] Starting loading screen")
 
-	local loadingTemplate = ReplicatedStorage.Assets:WaitForChild("LoadingScreen")
+    local loadingTemplate = FirstScript:WaitForChild("Assets"):WaitForChild("LoadingScreen")
 	local config = MenuGlobalCfg.LoadingScreen
 	local duration = config.Duration
 

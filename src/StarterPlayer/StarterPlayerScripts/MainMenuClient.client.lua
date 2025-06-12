@@ -1,6 +1,8 @@
 -- StarterPlayerScripts > MainMenuClient
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local FirstScript = ReplicatedFirst:WaitForChild("LocalScript")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -13,7 +15,7 @@ local function ensureUI(name)
 	local existing = PlayerGui:FindFirstChild(name)
 	if existing then return existing end
 
-	local template = ReplicatedStorage:WaitForChild("Assets"):WaitForChild(name)
+        local template = FirstScript:WaitForChild("Assets"):WaitForChild(name)
 	local clone = template:Clone()
 	clone.Name = name
 	clone.Parent = PlayerGui
@@ -30,7 +32,6 @@ local textLabel = background:WaitForChild("Text")
 -- 🔁 Module Configs
 local MenuCfgs        = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("MenuCfgs")
 local MenuLogic       = require(MenuCfgs:WaitForChild("MenuLogic"))
-local LoadingManager  = require(MenuCfgs:WaitForChild("LoadingManager"))
 local CameraManager   = require(MenuCfgs:WaitForChild("CameraManager"))
 local MenuGlobalCfg   = require(MenuCfgs:WaitForChild("MenuGlobalCfg"))
 local PlayerGuiManager = require(ReplicatedStorage.Modules.Client.PlayerGuiManager)
@@ -177,7 +178,11 @@ ReturnToMenuEvent.OnClientEvent:Connect(function()
         end)
 end)
 
--- 🚀 Begin game
-LoadingManager.BeginLoading(function()
-	initMainMenu()
-end)
+-- 🚀 Begin game once ReplicatedFirst signals that assets are loaded
+local flag = ReplicatedFirst:WaitForChild("LoadingFinished", 5)
+if flag then
+    if flag.Value == false then
+        flag.Changed:Wait()
+    end
+end
+initMainMenu()

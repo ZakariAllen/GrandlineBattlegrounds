@@ -4,6 +4,8 @@ local HakiClient = {}
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local FirstScript = ReplicatedFirst:WaitForChild("LocalScript")
 
 local player = Players.LocalPlayer
 
@@ -22,8 +24,8 @@ local TOGGLE_COOLDOWN = 1
 local active = {}
 local coloredParts = {}
 local originalColors = {}
-local hakiTemplate = ReplicatedStorage:FindFirstChild("Assets") and
-    ReplicatedStorage.Assets:FindFirstChild("HakiEnabled")
+local assets = FirstScript:FindFirstChild("Assets")
+local hakiTemplate = assets and assets:FindFirstChild("HakiEnabled")
 local addedTextures = {}
 
 local function applyColor(char, style, hakiPlayer)

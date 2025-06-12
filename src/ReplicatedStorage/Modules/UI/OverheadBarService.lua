@@ -4,10 +4,12 @@ local OverheadBarService = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local FirstScript = ReplicatedFirst:WaitForChild("LocalScript")
 
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
-local assets = ReplicatedStorage:WaitForChild("Assets")
+local assets = FirstScript:WaitForChild("Assets")
 local healthTemplate = assets:WaitForChild("HealthBar")
 local blockTemplate = assets:WaitForChild("BlockBar")
 local tekkaiTemplate = assets:FindFirstChild("TekkaiBar")
