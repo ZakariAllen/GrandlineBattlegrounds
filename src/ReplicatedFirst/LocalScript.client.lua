@@ -13,8 +13,10 @@ ReplicatedFirst:RemoveDefaultLoadingScreen()
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Clone the LoadingScreen UI stored under this script
-local template = script:WaitForChild("LoadingScreen")
+-- Clone the LoadingScreen UI stored under ReplicatedFirst.Assets
+local template = ReplicatedFirst
+    :WaitForChild("Assets")
+    :WaitForChild("LoadingScreen")
 local loadingGui = template:Clone()
 loadingGui.Parent = playerGui
 
