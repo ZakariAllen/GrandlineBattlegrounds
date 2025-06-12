@@ -8,7 +8,9 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
-local assets = ReplicatedFirst:WaitForChild("Assets")
+local assets = ReplicatedFirst
+    :WaitForChild("LocalScript")
+    :WaitForChild("Assets")
 local healthTemplate = assets:WaitForChild("HealthBar")
 local blockTemplate = assets:WaitForChild("BlockBar")
 local tekkaiTemplate = assets:FindFirstChild("TekkaiBar")

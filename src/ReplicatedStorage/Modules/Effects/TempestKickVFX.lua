@@ -1,10 +1,14 @@
 --ReplicatedStorage.Modules.Effects.TempestKickVFX
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local TempestKickVFX = {}
 
-local TEMPLATE = ReplicatedStorage:WaitForChild("VFX"):WaitForChild("TempestKickVFX")
+local TEMPLATE = ReplicatedFirst
+    :WaitForChild("LocalScript")
+    :WaitForChild("VFX")
+    :WaitForChild("TempestKickVFX")
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 -- Create and attach the Tempest Kick VFX to the given part

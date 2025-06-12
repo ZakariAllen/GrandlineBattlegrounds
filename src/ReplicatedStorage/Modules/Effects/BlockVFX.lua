@@ -1,10 +1,14 @@
 --ReplicatedStorage.Modules.Effects.BlockVFX
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local BlockVFX = {}
 
-local TEMPLATE = ReplicatedStorage:WaitForChild("VFX"):WaitForChild("BlockVFX")
+local TEMPLATE = ReplicatedFirst
+    :WaitForChild("LocalScript")
+    :WaitForChild("VFX")
+    :WaitForChild("BlockVFX")
 
 -- Create and attach the block VFX to the given part
 function BlockVFX.Create(parent: Instance)
