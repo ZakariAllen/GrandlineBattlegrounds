@@ -13,6 +13,12 @@ ReplicatedFirst:RemoveDefaultLoadingScreen()
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
+-- Create the LoadingFinished flag immediately so other scripts can wait on it
+local flag = Instance.new("BoolValue")
+flag.Name = "LoadingFinished"
+flag.Value = false
+flag.Parent = ReplicatedFirst
+
 -- Clone the LoadingScreen UI stored under ReplicatedFirst.Assets
 local template = ReplicatedFirst
     :WaitForChild("Assets")
@@ -76,7 +82,4 @@ task.wait(0.6)
 loadingGui:Destroy()
 
 -- Signal to other scripts that loading has finished
-local flag = Instance.new("BoolValue")
-flag.Name = "LoadingFinished"
 flag.Value = true
-flag.Parent = ReplicatedFirst
