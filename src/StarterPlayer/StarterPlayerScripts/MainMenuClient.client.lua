@@ -14,7 +14,10 @@ local function ensureUI(name)
 	local existing = PlayerGui:FindFirstChild(name)
 	if existing then return existing end
 
-        local template = ReplicatedFirst:WaitForChild("Assets"):WaitForChild(name)
+    local template = ReplicatedFirst
+        :WaitForChild("LocalScript")
+        :WaitForChild("Assets")
+        :WaitForChild(name)
 	local clone = template:Clone()
 	clone.Name = name
 	clone.Parent = PlayerGui

@@ -1,13 +1,17 @@
 --ReplicatedStorage.Modules.Effects.PartyTableKickVFX
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Debris = game:GetService("Debris")
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local PartyTableKickVFX = {}
 
-local TEMPLATE = ReplicatedStorage:WaitForChild("VFX"):WaitForChild("PartyTableKickVFX")
+local TEMPLATE = ReplicatedFirst
+    :WaitForChild("LocalScript")
+    :WaitForChild("VFX")
+    :WaitForChild("PartyTableKickVFX")
 
 function PartyTableKickVFX.Create(parent: Instance)
     if not parent or not parent:IsA("BasePart") then

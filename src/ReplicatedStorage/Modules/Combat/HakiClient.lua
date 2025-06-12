@@ -23,8 +23,9 @@ local TOGGLE_COOLDOWN = 1
 local active = {}
 local coloredParts = {}
 local originalColors = {}
-local hakiTemplate = ReplicatedFirst:FindFirstChild("Assets") and
-    ReplicatedFirst.Assets:FindFirstChild("HakiEnabled")
+local rfLocal = ReplicatedFirst:FindFirstChild("LocalScript")
+local hakiTemplate = rfLocal and rfLocal:FindFirstChild("Assets") and
+    rfLocal.Assets:FindFirstChild("HakiEnabled")
 local addedTextures = {}
 
 local function applyColor(char, style, hakiPlayer)

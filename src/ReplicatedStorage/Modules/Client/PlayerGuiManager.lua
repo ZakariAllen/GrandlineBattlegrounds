@@ -35,11 +35,13 @@ local ultConnection
 local evasiveConnection
 local rainbowConnection
 
--- Clone the existing PlayerGUI from ReplicatedFirst.Assets
+-- Clone the existing PlayerGUI from ReplicatedFirst.LocalScript.Assets
 local function ensureGui()
     if screenGui then return end
 
-    local assets = ReplicatedFirst:WaitForChild("Assets")
+    local assets = ReplicatedFirst
+        :WaitForChild("LocalScript")
+        :WaitForChild("Assets")
     local template = assets:WaitForChild("PlayerGUI")
 
     screenGui = PlayerGui:FindFirstChild("PlayerGUI")

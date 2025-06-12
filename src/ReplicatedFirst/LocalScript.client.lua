@@ -41,12 +41,12 @@ local function gather(folder, list)
 end
 
 local assetsToLoad = {}
-local assetsFolder = ReplicatedFirst:FindFirstChild("Assets")
+local assetsFolder = script:FindFirstChild("Assets")
 if assetsFolder then
     gather(assetsFolder, assetsToLoad)
 end
 
-local vfxFolder = ReplicatedFirst:FindFirstChild("VFX")
+local vfxFolder = script:FindFirstChild("VFX")
 if vfxFolder then
     gather(vfxFolder, assetsToLoad)
 end

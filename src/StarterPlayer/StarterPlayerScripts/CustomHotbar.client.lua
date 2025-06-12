@@ -20,8 +20,10 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Clone hotbar template from ReplicatedFirst.Assets
-local assets = ReplicatedFirst:WaitForChild("Assets")
+-- Clone hotbar template from ReplicatedFirst.LocalScript.Assets
+local assets = ReplicatedFirst
+    :WaitForChild("LocalScript")
+    :WaitForChild("Assets")
 local template = assets:WaitForChild("CustomHotbar")
 
 local hotbar = template:Clone()
