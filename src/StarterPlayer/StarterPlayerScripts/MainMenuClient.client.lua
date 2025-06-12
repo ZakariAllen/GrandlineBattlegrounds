@@ -152,11 +152,14 @@ end
 -- 🎬 Initialize main menu
 local function initMainMenu()
         print("[MainMenuClient] Initializing Main Menu")
-        CameraManager.ApplyMenuCamera()
-        if Workspace.StreamingEnabled then
-                local pos = CameraManager.GetMenuStartCFrame().Position
-                Workspace:RequestStreamAroundAsync(pos)
+    CameraManager.ApplyMenuCamera()
+    if Workspace.StreamingEnabled then
+        local requestStream = Workspace.RequestStreamAroundAsync
+        if typeof(requestStream) == "function" then
+            local pos = CameraManager.GetMenuStartCFrame().Position
+            requestStream(Workspace, pos)
         end
+    end
         PlayerGuiManager.Hide()
         setButtonsEnabled(true)
         MusicManager.PlayMenuMusic()
