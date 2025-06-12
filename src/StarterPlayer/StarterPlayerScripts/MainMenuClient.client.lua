@@ -5,6 +5,7 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
@@ -152,6 +153,10 @@ end
 local function initMainMenu()
         print("[MainMenuClient] Initializing Main Menu")
         CameraManager.ApplyMenuCamera()
+        if Workspace.StreamingEnabled then
+                local pos = CameraManager.GetMenuStartCFrame().Position
+                Workspace:RequestStreamAroundAsync(pos)
+        end
         PlayerGuiManager.Hide()
         setButtonsEnabled(true)
         MusicManager.PlayMenuMusic()
