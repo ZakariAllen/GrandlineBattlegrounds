@@ -61,10 +61,14 @@ PlayerLeftMenu.OnServerEvent:Connect(function(player)
 		menuConns[player]:Disconnect()
 		menuConns[player] = nil
 	end
-	-- Respawn the player to restore character state
-	player:LoadCharacter()
-	-- Optional: to restore existing char instead of respawn
-	-- if player.Character then restoreCharacter(player.Character) end
+        -- Character spawning is now handled entirely by RealSpawner when the
+        -- client requests to play.  Loading the character here caused players
+        -- to momentarily appear at the default spawn position before being
+        -- teleported.  Simply remove the old character connection and let
+        -- RealSpawner spawn a fresh character.
+        if player.Character then
+                player.Character:BreakJoints()
+        end
 end)
 
 Players.PlayerRemoving:Connect(function(player)
