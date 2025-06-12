@@ -2,7 +2,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Workspace = game:GetService("Workspace")
 local HealthService = require(ReplicatedStorage.Modules.Stats.HealthService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
@@ -17,11 +16,12 @@ local hasSpawned = require(script.Parent:WaitForChild("SpawnRegistry"))
 
 
 local function getRandomSpawnPoint()
-        local map = ReplicatedFirst:FindFirstChild("Map")
-        if not map then
-                warn("[RealSpawner] Map not found in ReplicatedFirst!")
-                return CFrame.new(0, 10, 0)
-        end
+    -- Map is stored directly in Workspace
+    local map = Workspace:FindFirstChild("Map")
+    if not map then
+        warn("[RealSpawner] Map not found in Workspace!")
+        return CFrame.new(0, 10, 0)
+    end
 
 	local spawnsFolder = map:FindFirstChild("Spawns")
 	if not spawnsFolder then
