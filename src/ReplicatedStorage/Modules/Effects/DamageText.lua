@@ -54,8 +54,7 @@ end
 local template
 function getTemplate()
     if template then return template end
-    local container = ReplicatedFirst:FindFirstChild("LocalScript")
-    local assets = container and container:FindFirstChild("Assets")
+    local assets = ReplicatedFirst:FindFirstChild("Assets")
     if assets then
         template = assets:FindFirstChild("DamageText")
     end

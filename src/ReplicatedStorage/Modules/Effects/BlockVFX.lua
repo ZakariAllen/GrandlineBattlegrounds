@@ -6,7 +6,6 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local BlockVFX = {}
 
 local TEMPLATE = ReplicatedFirst
-    :WaitForChild("LocalScript")
     :WaitForChild("VFX")
     :WaitForChild("BlockVFX")
 

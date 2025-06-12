@@ -6,7 +6,6 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local TempestKickVFX = {}
 
 local TEMPLATE = ReplicatedFirst
-    :WaitForChild("LocalScript")
     :WaitForChild("VFX")
     :WaitForChild("TempestKickVFX")
 local Config = require(ReplicatedStorage.Modules.Config.Config)

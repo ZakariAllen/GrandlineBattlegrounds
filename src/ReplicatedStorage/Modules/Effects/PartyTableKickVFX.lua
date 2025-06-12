@@ -9,7 +9,6 @@ local Config = require(ReplicatedStorage.Modules.Config.Config)
 local PartyTableKickVFX = {}
 
 local TEMPLATE = ReplicatedFirst
-    :WaitForChild("LocalScript")
     :WaitForChild("VFX")
     :WaitForChild("PartyTableKickVFX")
 
