@@ -180,7 +180,9 @@ ReturnToMenuEvent.OnClientEvent:Connect(function()
 end)
 
 -- 🚀 Begin game once ReplicatedFirst signals that assets are loaded
-local flag = ReplicatedFirst:WaitForChild("LoadingFinished", 5)
+-- Wait indefinitely for the LoadingFinished flag to ensure all assets are
+-- preloaded before showing the main menu
+local flag = ReplicatedFirst:WaitForChild("LoadingFinished")
 if flag then
     if flag.Value == false then
         flag.Changed:Wait()
