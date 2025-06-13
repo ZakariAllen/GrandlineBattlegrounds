@@ -28,6 +28,7 @@ if RunService:IsServer() then
 end
 local cache = {} -- [player] = data table
 local lastAttacker = {} -- [Humanoid] = player
+local processedDeaths = setmetatable({}, {__mode = "k"}) -- [Humanoid] = true
 local joinTimes = {} -- [player] = tick() when they joined
 
 local function loadPlayer(player)
@@ -56,6 +57,8 @@ local function savePlayer(player)
 end
 
 local function onHumanoidDied(hum)
+    if processedDeaths[hum] then return end
+    processedDeaths[hum] = true
     local victim = Players:GetPlayerFromCharacter(hum.Parent)
     if victim then
         PersistentStatsService.AddStat(victim, "Deaths", 1)
