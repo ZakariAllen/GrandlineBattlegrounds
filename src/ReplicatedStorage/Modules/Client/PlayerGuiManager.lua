@@ -263,7 +263,7 @@ function PlayerGuiManager.BindXP(xpValue)
         )
 
         if xpText then
-            xpText.Text = string.format("%d / %d", xpValue.Value, needed - xpValue.Value)
+            xpText.Text = string.format("%d / %d", xpValue.Value, needed)
         end
     end
 
