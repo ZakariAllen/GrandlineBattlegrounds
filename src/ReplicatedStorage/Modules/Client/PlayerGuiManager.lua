@@ -8,6 +8,7 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local RunService = game:GetService("RunService")
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
+local ExperienceService = require(ReplicatedStorage.Modules.Stats.ExperienceService)
 local PlayerStats = require(ReplicatedStorage.Modules.Config.PlayerStats)
 
 local player = Players.LocalPlayer
@@ -19,20 +20,26 @@ local staminaBar
 local hakiBar
 local ultBar
 local evasiveBar
+local xpBar
 local healthText
 local staminaText
 local hakiText
+local xpText
+local levelText
 local baseSize
 local staminaBase
 local hakiBase
 local ultBase
 local evasiveBase
+local xpBase
 local ultColor
 local connection
 local staminaConnection
 local hakiConnection
 local ultConnection
 local evasiveConnection
+local xpConnection
+local levelConnection
 local rainbowConnection
 
 -- Clone the existing PlayerGUI from ReplicatedFirst.Assets
@@ -59,6 +66,7 @@ local function ensureGui()
     local hakiFrame = screenGui:FindFirstChild("Haki")
     local ultFrame = screenGui:FindFirstChild("Ult")
     local evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
+    local xpFrame = screenGui:FindFirstChild("XP")
 
     healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
     staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
@@ -74,12 +82,19 @@ local function ensureGui()
     if evasiveObj then
         evasiveBar = evasiveObj
     end
+    if xpFrame then
+        xpBar = xpFrame:WaitForChild("Middle"):FindFirstChild("XPBar")
+    end
 
     healthText = hpFrame:FindFirstChild("Value")
     staminaText = stamFrame:FindFirstChild("Value")
     if hakiFrame then
         hakiText = hakiFrame:FindFirstChild("Value")
     end
+    if xpFrame then
+        xpText = xpFrame:FindFirstChild("XPLabel")
+    end
+    levelText = hpFrame:FindFirstChild("Level")
     if not baseSize then
         baseSize = healthBar.Size
     end
@@ -99,6 +114,9 @@ local function ensureGui()
     end
     if evasiveBar and not evasiveBase then
         evasiveBase = evasiveBar.Size
+    end
+    if xpBar and not xpBase then
+        xpBase = xpBar.Size
     end
 end
 
@@ -217,6 +235,63 @@ function PlayerGuiManager.BindHaki(hakiValue)
     if maxVal then
         maxVal.Changed:Connect(update)
     end
+end
+
+function PlayerGuiManager.BindXP(xpValue)
+    if xpConnection then
+        xpConnection:Disconnect()
+        xpConnection = nil
+    end
+
+    if not xpValue then return end
+
+    ensureGui()
+
+    local parent = xpValue.Parent
+    local levelVal = parent and parent:FindFirstChild("Level")
+
+    local function update()
+        if not xpBase or not xpBar then return end
+        local level = levelVal and levelVal.Value or 1
+        local needed = ExperienceService.XPForLevel(level)
+        local ratio = math.clamp(xpValue.Value / needed, 0, 1)
+        xpBar.Size = UDim2.new(
+            xpBase.X.Scale * ratio,
+            xpBase.X.Offset * ratio,
+            xpBase.Y.Scale,
+            xpBase.Y.Offset
+        )
+
+        if xpText then
+            xpText.Text = string.format("%d / %d", xpValue.Value, needed - xpValue.Value)
+        end
+    end
+
+    update()
+    xpConnection = xpValue.Changed:Connect(update)
+    if levelVal then
+        levelVal.Changed:Connect(update)
+    end
+end
+
+function PlayerGuiManager.BindLevel(levelValue)
+    if levelConnection then
+        levelConnection:Disconnect()
+        levelConnection = nil
+    end
+
+    if not levelValue then return end
+
+    ensureGui()
+
+    local function update()
+        if levelText then
+            levelText.Text = string.format("Level %d", levelValue.Value)
+        end
+    end
+
+    update()
+    levelConnection = levelValue.Changed:Connect(update)
 end
 
 function PlayerGuiManager.BindUlt(ultValue)
