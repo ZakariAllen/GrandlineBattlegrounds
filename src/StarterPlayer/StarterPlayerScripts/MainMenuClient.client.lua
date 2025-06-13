@@ -154,11 +154,10 @@ local function initMainMenu()
         print("[MainMenuClient] Initializing Main Menu")
     CameraManager.ApplyMenuCamera()
     if Workspace.StreamingEnabled then
-        local requestStream = Workspace.RequestStreamAroundAsync
-        if typeof(requestStream) == "function" then
-            local pos = CameraManager.GetMenuStartCFrame().Position
-            requestStream(Workspace, pos)
-        end
+        local pos = CameraManager.GetMenuStartCFrame().Position
+        pcall(function()
+            Workspace:RequestStreamAroundAsync(pos)
+        end)
     end
         PlayerGuiManager.Hide()
         setButtonsEnabled(true)
