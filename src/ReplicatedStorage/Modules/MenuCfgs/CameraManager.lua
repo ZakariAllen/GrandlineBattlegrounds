@@ -3,6 +3,7 @@
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Camera = workspace.CurrentCamera
 local MenuGlobalCfg = require(ReplicatedStorage.Modules.MenuCfgs.MenuGlobalCfg)
@@ -28,16 +29,23 @@ function CameraManager.ApplyMenuCamera()
 	if applied then return end
 	applied = true
 
-	task.delay(0.05, function() -- allow camera to be ready
-		local camCfg = MenuGlobalCfg.Camera
-		Camera.CameraType = Enum.CameraType.Scriptable
-		Camera.CFrame = camCfg.StartCFrame
+        task.delay(0.05, function() -- allow camera to be ready
+                local camCfg = MenuGlobalCfg.Camera
+                Camera.CameraType = Enum.CameraType.Scriptable
+                Camera.CFrame = camCfg.StartCFrame
 
-		ensureBlur()
+                if Workspace.StreamingEnabled then
+                        local pos = camCfg.StartCFrame.Position
+                        pcall(function()
+                                Workspace:RequestStreamAroundAsync(pos)
+                        end)
+                end
 
-		blurWatchdogConnection = RunService.Heartbeat:Connect(function()
-			ensureBlur()
-		end)
+                ensureBlur()
+
+                blurWatchdogConnection = RunService.Heartbeat:Connect(function()
+                        ensureBlur()
+                end)
 
 		if camCfg.Rotate then
 			local focus = camCfg.FocusPoint
