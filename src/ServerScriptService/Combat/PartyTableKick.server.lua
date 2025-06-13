@@ -20,6 +20,8 @@ local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
+local XPService = require(ReplicatedStorage.Modules.Stats.ExperienceService)
+local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
@@ -196,6 +198,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         DamageText.Show(enemyHumanoid, dmg)
         PersistentStats.RecordHit(player, enemyHumanoid, dmg)
         UltService.RegisterHit(player, enemyHumanoid, UltConfig.Moves)
+        XPService.RegisterHit(player, enemyHumanoid, XPConfig.Move)
         hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
         local stunDur = isFinal and CombatConfig.M1.M1_5StunDuration or cfg.StunDuration
