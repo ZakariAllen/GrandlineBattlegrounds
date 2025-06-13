@@ -20,6 +20,7 @@ local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockba
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
+local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -86,6 +87,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         if DEBUG then print("[AntiMannerKickCourse] Ult not full") end
         return
     end
+    PersistentStats.RecordUltimateUse(player)
     if not StaminaService.Consume(player, MoveConfig.StaminaCost or 0) then
         if DEBUG then print("[AntiMannerKickCourse] Not enough stamina") end
         return
@@ -171,6 +173,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         end
         enemyHumanoid:TakeDamage(dmg)
         DamageText.Show(enemyHumanoid, dmg)
+        PersistentStats.RecordHit(player, enemyHumanoid, dmg)
         UltService.RegisterHit(player, enemyHumanoid, UltConfig.Moves)
         if DEBUG then print("[AntiMannerKickCourse] Hit", enemyPlayer.Name, "for", dmg) end
         hitLanded = true

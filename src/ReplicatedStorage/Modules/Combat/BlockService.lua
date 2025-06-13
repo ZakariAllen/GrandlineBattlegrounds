@@ -2,6 +2,8 @@
 
 local BlockService = {}
 
+local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
@@ -134,6 +136,7 @@ function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker, attackerR
                -- Reflect to attacker happens in CombatService
                -- Do not stop blocking on a perfect block so the player remains
                -- in a blocking state
+               PersistentStats.RecordBlockedDamage(player, 0, true)
                return "Perfect"
        end
 
@@ -144,6 +147,7 @@ function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker, attackerR
 
 	-- 🩸 Block damage
         hp -= damage
+        PersistentStats.RecordBlockedDamage(player, damage, false)
         if hp <= 0 then
                 BlockService.StopBlocking(player)
                 return "Broken"

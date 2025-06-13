@@ -20,6 +20,7 @@ local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
+local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
@@ -193,6 +194,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
         end
         enemyHumanoid:TakeDamage(dmg)
         DamageText.Show(enemyHumanoid, dmg)
+        PersistentStats.RecordHit(player, enemyHumanoid, dmg)
         UltService.RegisterHit(player, enemyHumanoid, UltConfig.Moves)
         hitLanded = true
         if DEBUG then print("[PartyTableKick] Hit", enemyPlayer.Name) end
