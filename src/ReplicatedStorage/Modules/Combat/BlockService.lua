@@ -2,9 +2,8 @@
 
 local BlockService = {}
 
-local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local Players = game:GetService("Players")
 
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
