@@ -8,10 +8,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local player = Players.LocalPlayer
-local moveListRoot = ReplicatedFirst
+local playerGui = player:WaitForChild("PlayerGui")
+
+--[[
+    The MoveList GUI was previously located directly under PlayerGui.
+    It now lives inside ReplicatedFirst.Assets.MovesGUI.  We need to
+    clone this template into the player's PlayerGui if it has not been
+    created yet so that it is visible in game.
+]]
+
+local movesGuiTemplate = ReplicatedFirst
     :WaitForChild("Assets")
     :WaitForChild("MovesGUI")
-    :WaitForChild("MoveList")
+
+local movesGui = playerGui:FindFirstChild("MovesGUI")
+if not movesGui then
+    movesGui = movesGuiTemplate:Clone()
+    movesGui.ResetOnSpawn = false
+    movesGui.Parent = playerGui
+end
+
+local moveListRoot = movesGui:WaitForChild("MoveList")
 
 -- add default keybinds including Q, F and J which are universal
 local keys = {"C","Z","X","T","R","E","Q","F","J"}
