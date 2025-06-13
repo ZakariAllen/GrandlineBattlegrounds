@@ -33,6 +33,14 @@ The hit highlight shown when a character is damaged is configured in
 `ReplicatedStorage/Modules/Config/HitEffectConfig.lua`. These values are loaded
 through the main `Config` module and accessible as `Config.HitEffect`.
 
+## Day/Night Cycle
+
+The server script `ServerScriptService/Misc/DayNightCycle.server.lua` rotates
+`Lighting.ClockTime` to simulate day and night. All servers use the current UTC
+time so their cycles stay in sync. The full cycle duration is controlled by
+`Config.GameSettings.DayNightCycleMinutes`, which defaults to 15 minutes but can
+be adjusted as needed.
+
 
 ## Development Setup
 

@@ -15,6 +15,7 @@ Config.GameSettings = {
         JumpCooldown = 1.25,
         DebugEnabled = true, -- Global debug toggle
         AttackerLockoutDuration = 0, -- Remove extra delay after hits
+        DayNightCycleMinutes = 15, -- Length of a full day/night cycle
 }
 
 Config.HitEffect = HitEffectConfig
