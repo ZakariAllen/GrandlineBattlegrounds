@@ -20,6 +20,8 @@ local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockba
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
+local XPService = require(ReplicatedStorage.Modules.Stats.ExperienceService)
+local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
 
@@ -181,6 +183,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 DamageText.Show(enemyHumanoid, damage)
                 PersistentStats.RecordHit(player, enemyHumanoid, damage)
                 UltService.RegisterHit(player, enemyHumanoid, UltConfig.M1s)
+                XPService.RegisterHit(player, enemyHumanoid, XPConfig.M1)
                 hitLanded = true
 
                 local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration

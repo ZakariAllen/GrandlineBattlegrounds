@@ -24,6 +24,8 @@ local Config = require(ReplicatedStorage.Modules.Config.Config)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
 local UltConfig = require(ReplicatedStorage.Modules.Config.UltConfig)
+local XPService = require(ReplicatedStorage.Modules.Stats.ExperienceService)
+local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 
 local DEBUG = Config.GameSettings.DebugEnabled
@@ -176,6 +178,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         DamageText.Show(enemyHumanoid, dmg)
         PersistentStats.RecordHit(player, enemyHumanoid, dmg)
         UltService.RegisterHit(player, enemyHumanoid, UltConfig.Moves)
+        XPService.RegisterHit(player, enemyHumanoid, XPConfig.Move)
         if DEBUG then print("[TempestKick] Hit", enemyPlayer.Name, "for", dmg) end
         hitLanded = true
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)

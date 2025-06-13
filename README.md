@@ -41,6 +41,15 @@ time so their cycles stay in sync. The full cycle duration is controlled by
 `Config.GameSettings.DayNightCycleMinutes`, which defaults to 15 minutes but can
 be adjusted as needed.
 
+## Leveling System
+
+Player levels are stored persistently and increase when enough experience is
+earned. Landing basic attacks or moves grants 1 XP, ultimate abilities grant
+25 XP and defeating another player awards 200 XP. The XP cost for each new
+level scales smoothly according to `XPConfig.XPForLevel`. Reaching level 2
+requires 500 XP with costs growing exponentially from there, so very high
+levels take considerable time but remain achievable.
+
 
 ## Development Setup
 

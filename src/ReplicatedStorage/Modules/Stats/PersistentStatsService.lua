@@ -5,6 +5,7 @@ local PersistentStatsService = {}
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local DEFAULT_DATA = {
     Kills = 0,
@@ -17,6 +18,7 @@ local DEFAULT_DATA = {
     -- Total playtime in hours across all sessions
     PlaytimeHours = 0,
     Currency = 0,
+    XP = 0,
     Level = 1,
 }
 
@@ -58,6 +60,9 @@ local function onHumanoidDied(hum)
     local killer = lastAttacker[hum]
     if killer then
         PersistentStatsService.AddStat(killer, "Kills", 1)
+        local ExperienceService = require(script.Parent.ExperienceService)
+        local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
+        ExperienceService.AddXP(killer, XPConfig.Kill)
     end
     lastAttacker[hum] = nil
 end
