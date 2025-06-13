@@ -120,13 +120,13 @@ local function spawnAndFollow(toolName)
         if ultVal then
                 PlayerGuiManager.BindUlt(ultVal)
         end
-        local xpVal = player:FindFirstChild("XP") or player:WaitForChild("XP", 5)
-        if xpVal then
-                PlayerGuiManager.BindXP(xpVal)
-        end
         local levelVal = player:FindFirstChild("Level") or player:WaitForChild("Level", 5)
         if levelVal then
                 PlayerGuiManager.BindLevel(levelVal)
+        end
+        local xpVal = player:FindFirstChild("XP") or player:WaitForChild("XP", 5)
+        if xpVal then
+                PlayerGuiManager.BindXP(xpVal)
         end
         local evasiveVal = player:FindFirstChild("Evasive") or player:WaitForChild("Evasive", 5)
         if evasiveVal then
