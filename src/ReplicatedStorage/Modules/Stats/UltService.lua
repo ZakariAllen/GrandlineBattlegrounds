@@ -11,6 +11,7 @@ local UltService = {}
 UltService.DEFAULT_MAX = UltConfig.UltBarMax
 
 local lastAttacker = {}
+local processedDeaths = setmetatable({}, {__mode = "k"})
 
 local function setupPlayer(player)
     local max = player:FindFirstChild("MaxUlt")
@@ -32,6 +33,8 @@ end
 
 local function trackHumanoid(hum)
     hum.Died:Connect(function()
+        if processedDeaths[hum] then return end
+        processedDeaths[hum] = true
         local killer = lastAttacker[hum]
         if killer then
             UltService.AddUlt(killer, UltConfig.Kills)
