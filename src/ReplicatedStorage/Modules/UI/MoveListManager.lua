@@ -5,9 +5,13 @@ local MoveListManager = {}
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local moveListRoot = ReplicatedFirst
+    :WaitForChild("Assets")
+    :WaitForChild("MovesGUI")
+    :WaitForChild("MoveList")
 
 -- add default keybinds including Q, F and J which are universal
 local keys = {"C","Z","X","T","R","E","Q","F","J"}
@@ -23,9 +27,7 @@ local universalKeys = { Q = true, F = true, J = true }
 local entries = {}
 
 local function populateEntries()
-    local screenGui = playerGui:FindFirstChild("PlayerGUI")
-    if not screenGui then return end
-    local moveList = screenGui:FindFirstChild("MoveList")
+    local moveList = moveListRoot
     if not moveList then return end
 
     for _, key in ipairs(keys) do
