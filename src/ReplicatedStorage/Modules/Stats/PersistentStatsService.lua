@@ -22,7 +22,10 @@ local DEFAULT_DATA = {
     Level = 1,
 }
 
-local dataStore = DataStoreService:GetDataStore("PersistentPlayerStats")
+local dataStore
+if RunService:IsServer() then
+    dataStore = DataStoreService:GetDataStore("PersistentPlayerStats")
+end
 local cache = {} -- [player] = data table
 local lastAttacker = {} -- [Humanoid] = player
 local joinTimes = {} -- [player] = tick() when they joined
