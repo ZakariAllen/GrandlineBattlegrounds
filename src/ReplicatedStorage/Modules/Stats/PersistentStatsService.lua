@@ -14,6 +14,8 @@ local DEFAULT_DATA = {
     BlockedDamage = 0,
     PerfectBlocks = 0,
     UltimatesUsed = 0,
+    -- Total playtime in hours across all sessions
+    PlaytimeHours = 0,
     Currency = 0,
     Level = 1,
 }
@@ -21,6 +23,7 @@ local DEFAULT_DATA = {
 local dataStore = DataStoreService:GetDataStore("PersistentPlayerStats")
 local cache = {} -- [player] = data table
 local lastAttacker = {} -- [Humanoid] = player
+local joinTimes = {} -- [player] = tick() when they joined
 
 local function loadPlayer(player)
     local data
@@ -71,6 +74,7 @@ end
 if RunService:IsServer() then
     Players.PlayerAdded:Connect(function(player)
         loadPlayer(player)
+        joinTimes[player] = tick()
         player.CharacterAdded:Connect(function(char)
             trackCharacter(player, char)
         end)
@@ -81,12 +85,19 @@ if RunService:IsServer() then
 
     for _, p in ipairs(Players:GetPlayers()) do
         loadPlayer(p)
+        joinTimes[p] = tick()
         if p.Character then
             trackCharacter(p, p.Character)
         end
     end
 
     Players.PlayerRemoving:Connect(function(player)
+        local join = joinTimes[player]
+        if join then
+            local delta = tick() - join
+            PersistentStatsService.AddStat(player, "PlaytimeHours", delta / 3600)
+        end
+        joinTimes[player] = nil
         savePlayer(player)
         cache[player] = nil
     end)
