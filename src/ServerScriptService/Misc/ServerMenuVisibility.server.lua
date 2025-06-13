@@ -52,12 +52,15 @@ end
 local menuConns = {}
 
 PlayerEnteredMenu.OnServerEvent:Connect(function(player)
+        if not player.Character then
+                player:LoadCharacter()
+        end
         if player.Character then
                 placeCharacterInLobby(player.Character)
         end
-	if menuConns[player] then
-		menuConns[player]:Disconnect()
-	end
+        if menuConns[player] then
+                menuConns[player]:Disconnect()
+        end
         menuConns[player] = player.CharacterAdded:Connect(function(char)
                 placeCharacterInLobby(char)
         end)
