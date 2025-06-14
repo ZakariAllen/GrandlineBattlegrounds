@@ -257,16 +257,18 @@ function PlayerGuiManager.BindXP(xpValue)
     local levelVal = parent and parent:FindFirstChild("Level")
 
     local function update()
-        if not xpBase or not xpBar then return end
         local level = levelVal and levelVal.Value or 1
         local needed = ExperienceService.XPForLevel(level)
-        local ratio = math.clamp(xpValue.Value / needed, 0, 1)
-        xpBar.Size = UDim2.new(
-            xpBase.X.Scale * ratio,
-            xpBase.X.Offset * ratio,
-            xpBase.Y.Scale,
-            xpBase.Y.Offset
-        )
+
+        if xpBar and xpBase then
+            local ratio = math.clamp(xpValue.Value / needed, 0, 1)
+            xpBar.Size = UDim2.new(
+                xpBase.X.Scale * ratio,
+                xpBase.X.Offset * ratio,
+                xpBase.Y.Scale,
+                xpBase.Y.Offset
+            )
+        end
 
         if xpText then
             xpText.Text = string.format("%d / %d", xpValue.Value, needed)
