@@ -66,12 +66,12 @@ local function ensureGui()
     local hakiFrame = screenGui:FindFirstChild("Haki")
     local ultFrame = screenGui:FindFirstChild("Ult")
     local evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
-    local xpFrame = screenGui:FindFirstChild("XP")
+    local xpFrame = screenGui:FindFirstChild("Level")
 
-    healthBar = hpFrame:WaitForChild("Middle"):WaitForChild("HealthBar")
-    staminaBar = stamFrame:WaitForChild("Middle"):WaitForChild("StamBar")
+    healthBar = hpFrame:WaitForChild("BG"):WaitForChild("Bar")
+    staminaBar = stamFrame:WaitForChild("BG"):WaitForChild("Bar")
     if hakiFrame then
-        hakiBar = hakiFrame:WaitForChild("Middle"):WaitForChild("HakiBar")
+        hakiBar = hakiFrame:WaitForChild("BG"):WaitForChild("Bar")
     end
     if ultFrame then
         local middle = ultFrame:WaitForChild("Middle", 5)
@@ -83,7 +83,7 @@ local function ensureGui()
         evasiveBar = evasiveObj
     end
     if xpFrame then
-        xpBar = xpFrame:WaitForChild("Middle"):FindFirstChild("XPBar")
+        xpBar = xpFrame:WaitForChild("BG"):FindFirstChild("Bar")
     end
 
     healthText = hpFrame:FindFirstChild("Value")
