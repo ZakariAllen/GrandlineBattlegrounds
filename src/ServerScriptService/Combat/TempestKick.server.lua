@@ -133,7 +133,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     for _, enemyPlayer in ipairs(targets) do
         local enemyChar = enemyPlayer.Character
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
-        if not enemyHumanoid then
+        if not enemyHumanoid or enemyHumanoid.Health <= 0 then
             if DEBUG then print("[TempestKick] Target has no humanoid") end
             continue
         end

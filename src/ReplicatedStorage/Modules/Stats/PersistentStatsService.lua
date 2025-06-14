@@ -128,6 +128,7 @@ end
 
 function PersistentStatsService.RecordHit(attacker, targetHumanoid, damage)
     if not RunService:IsServer() then return end
+    if targetHumanoid and targetHumanoid.Health <= 0 then return end
     if attacker and damage then
         PersistentStatsService.AddStat(attacker, "DamageDealt", damage)
     end
