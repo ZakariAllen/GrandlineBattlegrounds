@@ -120,14 +120,13 @@ local function spawnAndFollow(toolName)
         if ultVal then
                 PlayerGuiManager.BindUlt(ultVal)
         end
-        local levelVal = player:FindFirstChild("Level") or player:WaitForChild("Level", 5)
-        if levelVal then
-                PlayerGuiManager.BindLevel(levelVal)
-        end
-        local xpVal = player:FindFirstChild("XP") or player:WaitForChild("XP", 5)
-        if xpVal then
-                PlayerGuiManager.BindXP(xpVal)
-        end
+        -- Wait indefinitely for XP/Level values to ensure they exist even if
+        -- data loading from the server is delayed
+        local levelVal = player:WaitForChild("Level")
+        PlayerGuiManager.BindLevel(levelVal)
+
+        local xpVal = player:WaitForChild("XP")
+        PlayerGuiManager.BindXP(xpVal)
         local evasiveVal = player:FindFirstChild("Evasive") or player:WaitForChild("Evasive", 5)
         if evasiveVal then
                 PlayerGuiManager.BindEvasive(evasiveVal)
