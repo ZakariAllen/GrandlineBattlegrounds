@@ -142,9 +142,9 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	for _, enemyPlayer in ipairs(targetPlayers) do
 		if not enemyPlayer or not enemyPlayer.Character then continue end
 
-		local enemyChar = enemyPlayer.Character
+                local enemyChar = enemyPlayer.Character
                 local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
-                if not enemyHumanoid then continue end
+                if not enemyHumanoid or enemyHumanoid.Health <= 0 then continue end
                 if EvasiveService and EvasiveService.IsActive(enemyPlayer) then
                         continue
                 end

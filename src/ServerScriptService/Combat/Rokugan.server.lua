@@ -128,7 +128,7 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         local enemyChar = enemyPlayer.Character
         local enemyHumanoid = enemyChar and enemyChar:FindFirstChildOfClass("Humanoid")
         local enemyRoot = enemyChar and enemyChar:FindFirstChild("HumanoidRootPart")
-        if not enemyHumanoid or not enemyRoot then
+        if not enemyHumanoid or enemyHumanoid.Health <= 0 or not enemyRoot then
             if DEBUG then print("[Rokugan] Target has no humanoid") end
             continue
         end
