@@ -87,16 +87,16 @@ local function ensureGui()
     if xpFrame then
         xpBG = xpFrame:FindFirstChild("BG") or xpFrame
         xpBar = xpBG:FindFirstChild("Bar")
+        -- The XP label and level text are direct children of the XP frame
+        -- rather than inside the BG container
+        xpText = xpFrame:FindFirstChild("XPLabel") or (xpBG and xpBG:FindFirstChild("XPLabel"))
+        levelText = xpFrame:FindFirstChild("Level") or (xpBG and xpBG:FindFirstChild("Level"))
     end
 
     healthText = hpFrame:FindFirstChild("Value")
     staminaText = stamFrame:FindFirstChild("Value")
     if hakiFrame then
         hakiText = hakiFrame:FindFirstChild("Value")
-    end
-    if xpBG then
-        xpText = xpBG:FindFirstChild("XPLabel")
-        levelText = xpBG:FindFirstChild("Level")
     end
     if not levelText then
         levelText = hpFrame:FindFirstChild("Level")
