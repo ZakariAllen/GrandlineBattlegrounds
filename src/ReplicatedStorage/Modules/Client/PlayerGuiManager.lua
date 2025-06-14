@@ -66,7 +66,8 @@ local function ensureGui()
     local hakiFrame = screenGui:FindFirstChild("Haki")
     local ultFrame = screenGui:FindFirstChild("Ult")
     local evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
-    local xpFrame = screenGui:FindFirstChild("Level")
+    -- The XP frame was previously named "Level".  Support both names.
+    local xpFrame = screenGui:FindFirstChild("XP") or screenGui:FindFirstChild("Level")
 
     healthBar = hpFrame:WaitForChild("BG"):WaitForChild("Bar")
     staminaBar = stamFrame:WaitForChild("BG"):WaitForChild("Bar")
@@ -82,8 +83,10 @@ local function ensureGui()
     if evasiveObj then
         evasiveBar = evasiveObj
     end
+    local xpBG
     if xpFrame then
-        xpBar = xpFrame:WaitForChild("BG"):FindFirstChild("Bar")
+        xpBG = xpFrame:FindFirstChild("BG") or xpFrame
+        xpBar = xpBG:FindFirstChild("Bar")
     end
 
     healthText = hpFrame:FindFirstChild("Value")
@@ -91,10 +94,13 @@ local function ensureGui()
     if hakiFrame then
         hakiText = hakiFrame:FindFirstChild("Value")
     end
-    if xpFrame then
-        xpText = xpFrame:FindFirstChild("XPLabel")
+    if xpBG then
+        xpText = xpBG:FindFirstChild("XPLabel")
+        levelText = xpBG:FindFirstChild("Level")
     end
-    levelText = hpFrame:FindFirstChild("Level")
+    if not levelText then
+        levelText = hpFrame:FindFirstChild("Level")
+    end
     if not baseSize then
         baseSize = healthBar.Size
     end
