@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 
 -- Remotes (may not exist during tests)
 local StunStatusEvent
@@ -193,9 +194,12 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         local attackerPlayer = getPlayer(attacker)
         if not targetPlayer or not attackerPlayer then return end
 
-        if DEBUG then
-            print("[StunService] ApplyStun", targetPlayer.Name, "duration", duration, "attacker", attackerPlayer.Name)
-        end
+    if DEBUG then
+        print("[StunService] ApplyStun", targetPlayer.Name, "duration", duration, "attacker", attackerPlayer.Name)
+    end
+
+    -- Stop any active dash immediately when stunned
+    DashModule.CancelDash(targetPlayer)
 
        BlockService.StopBlocking(targetPlayer)
 

@@ -52,4 +52,16 @@ function DashModule.IsPlayerDashing(player)
 	return activeDashes[player] == true
 end
 
+-- Cancel an active dash early if needed
+function DashModule.CancelDash(player)
+    if activeDashes[player] then
+        activeDashes[player] = nil
+        local char = player.Character
+        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.AutoRotate = true
+        end
+    end
+end
+
 return DashModule
