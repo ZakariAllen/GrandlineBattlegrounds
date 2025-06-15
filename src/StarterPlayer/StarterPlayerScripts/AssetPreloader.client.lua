@@ -19,21 +19,22 @@ local ToolAnimations = require(Animations:WaitForChild("Tool"))
 -- List of asset IDs to preload. Use a set table to avoid duplicates
 local assets = {}
 local seen = {}
+
+-- Utility: Determines if an ID is valid for preloading
+local function isValidAssetId(id)
+    if typeof(id) ~= "string" then return false end
+    if id == "" then return false end
+    if id == "rbxassetid://" then return false end
+    if id:lower():find("placeholder") then return false end
+    if not id:match("^rbxassetid://%d+$") then return false end
+    return true
+end
+
 local function addAsset(id)
     if not seen[id] and isValidAssetId(id) then
         seen[id] = true
         table.insert(assets, id)
     end
-end
-
--- Utility: Determines if an ID is valid for preloading
-local function isValidAssetId(id)
-        if typeof(id) ~= "string" then return false end
-        if id == "" then return false end
-        if id == "rbxassetid://" then return false end
-        if id:lower():find("placeholder") then return false end
-        if not id:match("^rbxassetid://%d+$") then return false end
-        return true
 end
 
 -- 🔊 Preload all valid sound IDs from SoundConfig
