@@ -120,10 +120,18 @@ function BlockService.ApplyBlockDamage(player, damage, isBlockBreaker, attackerR
 
        local defenderRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
        if attackerRoot and defenderRoot then
-               local relative = (attackerRoot.Position - defenderRoot.Position).Unit
-               if relative:Dot(defenderRoot.CFrame.LookVector) < 0 then
-                       BlockService.StopBlocking(player)
-                       return nil
+               local relative = attackerRoot.Position - defenderRoot.Position
+               relative = Vector3.new(relative.X, 0, relative.Z)
+               local look = defenderRoot.CFrame.LookVector
+               look = Vector3.new(look.X, 0, look.Z)
+               if relative.Magnitude > 0 and look.Magnitude > 0 then
+                       local dir = relative.Unit
+                       local facing = look.Unit
+                       -- Cancel blocking when struck from behind, do not trigger a break
+                       if dir:Dot(facing) <= -0.7 then
+                               BlockService.StopBlocking(player)
+                               return nil
+                       end
                end
        end
 
