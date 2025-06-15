@@ -70,6 +70,8 @@ end
 
 -- 🔁 Detect tools added/removed from character
 local function setupToolDetection(char)
+        -- Clear any previously equipped tool when a new character spawns
+        ToolController.SetEquippedTool(nil)
         if DEBUG then
                 print("[InputController] Setting up tool detection for", char.Name)
         end
@@ -94,8 +96,12 @@ end
 
 -- 👤 Character listener
 player.CharacterAdded:Connect(setupToolDetection)
+player.CharacterRemoving:Connect(function()
+        -- Ensure stale tool state is cleared when the character dies
+        ToolController.SetEquippedTool(nil)
+end)
 if player.Character then
-	setupToolDetection(player.Character)
+        setupToolDetection(player.Character)
 end
 
 -- 🕹️ Route all input through controllers
