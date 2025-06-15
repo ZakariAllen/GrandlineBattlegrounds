@@ -2,10 +2,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContentProvider = game:GetService("ContentProvider")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local PlayerGui = player:WaitForChild("PlayerGui")
-
 -- Load current config modules
 local Modules = ReplicatedStorage:WaitForChild("Modules")
 local Cfg = Modules:WaitForChild("Config")
@@ -20,7 +16,15 @@ local CombatAnimations = require(Animations:WaitForChild("Combat"))
 local MovementAnimations = require(Animations:WaitForChild("Movement"))
 local ToolAnimations = require(Animations:WaitForChild("Tool"))
 
+-- List of asset IDs to preload. Use a set table to avoid duplicates
 local assets = {}
+local seen = {}
+local function addAsset(id)
+    if not seen[id] and isValidAssetId(id) then
+        seen[id] = true
+        table.insert(assets, id)
+    end
+end
 
 -- Utility: Determines if an ID is valid for preloading
 local function isValidAssetId(id)
@@ -34,67 +38,40 @@ end
 
 -- 🔊 Preload all valid sound IDs from SoundConfig
 for _, category in pairs(SoundConfig) do
-        for _, soundInfo in pairs(category) do
-                local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
-                if isValidAssetId(id) then
-                        local sound = Instance.new("Sound")
-                        sound.SoundId = id
-                        sound.Parent = PlayerGui
-                        table.insert(assets, sound)
-                end
-        end
+    for _, soundInfo in pairs(category) do
+        local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
+        addAsset(id)
+    end
 end
 
 -- 🔊 Preload move-specific sound IDs
 for _, move in pairs(MoveSoundConfig) do
-       for _, soundInfo in pairs(move) do
-               local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
-               if isValidAssetId(id) then
-                       local sound = Instance.new("Sound")
-                       sound.SoundId = id
-                       sound.Parent = PlayerGui
-                       table.insert(assets, sound)
-               end
-       end
+    for _, soundInfo in pairs(move) do
+        local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
+        addAsset(id)
+    end
 end
 
 -- Dash sound from DashConfig
 local dashId = typeof(DashConfig.Sound) == "table" and DashConfig.Sound.Id or DashConfig.Sound
-if isValidAssetId(dashId) then
-        local ds = Instance.new("Sound")
-        ds.SoundId = dashId
-        ds.Parent = PlayerGui
-        table.insert(assets, ds)
-end
+addAsset(dashId)
 
 -- Dash VFX texture
-if isValidAssetId(DashVFX.WIND_TEXTURE) then
-        local pe = Instance.new("ParticleEmitter")
-        pe.Texture = DashVFX.WIND_TEXTURE
-        pe.Parent = PlayerGui
-        table.insert(assets, pe)
-end
+addAsset(DashVFX.WIND_TEXTURE)
 
 -- Power Punch VFX texture
 local POWER_PUNCH_TEXTURE = "rbxassetid://14049479051"
-if isValidAssetId(POWER_PUNCH_TEXTURE) then
-        local pe = Instance.new("ParticleEmitter")
-        pe.Texture = POWER_PUNCH_TEXTURE
-        pe.Parent = PlayerGui
-        table.insert(assets, pe)
-end
+addAsset(POWER_PUNCH_TEXTURE)
 
 -- 🎞️ Helper: Recursively collect animation IDs
 local function collectAnimationsFrom(tbl)
-	for _, v in pairs(tbl) do
-		if typeof(v) == "string" and isValidAssetId(v) then
-			local anim = Instance.new("Animation")
-			anim.AnimationId = v
-			table.insert(assets, anim)
-		elseif typeof(v) == "table" then
-			collectAnimationsFrom(v)
-		end
-	end
+    for _, v in pairs(tbl) do
+        if typeof(v) == "string" then
+            addAsset(v)
+        elseif typeof(v) == "table" then
+            collectAnimationsFrom(v)
+        end
+    end
 end
 
 -- 🎞️ Preload animation IDs from all modules
@@ -105,12 +82,5 @@ collectAnimationsFrom(ToolAnimations)
 -- 🧠 Preload all assets
 print("[AssetPreloader] Preloading", #assets, "assets...")
 ContentProvider:PreloadAsync(assets)
-
--- 🧹 Clean up
-for _, asset in ipairs(assets) do
-        if asset:IsA("Sound") or asset:IsA("Animation") or asset:IsA("ParticleEmitter") then
-                asset:Destroy()
-        end
-end
 
 print("[AssetPreloader] All valid assets preloaded successfully.")
