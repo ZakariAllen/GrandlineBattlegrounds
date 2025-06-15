@@ -7,6 +7,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local Workspace = game:GetService("Workspace")
 
+-- Cache OverlapParams per character to reduce allocations
+local overlapCache = setmetatable({}, { __mode = "k" })
+local function getOverlapParams(char)
+    local params = overlapCache[char]
+    if not params then
+        params = OverlapParams.new()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        overlapCache[char] = params
+    end
+    if params.FilterDescendantsInstances then
+        params.FilterDescendantsInstances[1] = char
+    else
+        params.FilterDescendantsInstances = { char }
+    end
+    return params
+end
+
 -- Configs
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
@@ -87,9 +104,7 @@ function HitboxClient.CastHitbox(
         end
 
     local alreadyHit = {}
-        local overlapParams = OverlapParams.new()
-        overlapParams.FilterType = Enum.RaycastFilterType.Exclude
-        overlapParams.FilterDescendantsInstances = { char }
+        local overlapParams = getOverlapParams(char)
 
 	local startTime = tick()
 	local connection
@@ -139,7 +154,14 @@ function HitboxClient.CastHitbox(
                                                 else
                                                         local comboIndex = CombatConfig._lastUsedComboIndex or 1
                                                         local isFinal = comboIndex == CombatConfig.M1.ComboHits
-                                                        HitConfirmEvent:FireServer(playerTargets, comboIndex, isFinal)
+                                                        HitConfirmEvent:FireServer(
+                                                            playerTargets,
+                                                            comboIndex,
+                                                            isFinal,
+                                                            originCF,
+                                                            size,
+                                                            travelDistance
+                                                        )
                                                 end
                                         end
                                 end

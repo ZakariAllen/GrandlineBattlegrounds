@@ -32,11 +32,14 @@ function StunStatusClient:CanAct()
 end
 
 -- Allow updates from remote event (used in MovementClient, etc.)
-function StunStatusClient.SetStatus(stunned, locked)
+function StunStatusClient.SetStatus(stunned, locked, lockRemaining)
         isStunned = stunned
         serverLocked = locked
+        if typeof(lockRemaining) == "number" and lockRemaining > 0 then
+            localLockUntil = math.max(localLockUntil, tick() + lockRemaining)
+        end
         if DEBUG then
-            print("[StunStatusClient] Status update", stunned, locked)
+            print("[StunStatusClient] Status update", stunned, locked, lockRemaining)
         end
 end
 

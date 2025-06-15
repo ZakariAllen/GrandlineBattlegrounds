@@ -110,9 +110,20 @@ end
 
 sendStatus = function(player)
     if RunService:IsServer() and fetchStunEvent() and player then
+        local remainingStun = 0
+        local stunData = StunnedPlayers[player]
+        if stunData then
+            remainingStun = math.max(0, stunData.EndsAt - tick())
+        end
+
+        local lockEnd = AttackerLockouts[player]
+        local lockRemaining = lockEnd and math.max(0, lockEnd - tick()) or 0
+
         local data = {
-            Stunned = StunnedPlayers[player] ~= nil,
-            AttackerLock = AttackerLockouts[player] ~= nil and tick() < (AttackerLockouts[player] or 0)
+            Stunned = stunData ~= nil,
+            AttackerLock = lockEnd ~= nil and lockRemaining > 0,
+            StunRemaining = remainingStun,
+            LockRemaining = lockRemaining,
         }
         if DEBUG then
             print("[StunService] Sending status to", player.Name, data)
@@ -135,7 +146,23 @@ function StunService:IsStunned(player)
 end
 
 function StunService:IsAttackerLocked(player)
-	return AttackerLockouts[player] ~= nil and tick() < AttackerLockouts[player]
+        return AttackerLockouts[player] ~= nil and tick() < AttackerLockouts[player]
+end
+
+function StunService:GetStunRemaining(player)
+    local data = StunnedPlayers[player]
+    if data then
+        return math.max(0, data.EndsAt - tick())
+    end
+    return 0
+end
+
+function StunService:GetLockRemaining(player)
+    local endTime = AttackerLockouts[player]
+    if endTime then
+        return math.max(0, endTime - tick())
+    end
+    return 0
 end
 
 function StunService:WasRecentlyHit(targetPlayer)

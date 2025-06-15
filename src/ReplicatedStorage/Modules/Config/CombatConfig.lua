@@ -15,8 +15,10 @@ CombatConfig.M1 = {
         M1StunDuration = 0.5,
         M1_5StunDuration = 1.5,
         HitSoundDelay = 0.05,
-	MissSoundDelay = 0.05,
-	DefaultM1Damage = 1,
+        MissSoundDelay = 0.05,
+        DefaultM1Damage = 1,
+        -- Maximum distance the server will allow for a confirmed hit
+        ServerHitRange = 12,
 }
 
 CombatConfig.Blocking = {
