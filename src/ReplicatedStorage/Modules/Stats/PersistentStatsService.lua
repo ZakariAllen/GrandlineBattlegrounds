@@ -46,6 +46,26 @@ local function loadPlayer(player)
         end
     end
     cache[player] = data
+
+    -- Update the player's replicated XP/Level values now that persistent
+    -- data has been loaded. ExperienceService may have already created
+    -- these IntValues while default data was still in place, so ensure
+    -- they reflect the values we just loaded.
+    local levelVal = player:FindFirstChild("Level")
+    if not levelVal then
+        levelVal = Instance.new("IntValue")
+        levelVal.Name = "Level"
+        levelVal.Parent = player
+    end
+    levelVal.Value = data.Level or 1
+
+    local xpVal = player:FindFirstChild("XP")
+    if not xpVal then
+        xpVal = Instance.new("IntValue")
+        xpVal.Name = "XP"
+        xpVal.Parent = player
+    end
+    xpVal.Value = data.XP or 0
 end
 
 local function savePlayer(player)
