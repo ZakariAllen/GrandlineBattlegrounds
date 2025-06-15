@@ -73,6 +73,9 @@ local Rokushiki = {
             Duration = 0.1,
             Shape = "Block",
         },
+        Sound = {
+            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
+        },
     },
 }
 

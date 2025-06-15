@@ -51,7 +51,7 @@ local function performMove()
     local startCF = hrp.CFrame
     local destCF = startCF * CFrame.new(0, 0, -30)
     hrp.CFrame = destCF
-    StartEvent:FireServer(destCF.Position)
+    StartEvent:FireServer(destCF)
 
     local dir = startCF.LookVector
 

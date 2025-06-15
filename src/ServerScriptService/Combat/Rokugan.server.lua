@@ -68,7 +68,7 @@ local function stopAnimation(humanoid)
     activeTracks[humanoid] = nil
 end
 
-StartEvent.OnServerEvent:Connect(function(player, destPos)
+StartEvent.OnServerEvent:Connect(function(player, destCF)
     if DEBUG then print("[Rokugan] StartEvent from", player.Name) end
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
@@ -95,8 +95,8 @@ StartEvent.OnServerEvent:Connect(function(player, destPos)
         if DEBUG then print("[Rokugan] Not enough stamina") end
         return
     end
-    if typeof(destPos) == "Vector3" then
-        hrp.CFrame = CFrame.new(destPos)
+    if typeof(destCF) == "CFrame" then
+        hrp.CFrame = destCF
     end
 end)
 
