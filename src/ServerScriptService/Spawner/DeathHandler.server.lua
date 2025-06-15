@@ -19,11 +19,32 @@ Players.PlayerAdded:Connect(function(player)
                         humanoid.Died:Connect(function()
                                 print("[DeathHandler] Player died:", player.Name)
                                 hasSpawned[player] = nil
+
+                                -- Remove any equipped or backpack tools so they
+                                -- do not linger on screen while the player is
+                                -- in the menu.
+                                local function destroyTools(container)
+                                        for _, obj in ipairs(container:GetChildren()) do
+                                                if obj:IsA("Tool") then
+                                                        obj:Destroy()
+                                                end
+                                        end
+                                end
+
+                                if player.Character then
+                                        destroyTools(player.Character)
+                                end
+
+                                local backpack = player:FindFirstChildOfClass("Backpack")
+                                if backpack then
+                                        destroyTools(backpack)
+                                end
+
                                 ReturnToMenuEvent:FireClient(player)
                                 Debris:AddItem(char, math.random(5, 10))
                         end)
                 end
-	end)
+        end)
 end)
 
 -- 🔁 Clean up on leave
