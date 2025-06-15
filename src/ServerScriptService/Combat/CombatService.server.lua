@@ -118,15 +118,42 @@ M1Event.OnServerEvent:Connect(function(player, comboIndex, styleKey)
 end)
 
 -- ✅ Client confirms hit
-HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex, isFinal)
+HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex, isFinal, originCF, size, travelDistance)
 	if typeof(targetPlayers) ~= "table" then return end
 
-	local char = player.Character
-	if not char then return end
+        local char = player.Character
+        if not char then return end
 
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not humanoid or not hrp then return end
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not humanoid or not hrp then return end
+
+        travelDistance = travelDistance or 0
+
+        if typeof(originCF) ~= "CFrame" then originCF = nil end
+        if typeof(size) ~= "Vector3" then size = nil end
+
+        local serverTargets = targetPlayers
+        if originCF and size then
+                local castCF = originCF
+                if travelDistance ~= 0 then
+                        castCF = castCF + castCF.LookVector * travelDistance
+                end
+
+                local params = OverlapParams.new()
+                params.FilterType = Enum.RaycastFilterType.Exclude
+                params.FilterDescendantsInstances = { char }
+
+                serverTargets = {}
+                for _, part in ipairs(workspace:GetPartBoundsInBox(castCF, size, params)) do
+                        local model = part:FindFirstAncestorOfClass("Model")
+                        local enemyHumanoid = model and model:FindFirstChildOfClass("Humanoid")
+                        local enemyPlayer = model and Players:GetPlayerFromCharacter(model)
+                        if enemyHumanoid and enemyPlayer and enemyPlayer ~= player then
+                                table.insert(serverTargets, enemyPlayer)
+                        end
+                end
+        end
 
         local tool = char:FindFirstChildOfClass("Tool")
        local styleKey = tool and tool.Name or "BasicCombat"
@@ -139,7 +166,8 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
         local blockHit = false
 	local animSet = AnimationData.M1[styleKey]
 
-	for _, enemyPlayer in ipairs(targetPlayers) do
+        local maxRange = CombatConfig.M1.ServerHitRange or 12
+        for _, enemyPlayer in ipairs(serverTargets) do
 		if not enemyPlayer or not enemyPlayer.Character then continue end
 
                 local enemyChar = enemyPlayer.Character
@@ -150,6 +178,12 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 end
                 if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
                 if not ShouldApplyHit(player, enemyPlayer) then continue end
+
+                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+                if not enemyRoot then continue end
+                if (enemyRoot.Position - hrp.Position).Magnitude > maxRange then
+                        continue
+                end
 
                local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false, hrp)
                 if blockResult == "Perfect" then
@@ -191,7 +225,6 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, player, preserve)
 
                 -- 💥 Knockback logic
-                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                 local enemyDied = enemyHumanoid.Health <= 0
                 if (isFinal or enemyDied) and enemyRoot then
                         RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {

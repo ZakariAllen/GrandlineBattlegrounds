@@ -33,8 +33,11 @@ local isLocked = false
 
 -- Sync stun/lock status from server
 StunStatusEvent.OnClientEvent:Connect(function(data)
-	isStunned = data.Stunned
-	isLocked = data.AttackerLock
+        isStunned = data.Stunned
+        isLocked = data.AttackerLock
+        if typeof(data.LockRemaining) == "number" and data.LockRemaining > 0 then
+                StunStatusClient.LockFor(data.LockRemaining)
+        end
 end)
 
 local function beginSprint()
