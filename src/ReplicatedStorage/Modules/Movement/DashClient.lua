@@ -58,28 +58,28 @@ local function setCharacterInvisible(character, invisible, owner)
         elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
             obj.Enabled = not invisible
         elseif obj:IsA("BillboardGui") or obj:IsA("SurfaceGui") then
+            if originalGuiState[obj] == nil then
+                originalGuiState[obj] = obj.Enabled
+            end
             if invisible then
-                -- Remember previous state so it can be restored later. Only
-                -- capture it once in case multiple dash calls overlap.
-                if originalGuiState[obj] == nil then
-                    originalGuiState[obj] = obj.Enabled
+                obj.Enabled = false
+            else
+                local prev = originalGuiState[obj]
+                if prev ~= nil then
+                    obj.Enabled = prev
                 end
-                if obj:IsA("BillboardGui") then
+                originalGuiState[obj] = nil
+            end
+
+            if obj:IsA("BillboardGui") and owner == player then
+                if invisible then
                     if originalHidePlayer[obj] == nil then
                         originalHidePlayer[obj] = obj.PlayerToHideFrom
                     end
                     pcall(function()
                         obj.PlayerToHideFrom = player
                     end)
-                end
-            else
-                local prev = originalGuiState[obj]
-                if prev ~= nil and obj.Enabled == false then
-                    obj.Enabled = prev
-                end
-                originalGuiState[obj] = nil
-
-                if obj:IsA("BillboardGui") then
+                else
                     local prevPlayer = originalHidePlayer[obj]
                     originalHidePlayer[obj] = nil
                     pcall(function()
