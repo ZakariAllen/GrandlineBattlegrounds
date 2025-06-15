@@ -146,11 +146,13 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 params.FilterDescendantsInstances = { char }
 
                 serverTargets = {}
+                local added = {}
                 for _, part in ipairs(workspace:GetPartBoundsInBox(castCF, size, params)) do
                         local model = part:FindFirstAncestorOfClass("Model")
                         local enemyHumanoid = model and model:FindFirstChildOfClass("Humanoid")
                         local enemyPlayer = model and Players:GetPlayerFromCharacter(model)
-                        if enemyHumanoid and enemyPlayer and enemyPlayer ~= player then
+                        if enemyHumanoid and enemyPlayer and enemyPlayer ~= player and not added[enemyPlayer] then
+                                added[enemyPlayer] = true
                                 table.insert(serverTargets, enemyPlayer)
                         end
                 end
