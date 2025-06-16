@@ -65,7 +65,20 @@ local function ensureGui()
     local stamFrame = screenGui:WaitForChild("Stam")
     local hakiFrame = screenGui:FindFirstChild("Haki")
     local ultFrame = screenGui:FindFirstChild("Ult")
-    local evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
+
+    -- Search for the evasive bar using the new container structure
+    local evasiveObj
+    local evasiveFrame = screenGui:FindFirstChild("Evasive")
+    if evasiveFrame then
+        local evasiveBG = evasiveFrame:FindFirstChild("BG")
+        if evasiveBG then
+            evasiveObj = evasiveBG:FindFirstChild("Bar")
+        end
+    end
+    -- Fallback to the legacy name for compatibility
+    if not evasiveObj then
+        evasiveObj = screenGui:FindFirstChild("EvasiveBar", true)
+    end
     -- The XP frame was previously named "Level".  Support both names.
     local xpFrame = screenGui:FindFirstChild("XP") or screenGui:FindFirstChild("Level")
 
