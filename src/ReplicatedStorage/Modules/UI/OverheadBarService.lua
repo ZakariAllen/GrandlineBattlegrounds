@@ -107,7 +107,10 @@ function onCharacterAdded(player, char)
     end)
     healthGui.Parent = char
 
-    local healthFrame = healthGui:WaitForChild("BarBGMiddle"):WaitForChild("HealthBar")
+    -- Billboard assets were updated so the bar now lives under BG/Bar
+    local healthFrame = healthGui
+        :WaitForChild("BG")
+        :WaitForChild("Bar")
     local healthBase = healthFrame.Size
 
     local blockGui = blockTemplate:Clone()
@@ -116,7 +119,10 @@ function onCharacterAdded(player, char)
     blockGui.Enabled = false
     blockGui.Parent = char
 
-    local blockFrame = blockGui:WaitForChild("BarBGMiddle"):WaitForChild("BlockBar")
+    -- Updated path for block bar inside the billboard
+    local blockFrame = blockGui
+        :WaitForChild("BG")
+        :WaitForChild("Bar")
     local blockBase = blockFrame.Size
 
     local tekkaiGui
