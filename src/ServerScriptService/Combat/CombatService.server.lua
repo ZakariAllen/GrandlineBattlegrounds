@@ -61,11 +61,13 @@ local function ShouldApplyHit(attacker, defender)
     local atk = comboTimestamps[attacker]
     local def = comboTimestamps[defender]
     if atk and def then
-        -- Negative difference means the defender pressed attack first
+        -- Positive difference means the defender pressed attack first
         local diff = atk.LastClick - def.LastClick
-        if diff < 0 and math.abs(diff) <= CombatConfig.M1.ClashWindow then
-            -- Defender started attacking slightly earlier, so cancel this hit
-            return false
+        if diff > 0 and math.abs(diff) <= CombatConfig.M1.ClashWindow then
+            -- Only cancel if that earlier attack actually connected
+            if StunService:WasRecentlyHit(attacker) then
+                return false
+            end
         end
     end
     return true
