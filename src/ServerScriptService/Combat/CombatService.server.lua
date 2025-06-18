@@ -57,14 +57,13 @@ local function ShouldApplyHit(attacker, defender)
         return false
     end
 
-    -- Determine which player initiated their attack first
+    -- Cancel simultaneous attacks if the defender initiated their swing first
     local atk = comboTimestamps[attacker]
     local def = comboTimestamps[defender]
     if atk and def then
-        -- Positive difference means the defender pressed attack first
         local diff = atk.LastClick - def.LastClick
         if diff > 0 and math.abs(diff) <= CombatConfig.M1.ClashWindow then
-            -- Only cancel if that earlier attack actually connected
+            -- Defender's earlier attack connected, so ignore this hit
             if StunService:WasRecentlyHit(attacker) then
                 return false
             end
@@ -172,6 +171,13 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 	local animSet = AnimationData.M1[styleKey]
 
         local maxRange = CombatConfig.M1.ServerHitRange or 12
+        local attackPos
+        if originCF then
+                attackPos = originCF.Position
+                if travelDistance ~= 0 then
+                        attackPos = attackPos + originCF.LookVector * travelDistance
+                end
+        end
         for _, enemyPlayer in ipairs(serverTargets) do
 		if not enemyPlayer or not enemyPlayer.Character then continue end
 
@@ -186,7 +192,12 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
 
                 local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                 if not enemyRoot then continue end
-                if (enemyRoot.Position - hrp.Position).Magnitude > maxRange then
+
+                local distOrigin = hrp.Position
+                if attackPos then
+                        distOrigin = attackPos
+                end
+                if (enemyRoot.Position - distOrigin).Magnitude > maxRange then
                         continue
                 end
 
