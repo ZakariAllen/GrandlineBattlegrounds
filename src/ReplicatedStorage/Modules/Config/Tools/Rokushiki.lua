@@ -18,6 +18,7 @@ local Rokushiki = {
         PerfectBlockable = true,
         Endlag = 0.25,
         HitboxDuration = 0.1,
+        KnockbackDirection = "AttackerFacingDirection",
         Cooldown = 12,
         Hitbox = {
             Size = Vector3.new(5, 6, 5),

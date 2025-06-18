@@ -15,6 +15,7 @@ local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
 local UltService = require(ReplicatedStorage.Modules.Stats.UltService)
@@ -149,6 +150,16 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
             end
 
             StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), true, player, true)
+
+            local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+            if enemyRoot then
+                RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                    DirectionType = ShiganConfig.KnockbackDirection or RagdollKnockback.DirectionType.AttackerFacingDirection,
+                    AttackerRoot = hrp,
+                    TargetRoot = enemyRoot,
+                })
+            end
+
             -- fallthrough to apply damage on block break
         end
 
@@ -166,6 +177,15 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
 
         StunService:ApplyStun(enemyHumanoid, ShiganConfig.StunDuration, false, player, true)
+
+        local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+        if enemyRoot then
+            RagdollKnockback.ApplyDirectionalKnockback(enemyHumanoid, {
+                DirectionType = ShiganConfig.KnockbackDirection or RagdollKnockback.DirectionType.AttackerFacingDirection,
+                AttackerRoot = hrp,
+                TargetRoot = enemyRoot,
+            })
+        end
     end
 
     if hitLanded then
