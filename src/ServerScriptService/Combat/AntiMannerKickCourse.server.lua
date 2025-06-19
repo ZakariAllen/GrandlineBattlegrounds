@@ -5,15 +5,14 @@ local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("AntiMannerKickCourseStart")
 local HitEvent = CombatRemotes:WaitForChild("AntiMannerKickCourseHit")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local MoveConfig = AbilityConfig.BlackLeg.AntiMannerKickCourse
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local MoveConfig = BlackLegConfig.AntiMannerKickCourse
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
@@ -199,10 +198,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     if hitLanded then
-        local hitSfx = MoveSoundConfig.AntiMannerKickCourse and MoveSoundConfig.AntiMannerKickCourse.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.BlackLeg.StrongKickHit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
     end
 end)
 

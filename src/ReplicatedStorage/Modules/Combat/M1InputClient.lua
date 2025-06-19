@@ -13,7 +13,6 @@ local M1Event = CombatRemotes:WaitForChild("M1Event")
 
 -- 📦 Modules
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
 local M1AnimationClient = require(ReplicatedStorage.Modules.Combat.M1AnimationClient)
@@ -72,12 +71,12 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                 task.delay(CombatConfig.M1.HitDelay, function()
                         if StunStatusClient.IsStunned() then return end
                         HitboxClient.CastHitbox(
-                                MoveHitboxConfig.M1.Offset,
-                                MoveHitboxConfig.M1.Size,
-                                MoveHitboxConfig.M1.Duration,
+                                CombatConfig.M1.Hitbox.Offset,
+                                CombatConfig.M1.Hitbox.Size,
+                                CombatConfig.M1.Hitbox.Duration,
                                 nil,
                                 nil,
-                                MoveHitboxConfig.M1.Shape,
+                                CombatConfig.M1.Hitbox.Shape,
                                 true -- ensure miss is reported to server
                         )
                 end)

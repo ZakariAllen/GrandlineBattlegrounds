@@ -11,9 +11,8 @@ local StartEvent = CombatRemotes:WaitForChild("ShiganStart")
 local HitEvent = CombatRemotes:WaitForChild("ShiganHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local ShiganConfig = AbilityConfig.Rokushiki.Shigan
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local ShiganConfig = RokushikiConfig.Shigan
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -73,12 +72,12 @@ local function performMove()
 
     local dir = hrp.CFrame.LookVector
     HitboxClient.CastHitbox(
-        MoveHitboxConfig.Shigan.Offset,
-        MoveHitboxConfig.Shigan.Size,
-        MoveHitboxConfig.Shigan.Duration,
+        ShiganConfig.Hitbox.Offset,
+        ShiganConfig.Hitbox.Size,
+        ShiganConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.Shigan.Shape,
+        ShiganConfig.Hitbox.Shape,
         true,
         nil,
         true

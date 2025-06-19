@@ -8,12 +8,13 @@ local UserInputService = game:GetService("UserInputService")
 local MovementRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Movement")
 local TeleportEvent = MovementRemotes:WaitForChild("TeleportEvent")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TeleportConfig = AbilityConfig.Rokushiki.Teleport
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TeleportConfig = RokushikiConfig.Teleport
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local SoundServiceUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
+local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local TeleportVFX = require(ReplicatedStorage.Modules.Effects.TeleportVFX)
 local MovementClient = require(ReplicatedStorage.Modules.Client.MovementClient)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
@@ -78,10 +79,8 @@ function Teleport.OnInputBegan(input, gp)
 
         TeleportVFX.Play(CFrame.new(pos))
 
-        local sfx = TeleportConfig.Sound and TeleportConfig.Sound.Use
-        if sfx then
-            SoundServiceUtils:PlaySpatialSound(sfx, hrp)
-        end
+        local sfx = SoundConfig.Combat.Rokushiki.TeleportUse
+        SoundServiceUtils:PlaySpatialSound(sfx, hrp)
 
         task.wait(TeleportConfig.Endlag or 0)
         active = false

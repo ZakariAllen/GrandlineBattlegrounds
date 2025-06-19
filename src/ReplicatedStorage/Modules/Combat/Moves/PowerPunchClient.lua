@@ -13,9 +13,8 @@ local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
 local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local PowerPunchConfig = AbilityConfig.BasicCombat.PowerPunch
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local BasicCombatConfig = require(ReplicatedStorage.Modules.Config.Tools.BasicCombat)
+local PowerPunchConfig = BasicCombatConfig.PowerPunch
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -95,12 +94,12 @@ local function performMove()
     -- Cast the hitbox while movement is still locked
     local dir = hrp.CFrame.LookVector
     local hitbox = HitboxClient.CastHitbox(
-        MoveHitboxConfig.PowerPunch.Offset,
-        MoveHitboxConfig.PowerPunch.Size,
-        PowerPunchConfig.HitboxDuration,
+        PowerPunchConfig.Hitbox.Offset,
+        PowerPunchConfig.Hitbox.Size,
+        PowerPunchConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.PowerPunch.Shape,
+        PowerPunchConfig.Hitbox.Shape,
         true,
         PowerPunchConfig.HitboxDistance,
         true

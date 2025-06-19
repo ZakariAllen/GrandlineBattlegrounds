@@ -12,9 +12,8 @@ local StartEvent = CombatRemotes:WaitForChild("ConcasseStart")
 local HitEvent = CombatRemotes:WaitForChild("ConcasseHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local ConcasseConfig = AbilityConfig.BlackLeg.Concasse
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local ConcasseConfig = BlackLegConfig.Concasse
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -159,12 +158,12 @@ local function performMove(targetPos)
     humanoid.AutoRotate = prevAuto
 
     HitboxClient.CastHitbox(
-        MoveHitboxConfig.Concasse.Offset,
-        MoveHitboxConfig.Concasse.Size,
-        MoveHitboxConfig.Concasse.Duration,
+        ConcasseConfig.Hitbox.Offset,
+        ConcasseConfig.Hitbox.Size,
+        ConcasseConfig.Hitbox.Duration,
         HitEvent,
         {hrp.CFrame.LookVector},
-        MoveHitboxConfig.Concasse.Shape,
+        ConcasseConfig.Hitbox.Shape,
         true,
         nil,
         true

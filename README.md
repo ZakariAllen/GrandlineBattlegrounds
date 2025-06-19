@@ -8,11 +8,15 @@ Several core server scripts emit initialization messages to the output so you ca
 
 Each combat tool now has a dedicated module under
 `ReplicatedStorage/Modules/Config/Tools`. These tool modules contain every
-setting for their moves including hitboxes and sound asset IDs. The legacy
-files `AbilityConfig.lua`, `MoveHitboxConfig.lua` and `MoveSoundConfig.lua`
-simply return values from these tool modules. For example,
-`Tools/BlackLeg.lua` defines both `PartyTableKick` and `PowerKick` in a single
-table.
+setting for their moves including hitboxes and sound asset IDs. The previous
+shim modules `AbilityConfig.lua`, `MoveHitboxConfig.lua` and
+`MoveSoundConfig.lua` have been removed; scripts should require the tool
+modules directly. For example, `Tools/BlackLeg.lua` defines both
+`PartyTableKick` and `PowerKick` in a single table.
+
+All combat and movement sound asset IDs live exclusively in `SoundConfig`.
+Tool configuration modules do not contain any sound tables; scripts load
+the appropriate sounds directly from `SoundConfig`.
 
 ### Ragdoll Knockback
 

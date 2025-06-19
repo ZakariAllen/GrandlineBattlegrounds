@@ -9,8 +9,8 @@ local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Co
 local TekkaiEvent = CombatRemotes:WaitForChild("TekkaiEvent")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TekkaiConfig = AbilityConfig.Rokushiki.Tekkai or {}
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TekkaiConfig = RokushikiConfig.Tekkai or {}
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)

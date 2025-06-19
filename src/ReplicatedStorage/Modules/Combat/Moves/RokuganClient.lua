@@ -10,9 +10,8 @@ local StartEvent = CombatRemotes:WaitForChild("RokuganStart")
 local HitEvent = CombatRemotes:WaitForChild("RokuganHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local MoveConfig = AbilityConfig.Rokushiki.Rokugan
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local MoveConfig = RokushikiConfig.Rokugan
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -56,12 +55,12 @@ local function performMove()
     local dir = startCF.LookVector
 
     HitboxClient.CastHitbox(
-        MoveHitboxConfig.Rokugan.Offset,
-        MoveHitboxConfig.Rokugan.Size,
-        MoveHitboxConfig.Rokugan.Duration,
+        MoveConfig.Hitbox.Offset,
+        MoveConfig.Hitbox.Size,
+        MoveConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.Rokugan.Shape,
+        MoveConfig.Hitbox.Shape,
         false,
         nil,
         true,

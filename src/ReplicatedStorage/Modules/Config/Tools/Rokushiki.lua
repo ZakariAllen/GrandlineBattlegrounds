@@ -5,9 +5,6 @@ local Rokushiki = {
         Cooldown = 15,
         StaminaCost = 35,
         MaxDistance = 40,
-        Sound = {
-            Use = { Id = "rbxassetid://105257107308215", Pitch = 1, Volume = 1 },
-        },
     },
     Shigan = {
         Damage = 65,
@@ -25,9 +22,6 @@ local Rokushiki = {
             Offset = CFrame.new(0, 0, -2.4),
             Duration = 0.1,
             Shape = "Block",
-        },
-        Sound = {
-            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
         },
     },
     TempestKick = {
@@ -73,9 +67,6 @@ local Rokushiki = {
             Offset = CFrame.new(0, 0, -15),
             Duration = 0.1,
             Shape = "Block",
-        },
-        Sound = {
-            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
         },
     },
 }

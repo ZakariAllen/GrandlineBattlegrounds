@@ -19,6 +19,13 @@ CombatConfig.M1 = {
         DefaultM1Damage = 1,
         -- Maximum distance the server will allow for a confirmed hit
         ServerHitRange = 12,
+
+        Hitbox = {
+                Offset = CFrame.new(0, 0, -2.4),
+                Size = Vector3.new(4, 5, 4),
+                Duration = 0.1,
+                Shape = "Block",
+        },
 }
 
 CombatConfig.Blocking = {

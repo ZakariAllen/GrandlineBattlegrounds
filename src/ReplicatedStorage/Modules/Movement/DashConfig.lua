@@ -1,8 +1,10 @@
+local SoundConfig = require(script.Parent.Parent.Config.SoundConfig)
+
 local DashConfig = {}
 
 DashConfig.Cooldown = 2
 
-DashConfig.Sound = { Id = "rbxassetid://72014632956520", Pitch = 1, Volume = 1 }  -- Replace with your dash SFX asset id
+DashConfig.Sound = SoundConfig.Movement.Dash
 
 -- Duration that characters stay invisible when performing the Rokushiki dash
 DashConfig.RokuInvisDuration = 0.3

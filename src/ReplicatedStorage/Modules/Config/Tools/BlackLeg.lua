@@ -23,11 +23,6 @@ local BlackLeg = {
             Duration = 0.1,
             Shape = "Cylinder",
         },
-        Sound = {
-            Hit = { Id = "rbxassetid://122809552011508", Pitch = 1, Volume = 1 },
-            Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
-            Loop = { Id = "rbxassetid://118537831520752", Pitch = 1, Volume = 1 },
-        },
     },
     PowerKick = {
         Damage = 50,
@@ -49,9 +44,6 @@ local BlackLeg = {
             Offset = CFrame.new(0, 0, -3.5),
             Duration = 0.2,
             Shape = "Block",
-        },
-        Sound = {
-            Hit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
         },
     },
     Concasse = {
@@ -81,7 +73,6 @@ local BlackLeg = {
             Duration = 0.1,
             Shape = "Cylinder",
         },
-        Sound = {},
     },
     AntiMannerKickCourse = {
         Damage = 350,
@@ -103,9 +94,6 @@ local BlackLeg = {
             Offset = CFrame.new(0, 0, -3.5),
             Duration = 0.1,
             Shape = "Block",
-        },
-        Sound = {
-            Hit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
         },
     },
 }

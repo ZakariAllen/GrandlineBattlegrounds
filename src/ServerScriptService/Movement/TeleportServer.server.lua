@@ -4,8 +4,8 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local MovementRemotes = Remotes:WaitForChild("Movement")
 local TeleportEvent = MovementRemotes:WaitForChild("TeleportEvent")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TeleportConfig = AbilityConfig.Rokushiki.Teleport
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TeleportConfig = RokushikiConfig.Teleport
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
@@ -44,10 +44,8 @@ TeleportEvent.OnServerEvent:Connect(function(player, position)
     hrp.CFrame = CFrame.new(position)
     TeleportVFX.Play(CFrame.new(position))
 
-    local soundId = TeleportConfig.Sound and TeleportConfig.Sound.Use
-    if soundId then
-        SoundServiceUtils:PlaySpatialSound(soundId, hrp)
-    end
+    local soundId = SoundConfig.Combat.Rokushiki.TeleportUse
+    SoundServiceUtils:PlaySpatialSound(soundId, hrp)
 end)
 
 print("[TeleportServer] Ready")

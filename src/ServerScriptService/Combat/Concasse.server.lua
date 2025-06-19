@@ -6,8 +6,8 @@ local StartEvent = CombatRemotes:WaitForChild("ConcasseStart")
 local HitEvent = CombatRemotes:WaitForChild("ConcasseHit")
 local RunService = game:GetService("RunService")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local ConcasseConfig = AbilityConfig.BlackLeg.Concasse
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local ConcasseConfig = BlackLegConfig.Concasse
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
@@ -15,7 +15,6 @@ local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local HakiService = require(ReplicatedStorage.Modules.Stats.HakiService)
@@ -213,10 +212,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     if hitLanded then
-        local hitSfx = MoveSoundConfig.Concasse and MoveSoundConfig.Concasse.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.BlackLeg.StrongKickHit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
     end
 
     local state = playerState[player]

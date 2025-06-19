@@ -9,8 +9,8 @@ local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
 local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 local VFXEvent = CombatRemotes:WaitForChild("PartyTableKickVFX")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local PartyTableKickConfig = AbilityConfig.BlackLeg.PartyTableKick
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local PartyTableKickConfig = BlackLegConfig.PartyTableKick
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
@@ -25,7 +25,6 @@ local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
@@ -103,8 +102,8 @@ StartEvent.OnServerEvent:Connect(function(player)
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
     if DEBUG then print("[PartyTableKick] Animation triggered") end
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    local loopId = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Loop
-    if hrp and loopId then
+    if hrp then
+        local loopId = SoundConfig.Combat.BlackLeg.PartyTableKickLoop
         local sound = SoundUtils:PlayLoopingSpatialSound(loopId, hrp)
         activeLoopSounds[player] = sound
     end
@@ -216,17 +215,13 @@ HitEvent.OnServerEvent:Connect(function(player, targets, isFinal)
             end
         end
 
-        local hitSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.BlackLeg.Hit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
         HighlightEffect.ApplyHitHighlight(enemyHumanoid.Parent)
     end
     if not hitLanded and not blockHit then
-        local missSfx = MoveSoundConfig.PartyTableKick and MoveSoundConfig.PartyTableKick.Miss
-        if missSfx then
-            SoundUtils:PlaySpatialSound(missSfx, hrp)
-        end
+        local missSfx = SoundConfig.Combat.Miss
+        SoundUtils:PlaySpatialSound(missSfx, hrp)
     end
     if DEBUG then print("[PartyTableKick] Hit sequence complete") end
 end)

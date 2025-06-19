@@ -13,9 +13,8 @@ local StopEvent = CombatRemotes:WaitForChild("PartyTableKickStop")
 local VFXEvent = CombatRemotes:WaitForChild("PartyTableKickVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local PartyTableKickConfig = AbilityConfig.BlackLeg.PartyTableKick
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local PartyTableKickConfig = BlackLegConfig.PartyTableKick
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -112,12 +111,12 @@ local function performMove()
             return
         end
         local hitbox = HitboxClient.CastHitbox(
-            MoveHitboxConfig.PartyTableKick.Offset,
-            MoveHitboxConfig.PartyTableKick.Size,
-            MoveHitboxConfig.PartyTableKick.Duration,
+            PartyTableKickConfig.Hitbox.Offset,
+            PartyTableKickConfig.Hitbox.Size,
+            PartyTableKickConfig.Hitbox.Duration,
             HitEvent,
             {i == cfg.Hits},
-            MoveHitboxConfig.PartyTableKick.Shape,
+            PartyTableKickConfig.Hitbox.Shape,
             true
         )
         if hitbox then

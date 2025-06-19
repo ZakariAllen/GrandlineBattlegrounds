@@ -6,8 +6,8 @@ local StartEvent = CombatRemotes:WaitForChild("PowerPunchStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
 local VFXEvent = CombatRemotes:WaitForChild("PowerPunchVFX")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local PowerPunchConfig = AbilityConfig.BasicCombat.PowerPunch
+local BasicCombatConfig = require(ReplicatedStorage.Modules.Config.Tools.BasicCombat)
+local PowerPunchConfig = BasicCombatConfig.PowerPunch
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
@@ -16,7 +16,6 @@ local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
@@ -222,10 +221,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     if hitLanded then
-        local hitSfx = MoveSoundConfig.PowerPunch and MoveSoundConfig.PowerPunch.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.Hit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
         if DEBUG then print("[PowerPunch] Hit sequence complete") end
     end
 end)

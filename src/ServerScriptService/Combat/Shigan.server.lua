@@ -5,14 +5,13 @@ local CombatRemotes = Remotes:WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("ShiganStart")
 local HitEvent = CombatRemotes:WaitForChild("ShiganHit")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local ShiganConfig = AbilityConfig.Rokushiki.Shigan
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local ShiganConfig = RokushikiConfig.Shigan
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
@@ -189,10 +188,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     if hitLanded then
-        local hitSfx = MoveSoundConfig.Shigan and MoveSoundConfig.Shigan.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.Hit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
     end
 end)
 

@@ -10,9 +10,8 @@ local StartEvent = CombatRemotes:WaitForChild("AntiMannerKickCourseStart")
 local HitEvent = CombatRemotes:WaitForChild("AntiMannerKickCourseHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local MoveConfig = AbilityConfig.BlackLeg.AntiMannerKickCourse
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local MoveConfig = BlackLegConfig.AntiMannerKickCourse
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -69,12 +68,12 @@ local function performMove()
 
     local dir = hrp.CFrame.LookVector
     HitboxClient.CastHitbox(
-        MoveHitboxConfig.AntiMannerKickCourse.Offset,
-        MoveHitboxConfig.AntiMannerKickCourse.Size,
-        MoveHitboxConfig.AntiMannerKickCourse.Duration,
+        MoveConfig.Hitbox.Offset,
+        MoveConfig.Hitbox.Size,
+        MoveConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.AntiMannerKickCourse.Shape,
+        MoveConfig.Hitbox.Shape,
         true,
         nil,
         true

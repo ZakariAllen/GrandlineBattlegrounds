@@ -9,7 +9,6 @@ local Animations = Modules:WaitForChild("Animations")
 local MovementModules = Modules:WaitForChild("Movement")
 
 local SoundConfig = require(Cfg:WaitForChild("SoundConfig"))
-local MoveSoundConfig = require(Cfg:WaitForChild("MoveSoundConfig"))
 local DashConfig = require(MovementModules:WaitForChild("DashConfig"))
 local DashVFX = require(ReplicatedStorage.Modules.Effects.DashVFX)
 local CombatAnimations = require(Animations:WaitForChild("Combat"))
@@ -40,14 +39,6 @@ end
 -- 🔊 Preload all valid sound IDs from SoundConfig
 for _, category in pairs(SoundConfig) do
     for _, soundInfo in pairs(category) do
-        local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
-        addAsset(id)
-    end
-end
-
--- 🔊 Preload move-specific sound IDs
-for _, move in pairs(MoveSoundConfig) do
-    for _, soundInfo in pairs(move) do
         local id = typeof(soundInfo) == "table" and soundInfo.Id or soundInfo
         addAsset(id)
     end

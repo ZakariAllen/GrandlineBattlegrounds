@@ -6,8 +6,8 @@ local StartEvent = CombatRemotes:WaitForChild("TempestKickStart")
 local HitEvent = CombatRemotes:WaitForChild("TempestKickHit")
 local VFXEvent = CombatRemotes:WaitForChild("TempestKickVFX")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TempestKickConfig = AbilityConfig.Rokushiki.TempestKick
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TempestKickConfig = RokushikiConfig.TempestKick
 local AnimationData = require(ReplicatedStorage.Modules.Animations.Combat)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
@@ -16,7 +16,6 @@ local EvasiveService = require(ReplicatedStorage.Modules.Stats.EvasiveService)
 local HighlightEffect = require(ReplicatedStorage.Modules.Combat.HighlightEffect)
 local DamageText = require(ReplicatedStorage.Modules.Effects.DamageText)
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
-local MoveSoundConfig = require(ReplicatedStorage.Modules.Config.MoveSoundConfig)
 local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
 local SoundUtils = require(ReplicatedStorage.Modules.Effects.SoundServiceUtils)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
@@ -196,10 +195,8 @@ HitEvent.OnServerEvent:Connect(function(player, targets, dir)
     end
 
     if hitLanded then
-        local hitSfx = MoveSoundConfig.TempestKick and MoveSoundConfig.TempestKick.Hit
-        if hitSfx then
-            SoundUtils:PlaySpatialSound(hitSfx, hrp)
-        end
+        local hitSfx = SoundConfig.Combat.Hit
+        SoundUtils:PlaySpatialSound(hitSfx, hrp)
     end
 end)
 

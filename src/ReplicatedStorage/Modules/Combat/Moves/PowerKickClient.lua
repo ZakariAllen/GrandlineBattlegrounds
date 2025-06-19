@@ -11,9 +11,8 @@ local StartEvent = CombatRemotes:WaitForChild("PowerKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerKickHit")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local PowerKickConfig = AbilityConfig.BlackLeg.PowerKick
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local BlackLegConfig = require(ReplicatedStorage.Modules.Config.Tools.BlackLeg)
+local PowerKickConfig = BlackLegConfig.PowerKick
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -74,12 +73,12 @@ local function performMove()
 
     local dir = hrp.CFrame.LookVector
     HitboxClient.CastHitbox(
-        MoveHitboxConfig.PowerKick.Offset,
-        MoveHitboxConfig.PowerKick.Size,
-        MoveHitboxConfig.PowerKick.Duration,
+        PowerKickConfig.Hitbox.Offset,
+        PowerKickConfig.Hitbox.Size,
+        PowerKickConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.PowerKick.Shape,
+        PowerKickConfig.Hitbox.Shape,
         true,
         nil,
         true

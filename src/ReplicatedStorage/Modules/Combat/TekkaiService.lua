@@ -6,8 +6,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TekkaiConfig = AbilityConfig.Rokushiki.Tekkai or {}
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TekkaiConfig = RokushikiConfig.Tekkai or {}
 local OverheadBarService = require(ReplicatedStorage.Modules.UI.OverheadBarService)
 local StaminaService = require(ReplicatedStorage.Modules.Stats.StaminaService)
 

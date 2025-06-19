@@ -12,9 +12,8 @@ local HitEvent = CombatRemotes:WaitForChild("TempestKickHit")
 local VFXEvent = CombatRemotes:WaitForChild("TempestKickVFX")
 
 local Animations = require(ReplicatedStorage.Modules.Animations.Combat)
-local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
-local TempestKickConfig = AbilityConfig.Rokushiki.TempestKick
-local MoveHitboxConfig = require(ReplicatedStorage.Modules.Config.MoveHitboxConfig)
+local RokushikiConfig = require(ReplicatedStorage.Modules.Config.Tools.Rokushiki)
+local TempestKickConfig = RokushikiConfig.TempestKick
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 local ToolController = require(ReplicatedStorage.Modules.Combat.ToolController)
 local HitboxClient = require(ReplicatedStorage.Modules.Combat.HitboxClient)
@@ -76,12 +75,12 @@ local function performMove()
 
     local dir = hrp.CFrame.LookVector
     local hitbox = HitboxClient.CastHitbox(
-        MoveHitboxConfig.TempestKick.Offset,
-        MoveHitboxConfig.TempestKick.Size,
-        TempestKickConfig.HitboxDuration,
+        TempestKickConfig.Hitbox.Offset,
+        TempestKickConfig.Hitbox.Size,
+        TempestKickConfig.Hitbox.Duration,
         HitEvent,
         {dir},
-        MoveHitboxConfig.TempestKick.Shape,
+        TempestKickConfig.Hitbox.Shape,
         true,
         TempestKickConfig.HitboxDistance,
         true
@@ -135,12 +134,12 @@ VFXEvent.OnClientEvent:Connect(function(kickPlayer, startCF)
     if typeof(startCF) ~= "CFrame" then return end
 
     local hitbox = HitboxClient.CastHitbox(
-        MoveHitboxConfig.TempestKick.Offset,
-        MoveHitboxConfig.TempestKick.Size,
-        TempestKickConfig.HitboxDuration,
+        TempestKickConfig.Hitbox.Offset,
+        TempestKickConfig.Hitbox.Size,
+        TempestKickConfig.Hitbox.Duration,
         nil,
         nil,
-        MoveHitboxConfig.TempestKick.Shape,
+        TempestKickConfig.Hitbox.Shape,
         false,
         TempestKickConfig.HitboxDistance,
         false,

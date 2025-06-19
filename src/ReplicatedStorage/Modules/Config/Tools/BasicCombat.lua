@@ -16,9 +16,6 @@ local BasicCombat = {
             Offset = CFrame.new(0, 0, -3.2),
             Shape = "Block",
         },
-        Sound = {
-            Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
-        },
     },
 }
 

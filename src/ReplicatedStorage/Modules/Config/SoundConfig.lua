@@ -1,23 +1,22 @@
 --ReplicatedStorage.Modules.Config.SoundConfig
 
 local SoundConfig = {
-	Combat = {
-		-- 🥊 Tool-specific combat sounds
-                BasicCombat = {
-                        Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
-                        Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
-                },
+        Combat = {
+                -- 🥊 Generic combat sounds used by most tools
+                Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
+                Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
 
-                BlackLeg = {
-                        Hit = { Id = "rbxassetid://122809552011508", Pitch = 1, Volume = 1 },
-                        Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
-                },
+                -- 🥾 Black Leg specific sounds
+               BlackLeg = {
+                       Hit = { Id = "rbxassetid://122809552011508", Pitch = 1, Volume = 1 },
+                       StrongKickHit = { Id = "rbxassetid://118765157785806", Pitch = 1, Volume = 1 },
+                       PartyTableKickLoop = { Id = "rbxassetid://118537831520752", Pitch = 1, Volume = 1 },
+               },
 
-                Rokushiki = {
-                        Hit = { Id = "rbxassetid://9117969717", Pitch = 1, Volume = 1 },
-                        Miss = { Id = "rbxassetid://135883654541622", Pitch = 1, Volume = 1 },
-                },
-        },
+               Rokushiki = {
+                       TeleportUse = { Id = "rbxassetid://105257107308215", Pitch = 1, Volume = 1 },
+               },
+       },
 
 	Blocking = {
 		-- 🛡️ Shared blocking sounds
@@ -28,7 +27,7 @@ local SoundConfig = {
 
         Movement = {
                 -- 🌀 Movement sounds
-                Dash = { Id = "rbxassetid://84275983410258", Pitch = 1, Volume = 1 },
+                Dash = { Id = "rbxassetid://72014632956520", Pitch = 1, Volume = 1 },
                 Walk = { Id = "rbxassetid://YOUR_WALK_SOUND_ID", Pitch = 1, Volume = 1 },
                 Sprint = { Id = "rbxassetid://YOUR_SPRINT_SOUND_ID", Pitch = 1, Volume = 1 },
         },
