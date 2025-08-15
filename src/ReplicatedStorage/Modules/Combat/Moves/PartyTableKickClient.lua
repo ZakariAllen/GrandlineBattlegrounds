@@ -37,6 +37,23 @@ local currentTrack
 local currentHumanoid
 local prevWalkSpeed
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 local function getCharacter()
     local player = Players.LocalPlayer
     local char = player.Character
@@ -202,12 +219,11 @@ function PartyTableKick.OnInputEnded(input)
     if DEBUG then print("[PartyTableKickClient] Input ended") end
 end
 
-VFXEvent.OnClientEvent:Connect(function(kickPlayer)
-    if typeof(kickPlayer) ~= "Instance" then return end
-    if kickPlayer == Players.LocalPlayer then return end
-
-    local char = kickPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+VFXEvent.OnClientEvent:Connect(function(kickActor)
+    if kickActor == Players.LocalPlayer then return end
+    local char = resolveChar(kickActor)
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
         PartyTableKickVFX.Create(hrp)
     end

@@ -34,6 +34,23 @@ local activeVFX: Instance? = nil
 local otherVFX = {}
 local blockDisabledUntil = 0
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 -- Plays the block hold animation. When skipVFX is true the visual effect is not
 -- spawned yet, allowing us to wait for server confirmation before showing it.
 local function playBlockAnimation(skipVFX)
@@ -94,34 +111,43 @@ BlockEvent.OnClientEvent:Connect(function(active)
         end
 end)
 
--- Show or hide block VFX for other players
-BlockVFXEvent.OnClientEvent:Connect(function(blockPlayer, active)
-       if blockPlayer == player then return end
+-- Show or hide block VFX for other actors
+BlockVFXEvent.OnClientEvent:Connect(function(blockActor, active)
+       if blockActor == player then return end
        if typeof(active) ~= "boolean" then return end
 
-       local char = blockPlayer.Character
-       local hrp = char and char:FindFirstChild("HumanoidRootPart")
-       local vfx = otherVFX[blockPlayer]
+       local char = resolveChar(blockActor)
+       if not char then return end
+       local hrp = char:FindFirstChild("HumanoidRootPart")
+       local key = charKey(blockActor)
+       local vfx = otherVFX[key]
 
        if active then
                if hrp and not vfx then
                        vfx = BlockVFX.Create(hrp)
-                       otherVFX[blockPlayer] = vfx
+                       otherVFX[key] = vfx
+                       char.AncestryChanged:Once(function(_, parent)
+                               if parent == nil then
+                                       local vv = otherVFX[key]
+                                       if vv then BlockVFX.Remove(vv) end
+                                       otherVFX[key] = nil
+                               end
+                       end)
                end
        else
                if vfx then
                        BlockVFX.Remove(vfx)
-                       otherVFX[blockPlayer] = nil
+                       otherVFX[key] = nil
                end
        end
 end)
 
 -- Clean up VFX if another player leaves the game
 Players.PlayerRemoving:Connect(function(leftPlayer)
-       local vfx = otherVFX[leftPlayer]
-       if vfx then
-               BlockVFX.Remove(vfx)
-               otherVFX[leftPlayer] = nil
+       local k = resolveChar(leftPlayer)
+       if k and otherVFX[k] then
+               BlockVFX.Remove(otherVFX[k])
+               otherVFX[k] = nil
        end
 end)
 

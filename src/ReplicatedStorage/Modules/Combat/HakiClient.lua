@@ -27,6 +27,23 @@ local assetsFolder = ReplicatedFirst:FindFirstChild("Assets")
 local hakiTemplate = assetsFolder and assetsFolder:FindFirstChild("HakiEnabled")
 local addedTextures = {}
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 local function applyColor(char, style, hakiPlayer)
     local names
     if style == "BlackLeg" then
@@ -85,24 +102,24 @@ local function clearTextures(hakiPlayer)
     addedTextures[hakiPlayer] = nil
 end
 
-HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
+HakiEvent.OnClientEvent:Connect(function(hakiActor, state)
     if typeof(state) ~= "boolean" then return end
 
-    local char = hakiPlayer.Character
+    local char = resolveChar(hakiActor)
     if not char then return end
 
-    active[hakiPlayer] = state
+    active[hakiActor] = state
 
     if state then
         local style
-        if hakiPlayer == player then
+        if hakiActor == player then
             style = ToolController.GetEquippedStyleKey()
         else
-            local tool = hakiPlayer.Character and hakiPlayer.Character:FindFirstChildOfClass("Tool")
+            local tool = char and char:FindFirstChildOfClass("Tool")
             style = tool and tool.Name
         end
-        applyColor(char, style, hakiPlayer)
-        applyTextures(char, hakiPlayer)
+        applyColor(char, style, hakiActor)
+        applyTextures(char, hakiActor)
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if hrp then
             local soundId = SoundConfig.Haki and SoundConfig.Haki.Activate
@@ -111,8 +128,8 @@ HakiEvent.OnClientEvent:Connect(function(hakiPlayer, state)
             end
         end
     else
-        clearColor(hakiPlayer)
-        clearTextures(hakiPlayer)
+        clearColor(hakiActor)
+        clearTextures(hakiActor)
     end
 end)
 
