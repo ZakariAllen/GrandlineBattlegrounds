@@ -72,6 +72,30 @@ local function ShouldApplyHit(attacker, defender)
     return true
 end
 
+-- 🧹 Ensure targets are players and remove duplicates
+local function sanitizeTargets(list)
+        local cleaned = {}
+        local added = {}
+        for _, entry in ipairs(list) do
+                local plr = entry
+                if typeof(entry) ~= "Instance" or not entry:IsA("Player") then
+                        plr = Players:GetPlayerFromCharacter(entry)
+                end
+                if plr and not added[plr] then
+                        added[plr] = true
+                        table.insert(cleaned, plr)
+                end
+        end
+        return cleaned
+end
+
+local function getStyleKeyFromTool(tool)
+        if tool and ToolConfig.ValidCombatTools[tool.Name] then
+                return tool.Name
+        end
+        return "BasicCombat"
+end
+
 -- 🎬 Play animation server-side for others
 local function PlayAnimation(humanoid, animId, category)
         if not animId or not humanoid then return end
@@ -90,38 +114,50 @@ local function PlayAnimation(humanoid, animId, category)
 end
 
 -- 🔥 Client triggers animation (server replicates for others)
-M1Event.OnServerEvent:Connect(function(player, comboIndex, styleKey)
-	local char = player.Character
-	if not char then return end
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
+M1Event.OnServerEvent:Connect(function(player, comboIndex)
+        if typeof(comboIndex) ~= "number" then return end
+        comboIndex = math.floor(comboIndex)
+        if comboIndex < 1 or comboIndex > CombatConfig.M1.ComboHits then return end
+
+        local char = player.Character
+        if not char then return end
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
        if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
        if BlockService.IsBlocking(player) or BlockService.IsInStartup(player) then return end
 
-	local now = tick()
-	comboTimestamps[player] = comboTimestamps[player] or { LastClick = 0, CooldownEnd = 0 }
-	local state = comboTimestamps[player]
+        local now = tick()
+        comboTimestamps[player] = comboTimestamps[player] or { LastClick = 0, CooldownEnd = 0 }
+        local state = comboTimestamps[player]
 
-	if now < state.CooldownEnd then return end
-	state.LastClick = now
-	if comboIndex == CombatConfig.M1.ComboHits then
-		state.CooldownEnd = now + CombatConfig.M1.ComboCooldown
-	end
+        if now < state.CooldownEnd then return end
+        state.LastClick = now
+        if comboIndex == CombatConfig.M1.ComboHits then
+                state.CooldownEnd = now + CombatConfig.M1.ComboCooldown
+        end
 
-	local animSet = AnimationData.M1[styleKey]
-	local animId = animSet and animSet.Combo and animSet.Combo[comboIndex]
-	if animId then
-		local attackerChar = player.Character
-		local attackerHumanoid = attackerChar and attackerChar:FindFirstChildOfClass("Humanoid")
-		if attackerHumanoid ~= humanoid then
-			PlayAnimation(humanoid, animId, "Attack")
-		end
-	end
+        local tool = char:FindFirstChildOfClass("Tool")
+        local styleKey = getStyleKeyFromTool(tool)
+        local animSet = AnimationData.M1[styleKey]
+        local animId = animSet and animSet.Combo and animSet.Combo[comboIndex]
+        if animId then
+                local attackerChar = player.Character
+                local attackerHumanoid = attackerChar and attackerChar:FindFirstChildOfClass("Humanoid")
+                if attackerHumanoid ~= humanoid then
+                        PlayAnimation(humanoid, animId, "Attack")
+                end
+        end
 end)
 
 -- ✅ Client confirms hit
 HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex, isFinal, originCF, size, travelDistance)
-	if typeof(targetPlayers) ~= "table" then return end
+        if typeof(comboIndex) ~= "number" then return end
+        comboIndex = math.floor(comboIndex)
+        if comboIndex < 1 or comboIndex > CombatConfig.M1.ComboHits then return end
+
+        if typeof(targetPlayers) ~= "table" then
+                targetPlayers = {}
+        end
 
         local char = player.Character
         if not char then return end
@@ -130,12 +166,12 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not humanoid or not hrp then return end
 
-        travelDistance = travelDistance or 0
+        travelDistance = (typeof(travelDistance) == "number") and travelDistance or 0
 
         if typeof(originCF) ~= "CFrame" then originCF = nil end
         if typeof(size) ~= "Vector3" then size = nil end
 
-        local serverTargets = targetPlayers
+        local serverTargets = sanitizeTargets(targetPlayers)
         if originCF and size then
                 local castCF = originCF
                 if travelDistance ~= 0 then
@@ -160,7 +196,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
         end
 
         local tool = char:FindFirstChildOfClass("Tool")
-       local styleKey = tool and tool.Name or "BasicCombat"
+       local styleKey = getStyleKeyFromTool(tool)
        local damage = ToolConfig.ToolStats[styleKey] and ToolConfig.ToolStats[styleKey].M1Damage or CombatConfig.M1.DefaultM1Damage
        if HakiService.IsActive(player) then
                damage *= 1.025
