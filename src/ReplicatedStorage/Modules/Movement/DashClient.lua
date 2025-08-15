@@ -25,6 +25,23 @@ local DASH_KEY = Enum.KeyCode.Q
 local currentTrack = nil
 local dashConn = nil
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 -- Immediately stop any active dash and clear velocity
 function DashClient.CancelDash()
     if dashConn then
@@ -261,27 +278,28 @@ function DashClient.OnInputBegan(input, gameProcessed)
 end
 
 -- Play dash VFX/SFX when another player dashes
-DashEvent.OnClientEvent:Connect(function(dashPlayer, direction, styleKey)
-        if dashPlayer == player then return end
-        if typeof(direction) ~= "string" then return end
+DashEvent.OnClientEvent:Connect(function(dashActor, direction, styleKey)
+       if dashActor == player then return end
+       if typeof(direction) ~= "string" then return end
 
-        local char = dashPlayer.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
+       local char = resolveChar(dashActor)
+       if not char then return end
+       local hrp = char:FindFirstChild("HumanoidRootPart")
+       if not hrp then return end
 
-        if DashConfig.Sound then
-                SoundServiceUtils:PlaySpatialSound(DashConfig.Sound, hrp)
-        end
-        DashVFX:PlayDashEffect(direction, hrp)
+       if DashConfig.Sound then
+               SoundServiceUtils:PlaySpatialSound(DashConfig.Sound, hrp)
+       end
+       DashVFX:PlayDashEffect(direction, hrp)
 
-        if styleKey == "Rokushiki" and char then
-                setCharacterInvisible(char, true, dashPlayer)
-                task.delay(DashConfig.RokuInvisDuration, function()
-                        if char then
-                                setCharacterInvisible(char, false, dashPlayer)
-                        end
-                end)
-        end
+       if styleKey == "Rokushiki" and char then
+               setCharacterInvisible(char, true, dashActor)
+               task.delay(DashConfig.RokuInvisDuration, function()
+                       if char then
+                               setCharacterInvisible(char, false, dashActor)
+                       end
+               end)
+       end
 end)
 
 function DashClient.OnInputEnded() end

@@ -33,6 +33,23 @@ local prevWalkSpeed
 local prevJumpPower
 local currentHumanoid
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 local function getCharacter()
     local player = Players.LocalPlayer
     local char = player.Character
@@ -129,9 +146,10 @@ function TempestKick.OnInputEnded()
     -- move cannot be cancelled
 end
 
--- Play VFX for other players when the server notifies us
-VFXEvent.OnClientEvent:Connect(function(kickPlayer, startCF)
-    if kickPlayer == Players.LocalPlayer then return end
+-- Play VFX for other actors when the server notifies us
+VFXEvent.OnClientEvent:Connect(function(kickActor, startCF)
+    local char = resolveChar(kickActor)
+    if not char or char == Players.LocalPlayer.Character then return end
     if typeof(startCF) ~= "CFrame" then return end
 
     local hitbox = HitboxClient.CastHitbox(

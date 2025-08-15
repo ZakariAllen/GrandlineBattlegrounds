@@ -26,6 +26,23 @@ local track
 local prevWalk
 local prevJump
 
+local function resolveChar(actor)
+       if typeof(actor) ~= "Instance" then return nil end
+       if actor:IsA("Player") then
+               return actor.Character
+       elseif actor:IsA("Model") then
+               return actor
+       elseif actor:IsA("Humanoid") then
+               return actor.Parent
+       end
+       return nil
+end
+
+local function charKey(actor)
+       local c = resolveChar(actor)
+       return c
+end
+
 local function getCharacter()
     local player = Players.LocalPlayer
     local char = player.Character
@@ -46,9 +63,12 @@ local function playAnimation(animator, animId)
     return t
 end
 
-TekkaiEvent.OnClientEvent:Connect(function(tekkaiPlayer, state)
-    if tekkaiPlayer ~= Players.LocalPlayer then return end
-    local char, humanoid, animator = getCharacter()
+TekkaiEvent.OnClientEvent:Connect(function(tekkaiActor, state)
+    if tekkaiActor ~= Players.LocalPlayer then return end
+    local char = resolveChar(tekkaiActor)
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
     if not humanoid then return end
     if state then
         active = true
