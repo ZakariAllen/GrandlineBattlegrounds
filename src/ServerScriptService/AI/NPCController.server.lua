@@ -1,67 +1,89 @@
---[[
-    NPCController.server.lua
-    Basic per-NPC loop using the AI modules. This is a lightweight
-    demonstration controller and does not aim to be feature complete.
-]]
-local Players = game:GetService("Players")
+--ServerScriptService.AI.NPCController
+-- Scans workspace.AI for NPC models and runs simple combat brains.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local AIConfig = require(ReplicatedStorage.Modules.Config.AIConfig)
+local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
 local Blackboard = require(ReplicatedStorage.Modules.AI.Blackboard)
 local Perception = require(ReplicatedStorage.Modules.AI.Perception)
 local Decision = require(ReplicatedStorage.Modules.AI.Decision)
 local ActionQueue = require(ReplicatedStorage.Modules.AI.ActionQueue)
 
-local NPCFolder = workspace:FindFirstChild("NPCs")
+local aiFolder = Workspace:WaitForChild("AI")
 
-local function acquireTarget()
-    local plrs = Players:GetPlayers()
-    if #plrs > 0 then
-        return plrs[1].Character
-    end
-    return nil
+local styleKeys = {}
+for k in pairs(ToolConfig.ValidCombatTools) do
+    table.insert(styleKeys, k)
 end
 
-local function initNPC(model, level)
-    if not model then return end
-    local bb = Blackboard.new()
-    bb.ArchetypeLevel = level or 1
-    bb.Target = acquireTarget()
+local function createTool(model, styleKey)
+    local existing = model:FindFirstChild("_AI")
+    if existing then
+        existing:Destroy()
+    end
+    local folder = Instance.new("Folder")
+    folder.Name = "_AI"
+    folder.Parent = model
 
-    local fakePlayer = {Character = model}
-    local queue = ActionQueue.new(fakePlayer)
+    local tool = Instance.new("Tool")
+    tool.Name = styleKey
+    tool.RequiresHandle = false
+    tool.CanBeDropped = false
+    tool.Parent = folder
+end
+
+local function bindNPC(model)
+    local n = tonumber(model.Name:match("Enemy%s*%-%s*(%d+)")) or 1
+    n = math.clamp(n, 1, 5)
+    model:SetAttribute("AILevel", n)
+
+    local hum = model:FindFirstChildOfClass("Humanoid")
+    local hrp = model:FindFirstChild("HumanoidRootPart")
+    if not hum or not hrp then
+        warn("[NPCController] Missing humanoid or HRP for", model:GetFullName())
+        return
+    end
+
+    local styleKey = styleKeys[math.random(1, #styleKeys)] or "BasicCombat"
+    model:SetAttribute("StyleKey", styleKey)
+    createTool(model, styleKey)
+
+    local bb = Blackboard.new(n, AIConfig.Levels[n])
+    local queue = ActionQueue.new(model, bb)
+
+    local running = true
+    task.spawn(function()
+        while running and model.Parent do
+            Perception.Update(bb, model)
+            bb.LastPerception = tick()
+            task.wait(1 / AIConfig.PerceptionHz)
+        end
+    end)
 
     task.spawn(function()
-        while model.Parent do
-            if not bb.Target then
-                bb.Target = acquireTarget()
-            end
-            Perception.Update(model, bb)
-            local actions = Decision.Tick(model, bb)
-            for _, act in ipairs(actions) do
-                if act == "PressM1" then
-                    queue:PressM1(1)
-                elseif act == "DashIn" then
-                    queue:Dash("Forward", model.PrimaryPart and model.PrimaryPart.CFrame.LookVector)
-                elseif act == "DashOut" then
-                    queue:Dash("Backward", model.PrimaryPart and -model.PrimaryPart.CFrame.LookVector)
-                elseif act == "StartBlock" then
-                    queue:StartBlock()
-                elseif act == "ReleaseBlock" then
-                    queue:ReleaseBlock()
-                end
-            end
+        while running and model.Parent do
+            Decision.Tick(model, bb, queue)
             queue:Run()
             task.wait(1 / AIConfig.DecisionHz)
         end
     end)
-end
 
-if NPCFolder then
-    for _, npc in ipairs(NPCFolder:GetChildren()) do
-        initNPC(npc, 1)
+    local function cleanup()
+        running = false
     end
-    NPCFolder.ChildAdded:Connect(function(child)
-        initNPC(child, 1)
+
+    hum.Died:Connect(cleanup)
+    model.AncestryChanged:Connect(function(_, parent)
+        if not parent then
+            cleanup()
+        end
     end)
 end
+
+for _, child in ipairs(aiFolder:GetChildren()) do
+    bindNPC(child)
+end
+
+aiFolder.ChildAdded:Connect(bindNPC)

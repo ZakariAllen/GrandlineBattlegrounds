@@ -1,3 +1,6 @@
+--ReplicatedStorage.Modules.Config.AIConfig
+-- Configuration for NPC combat AI levels.
+
 return {
   PerceptionHz = 15,
   DecisionHz   = 7,

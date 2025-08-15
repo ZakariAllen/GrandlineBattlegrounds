@@ -47,6 +47,44 @@ function DashModule.ExecuteDash(player, direction, dashVector, styleKey)
 	end)
 end
 
+-- Mirror of ExecuteDash but operates on a model/NPC instead of a player
+-- @param model Model
+-- @param direction string dash direction
+-- @param dashVector Vector3? unused for now
+-- @param styleKey string combat style
+function DashModule.ExecuteDashForModel(model, direction, dashVector, styleKey)
+        if activeDashes[model] then
+                return
+        end
+        activeDashes[model] = true
+
+        local humanoid = model:FindFirstChildOfClass("Humanoid")
+        if humanoid and (
+                direction == "Left"
+                or direction == "Right"
+                or direction == "Backward"
+                or direction == "BackwardLeft"
+                or direction == "BackwardRight"
+        ) then
+                humanoid.AutoRotate = false
+        end
+
+        local dashSet = DashConfig.Settings
+        if styleKey == "Rokushiki" then
+                dashSet = DashConfig.RokuSettings
+        end
+        local dashSettings = dashSet[direction] or dashSet["Forward"]
+        local duration = dashSettings and dashSettings.Duration or 0.25
+
+        task.delay(duration, function()
+                activeDashes[model] = nil
+                local hum = model:FindFirstChildOfClass("Humanoid")
+                if hum then
+                        hum.AutoRotate = true
+                end
+        end)
+end
+
 -- Helper to check dash state
 function DashModule.IsPlayerDashing(player)
 	return activeDashes[player] == true
