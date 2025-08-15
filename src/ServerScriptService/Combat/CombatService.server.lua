@@ -24,6 +24,8 @@ local XPService = require(ReplicatedStorage.Modules.Stats.ExperienceService)
 local XPConfig = require(ReplicatedStorage.Modules.Config.XPConfig)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local AnimationUtils = require(ReplicatedStorage.Modules.Effects.AnimationUtils)
+local M1Service = require(script.Parent.M1Service)
+local comboTimestamps = M1Service.ComboTimestamps -- shared state for attack timings
 
 -- 🔁 Remotes
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -130,9 +132,6 @@ local function PlayAnimation(humanoid, animId, category)
         local track = AnimationUtils.PlayAnimation(animator, animId)
         trackStore[humanoid] = track
 end
-
-local M1Service = require(script.Parent.M1Service)
-local comboTimestamps = M1Service.ComboTimestamps -- shared state for attack timings
 
 -- 🔥 Client triggers animation (server replicates for others)
 M1Event.OnServerEvent:Connect(function(player, payload)
