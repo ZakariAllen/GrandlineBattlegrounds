@@ -72,18 +72,37 @@ local function ShouldApplyHit(attacker, defender)
     return true
 end
 
--- 🧹 Ensure targets are players and remove duplicates
+-- Resolve arbitrary instances into combat targets
+local function resolveTarget(entry)
+    if typeof(entry) ~= "Instance" then return nil end
+    if entry:IsA("Player") then
+        local char = entry.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            return {Key = entry, Player = entry, Humanoid = hum}
+        end
+        return nil
+    end
+    local model = entry:IsA("Model") and entry or entry:FindFirstAncestorOfClass("Model")
+    if model then
+        local player = Players:GetPlayerFromCharacter(model)
+        local hum = model:FindFirstChildOfClass("Humanoid")
+        if hum then
+            return {Key = player or hum, Player = player, Humanoid = hum}
+        end
+    end
+    return nil
+end
+
+-- 🧹 Ensure targets are valid and remove duplicates
 local function sanitizeTargets(list)
         local cleaned = {}
         local added = {}
         for _, entry in ipairs(list) do
-                local plr = entry
-                if typeof(entry) ~= "Instance" or not entry:IsA("Player") then
-                        plr = Players:GetPlayerFromCharacter(entry)
-                end
-                if plr and not added[plr] then
-                        added[plr] = true
-                        table.insert(cleaned, plr)
+                local target = resolveTarget(entry)
+                if target and not added[target.Key] then
+                        added[target.Key] = true
+                        table.insert(cleaned, target)
                 end
         end
         return cleaned
@@ -185,12 +204,10 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 serverTargets = {}
                 local added = {}
                 for _, part in ipairs(workspace:GetPartBoundsInBox(castCF, size, params)) do
-                        local model = part:FindFirstAncestorOfClass("Model")
-                        local enemyHumanoid = model and model:FindFirstChildOfClass("Humanoid")
-                        local enemyPlayer = model and Players:GetPlayerFromCharacter(model)
-                        if enemyHumanoid and enemyPlayer and enemyPlayer ~= player and not added[enemyPlayer] then
-                                added[enemyPlayer] = true
-                                table.insert(serverTargets, enemyPlayer)
+                        local target = resolveTarget(part)
+                        if target and target.Key ~= player and not added[target.Key] then
+                                added[target.Key] = true
+                                table.insert(serverTargets, target)
                         end
                 end
         end
@@ -214,19 +231,17 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                         attackPos = attackPos + originCF.LookVector * travelDistance
                 end
         end
-        for _, enemyPlayer in ipairs(serverTargets) do
-		if not enemyPlayer or not enemyPlayer.Character then continue end
-
-                local enemyChar = enemyPlayer.Character
-                local enemyHumanoid = enemyChar:FindFirstChildOfClass("Humanoid")
+        for _, target in ipairs(serverTargets) do
+                local enemyPlayer = target.Player
+                local enemyHumanoid = target.Humanoid
                 if not enemyHumanoid or enemyHumanoid.Health <= 0 then continue end
-                if EvasiveService and EvasiveService.IsActive(enemyPlayer) then
+                if enemyPlayer and EvasiveService and EvasiveService.IsActive(enemyPlayer) then
                         continue
                 end
-                if not StunService:CanBeHitBy(player, enemyPlayer) then continue end
-                if not ShouldApplyHit(player, enemyPlayer) then continue end
+                if not StunService:CanBeHitBy(player, target.Key) then continue end
+                if not ShouldApplyHit(player, target.Key) then continue end
 
-                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+                local enemyRoot = enemyHumanoid.Parent and enemyHumanoid.Parent:FindFirstChild("HumanoidRootPart")
                 if not enemyRoot then continue end
 
                 local distOrigin = hrp.Position
@@ -237,8 +252,11 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                         continue
                 end
 
-               local blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false, hrp)
-                if blockResult == "Perfect" then
+               local blockResult
+               if enemyPlayer then
+                       blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false, hrp)
+               end
+               if blockResult == "Perfect" then
                         blockHit = true
                         StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, player)
                         local soundId = SoundConfig.Blocking.PerfectBlock
@@ -256,13 +274,15 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                 elseif blockResult == "Broken" then
                         blockHit = true
                         StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), AnimationData.Stun.BlockBreak, player)
-                        BlockEvent:FireClient(enemyPlayer, false)
+                        if enemyPlayer then
+                                BlockEvent:FireClient(enemyPlayer, false)
+                        end
                         local soundId = SoundConfig.Blocking.BlockBreak
                         if soundId then
                                 SoundUtils:PlaySpatialSound(soundId, hrp)
                         end
                         -- fallthrough to apply damage on block break
-                end
+               end
 
 		-- ✅ Deal damage and apply stun
                 enemyHumanoid:TakeDamage(damage)
