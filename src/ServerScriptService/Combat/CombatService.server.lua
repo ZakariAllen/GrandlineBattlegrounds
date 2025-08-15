@@ -33,7 +33,6 @@ local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
 local BlockEvent = CombatRemotes:WaitForChild("BlockEvent")
 
 -- 🧠 State
-local comboTimestamps = {} -- [player] = { LastClick = time, CooldownEnd = time }
 local activeTracks = {
         Attack = {},
         Knockback = {},
@@ -132,50 +131,12 @@ local function PlayAnimation(humanoid, animId, category)
         trackStore[humanoid] = track
 end
 
+local M1Service = require(script.Parent.M1Service)
+local comboTimestamps = M1Service.ComboTimestamps -- shared state for attack timings
+
 -- 🔥 Client triggers animation (server replicates for others)
 M1Event.OnServerEvent:Connect(function(player, payload)
-        local comboIndex
-        local toolName
-        local aimDir
-        if typeof(payload) == "table" then
-                comboIndex = payload.step or payload[1]
-                toolName = payload.toolName
-                aimDir = payload.aimDir
-        else
-                comboIndex = payload
-        end
-        if typeof(comboIndex) ~= "number" then return end
-        comboIndex = math.floor(comboIndex)
-        if comboIndex < 1 or comboIndex > CombatConfig.M1.ComboHits then return end
-
-        local char = player.Character
-        if not char then return end
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if not humanoid then return end
-       if StunService:IsStunned(player) or StunService:IsAttackerLocked(player) then return end
-       if BlockService.IsBlocking(player) or BlockService.IsInStartup(player) then return end
-
-        local now = tick()
-        comboTimestamps[player] = comboTimestamps[player] or { LastClick = 0, CooldownEnd = 0 }
-        local state = comboTimestamps[player]
-
-        if now < state.CooldownEnd then return end
-        state.LastClick = now
-        if comboIndex == CombatConfig.M1.ComboHits then
-                state.CooldownEnd = now + CombatConfig.M1.ComboCooldown
-        end
-
-        local tool = char:FindFirstChildOfClass("Tool")
-        local styleKey = getStyleKeyFromTool(tool)
-        local animSet = AnimationData.M1[styleKey]
-        local animId = animSet and animSet.Combo and animSet.Combo[comboIndex]
-        if animId then
-                local attackerChar = player.Character
-                local attackerHumanoid = attackerChar and attackerChar:FindFirstChildOfClass("Humanoid")
-                if attackerHumanoid ~= humanoid then
-                        PlayAnimation(humanoid, animId, "Attack")
-                end
-        end
+        M1Service.ProcessM1Request(player, payload)
 end)
 
 -- ✅ Client confirms hit
