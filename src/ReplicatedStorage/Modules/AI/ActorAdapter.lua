@@ -66,7 +66,39 @@ function ActorAdapter.Get(actor)
             Key = player or hum,
         }
     end
-    return nil
+return nil
+end
+
+-- Convenience helpers mirroring the original spec --------------------------
+
+function ActorAdapter.GetCharacter(actor)
+    local info = ActorAdapter.Get(actor)
+    return info and info.Character or nil
+end
+
+function ActorAdapter.GetHumanoid(actor)
+    local info = ActorAdapter.Get(actor)
+    return info and info.Humanoid or nil
+end
+
+function ActorAdapter.GetRoot(actor)
+    local char = ActorAdapter.GetCharacter(actor)
+    return char and char:FindFirstChild("HumanoidRootPart") or nil
+end
+
+function ActorAdapter.IsPlayer(actor)
+    local info = ActorAdapter.Get(actor)
+    return info and info.IsPlayer or false
+end
+
+function ActorAdapter.GetPlayer(actor)
+    local info = ActorAdapter.Get(actor)
+    return info and info.Player or nil
+end
+
+function ActorAdapter.GetStyleKey(actor)
+    local info = ActorAdapter.Get(actor)
+    return info and info.StyleKey or "BasicCombat"
 end
 
 return ActorAdapter
