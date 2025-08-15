@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local RagdollUtils = require(script.Parent.RagdollUtils)
 
 local RagdollKnockback = {}
+local lastImpulse = nil
 
 RagdollKnockback.DirectionType = {
     AttackerFacingDirection = "AttackerFacingDirection",
@@ -68,6 +69,7 @@ function RagdollKnockback.ApplyKnockback(humanoid, direction, force, lift, durat
 
     -- The vertical lift should be independent of the horizontal knockback force
     local impulse = Vector3.new(direction.X * force, lift, direction.Z * force) * root.AssemblyMass
+    lastImpulse = impulse
     if root.ApplyImpulse then
         root:ApplyImpulse(impulse)
     else
@@ -94,6 +96,10 @@ function RagdollKnockback.ApplyDirectionalKnockback(humanoid, options)
     options = options or {}
     local dir = RagdollKnockback.ComputeDirection(options.DirectionType, options.AttackerRoot, options.TargetRoot)
     RagdollKnockback.ApplyKnockback(humanoid, dir, options.Force, options.Lift, options.Duration)
+end
+
+function RagdollKnockback.GetLastImpulse()
+    return lastImpulse
 end
 
 return RagdollKnockback

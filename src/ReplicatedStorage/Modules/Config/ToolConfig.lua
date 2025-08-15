@@ -16,4 +16,32 @@ ToolConfig.ToolStats = {
         -- Add more tools here
 }
 
+-- Additional metadata for timing and spacing, used by AI systems
+ToolConfig.ToolMeta = {
+        BasicCombat = {
+                IdealDistanceBand = { TooClose = 3, Ideal = 8, Long = 15 },
+                M1 = {
+                        StartupMs = 300,
+                        ChainWindowMs = {300,300,300,300,400},
+                        FifthHitKnockback = { Force = 50, Lift = 0, Duration = 0.5 },
+                },
+        },
+        BlackLeg = {
+                IdealDistanceBand = { TooClose = 3, Ideal = 8, Long = 15 },
+                M1 = {
+                        StartupMs = 300,
+                        ChainWindowMs = {300,300,300,300,400},
+                        FifthHitKnockback = { Force = 50, Lift = 0, Duration = 0.5 },
+                },
+        },
+        Rokushiki = {
+                IdealDistanceBand = { TooClose = 3, Ideal = 8, Long = 15 },
+                M1 = {
+                        StartupMs = 300,
+                        ChainWindowMs = {300,300,300,300,400},
+                        FifthHitKnockback = { Force = 50, Lift = 0, Duration = 0.5 },
+                },
+        },
+}
+
 return ToolConfig

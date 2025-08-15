@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 -- 🔁 Config & Animation
 local ToolAnimations = require(ReplicatedStorage.Modules.Animations.Tool)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
+local AbilityConfig = require(ReplicatedStorage.Modules.Config.AbilityConfig)
 local MoveListManager = require(ReplicatedStorage.Modules.UI.MoveListManager)
 
 -- Internal state
@@ -98,6 +99,40 @@ function ToolController.IsValidCombatTool()
 	if not tool then return false end
 
 	return ToolConfig.ValidCombatTools[tool.Name] or false
+end
+
+--[=[
+    Returns a list of move identifiers that are currently usable given the
+    attacker, target distance band and target state. This does not reveal any
+    hidden information and relies entirely on configuration data.
+
+    @param character Model -- the attacking character
+    @param distanceBand string -- result from Helpers.GetDistanceBand
+    @param targetState table? -- observable state of the target
+    @return {string}
+]=]
+function ToolController.GetUsableMoves(character, distanceBand, targetState)
+        local tool = ToolController.GetEquippedTool()
+        if not tool then return {} end
+        local styleKey = tool.Name
+        local config = AbilityConfig[styleKey]
+        if not config then return {} end
+        distanceBand = distanceBand or "Long"
+        targetState = targetState or {}
+        local usable = {}
+        for moveId, move in pairs(config) do
+                local meta = move.Metadata
+                if meta then
+                        local ok = true
+                        if meta.RequiresFacing and targetState.Facing == false then
+                                ok = false
+                        end
+                        if ok then
+                                table.insert(usable, moveId)
+                        end
+                end
+        end
+        return usable
 end
 
 return ToolController

@@ -80,4 +80,21 @@ local Rokushiki = {
     },
 }
 
+-- Derive standardized metadata used by AI and combat systems
+for moveName, move in pairs(Rokushiki) do
+    move.Metadata = {
+        Role = move.GuardBreak and "GuardBreak" or "ComboEnder",
+        Range = { Min = 0, Max = move.HitboxDistance or move.Range or 0 },
+        StartupMs = (move.Startup or 0) * 1000,
+        ActiveMs = (move.HitboxDuration or 0) * 1000,
+        RecoveryMs = (move.Endlag or 0) * 1000,
+        BlockDamage = move.Damage or move.DamagePerHit or 0,
+        StaminaCost = move.StaminaCost or 0,
+        DashCancelOK = move.DashCancelOK or false,
+        OnBlock = { Pushback = 0, AdvantageMs = -((move.Endlag or 0) * 1000) },
+        OnHit = { AdvantageMs = (move.StunDuration or 0) * 1000, Knockback = move.Knockback or nil, KnockbackDirection = move.KnockbackDirection },
+        RequiresFacing = true,
+    }
+end
+
 return Rokushiki

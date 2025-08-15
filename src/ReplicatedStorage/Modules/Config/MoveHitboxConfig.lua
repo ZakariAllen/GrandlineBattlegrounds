@@ -22,4 +22,16 @@ MoveHitboxConfig.Shigan = Tools.Rokushiki.Shigan.Hitbox
 MoveHitboxConfig.TempestKick = Tools.Rokushiki.TempestKick.Hitbox
 MoveHitboxConfig.Rokugan = Tools.Rokushiki.Rokugan.Hitbox
 
+-- Expose per-move metadata for AI consumption
+MoveHitboxConfig.Meta = {
+    PartyTableKick = Tools.BlackLeg.PartyTableKick.Metadata,
+    PowerPunch = Tools.BasicCombat.PowerPunch.Metadata,
+    PowerKick = Tools.BlackLeg.PowerKick.Metadata,
+    Concasse = Tools.BlackLeg.Concasse.Metadata,
+    AntiMannerKickCourse = Tools.BlackLeg.AntiMannerKickCourse.Metadata,
+    Shigan = Tools.Rokushiki.Shigan.Metadata,
+    TempestKick = Tools.Rokushiki.TempestKick.Metadata,
+    Rokugan = Tools.Rokushiki.Rokugan.Metadata,
+}
+
 return MoveHitboxConfig

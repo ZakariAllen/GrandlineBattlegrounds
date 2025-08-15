@@ -7,6 +7,7 @@ local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 
 -- Remotes (may not exist during tests)
 local StunStatusEvent
+local StunChangedEvent
 local success, remotes = pcall(function()
     return ReplicatedStorage:WaitForChild("Remotes")
 end)
@@ -14,6 +15,10 @@ if success and remotes then
     local stunFolder = remotes:FindFirstChild("Stun")
     if stunFolder then
         StunStatusEvent = stunFolder:FindFirstChild("StunStatusRequestEvent")
+    end
+    local combatFolder = remotes:FindFirstChild("Combat")
+    if combatFolder then
+        StunChangedEvent = combatFolder:FindFirstChild("StunChangedEvent")
     end
 end
 
@@ -142,9 +147,11 @@ end
 sendStatus = function(player)
     if RunService:IsServer() and fetchStunEvent() and player then
         local remainingStun = 0
+        local guardBroken = false
         local stunData = StunnedEntities[player]
         if stunData then
             remainingStun = math.max(0, stunData.EndsAt - tick())
+            guardBroken = stunData.GuardBroken or false
         end
 
         local lockEnd = AttackerLockouts[player]
@@ -155,6 +162,7 @@ sendStatus = function(player)
             AttackerLock = lockEnd ~= nil and lockRemaining > 0,
             StunRemaining = remainingStun,
             LockRemaining = lockRemaining,
+            GuardBroken = guardBroken,
         }
         if DEBUG then
             print("[StunService] Sending status to", player.Name, data)
@@ -195,6 +203,18 @@ function StunService:GetLockRemaining(entity)
     return 0
 end
 
+function StunService:IsGuardBroken(entity)
+    local key = resolveEntity(entity)
+    local data = key and StunnedEntities[key]
+    return data and data.GuardBroken or false
+end
+
+function StunService:EndsAt(entity)
+    local key = resolveEntity(entity)
+    local data = key and StunnedEntities[key]
+    return data and data.EndsAt or 0
+end
+
 function StunService:WasRecentlyHit(target)
     local key = resolveEntity(target)
     local t = key and HitReservations[key]
@@ -221,7 +241,7 @@ end
     moving while stunned. If a number is supplied, velocity is preserved only for
     the given duration in seconds.
 ]]
-function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity)
+function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity, isGuardBreak)
     local targetKey, targetPlayer, targetHum = resolveEntity(targetHumanoid)
     local attackerKey, attackerPlayer = resolveEntity(attacker)
     if not targetKey or not attackerKey or not targetHum then return end
@@ -325,6 +345,9 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                         data.HRP:SetAttribute("StunPreserveVelocity", nil)
                                 end
                         end
+                        if StunChangedEvent then
+                                StunChangedEvent:FireAllClients(targetHum.Parent, false, false, tick())
+                        end
 
                         if DEBUG then
                             local name = targetPlayer and targetPlayer.Name or tostring(targetKey)
@@ -355,7 +378,11 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
             PrevWalkSpeed = prevWalkSpeed,
             PrevJumpPower = prevJumpPower,
             Task = taskRef,
+            GuardBroken = isGuardBreak or false,
         }
+        if StunChangedEvent then
+            StunChangedEvent:FireAllClients(targetHum.Parent, true, isGuardBreak or false, endTime)
+        end
         if targetPlayer then
             sendStatus(targetPlayer)
         end
@@ -416,6 +443,9 @@ function StunService.ClearStun(entity)
             ActiveAnimations[key] = nil
         end
         local _, player = resolveEntity(entity)
+        if StunChangedEvent and data.Humanoid then
+            StunChangedEvent:FireAllClients(data.Humanoid.Parent, false, false, tick())
+        end
         if player then
             sendStatus(player)
         end

@@ -30,4 +30,11 @@ CombatConfig.Blocking = {
         BlockCooldown = 2,
 }
 
+-- Exposed constants for AI systems
+CombatConfig.BlockHP = 1000
+CombatConfig.GuardBreakStunMs = CombatConfig.Blocking.BlockBreakStunDuration * 1000
+CombatConfig.PerfectBlockWindowMs = CombatConfig.Blocking.PerfectBlockWindow * 1000
+CombatConfig.M1.ClashWindowMs = CombatConfig.M1.ClashWindow * 1000
+CombatConfig.M1.HitstopMs = 50
+
 return CombatConfig

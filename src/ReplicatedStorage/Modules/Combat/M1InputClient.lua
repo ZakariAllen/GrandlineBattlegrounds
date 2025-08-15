@@ -53,8 +53,12 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
                 isAwaitingServer = true
                 CombatConfig._lastUsedComboIndex = comboIndex
 
-                -- 📨 Fire to server
-                M1Event:FireServer(comboIndex, styleKey)
+                -- 📨 Fire to server using normalized payload
+                M1Event:FireServer({
+                        toolName = styleKey,
+                        step = comboIndex,
+                        -- aimDir can be added by AI consumers; humans don't use it yet
+                })
                 print("[M1InputClient] ComboIndex:", comboIndex)
 
                 -- Temporarily lock other actions only for the base delay
