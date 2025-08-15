@@ -52,4 +52,46 @@ Animation.SpecialMoves = {
     Shigan = "rbxassetid://114553452416795"
 }
 
+-- Animation state tagging for AI perception
+local animationTags = {}
+local function tag(animId, ...)
+    animationTags[animId] = { ... }
+end
+
+for _, style in pairs(Animation.M1) do
+    if style.Combo then
+        for _, id in pairs(style.Combo) do
+            tag(id, "Windup", "Active", "Recovery")
+        end
+    end
+end
+
+Animation.TagMap = animationTags
+
+--[=[
+    Returns a set-like table of tags based on currently playing animations on
+    the given character. Tags mirror what human players can observe visually
+    such as "Windup" or "Blocking".
+
+    @param character Model
+    @return table<string, boolean>
+]=]
+function Animation.GetCurrentTags(character)
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return {} end
+    local tags = {}
+    for _, track in ipairs(humanoid:GetPlayingAnimationTracks()) do
+        local anim = track.Animation
+        if anim then
+            local list = animationTags[anim.AnimationId]
+            if list then
+                for _, t in ipairs(list) do
+                    tags[t] = true
+                end
+            end
+        end
+    end
+    return tags
+end
+
 return Animation

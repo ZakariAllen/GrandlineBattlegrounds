@@ -31,6 +31,7 @@ local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 -- ✅ Fixed remote reference
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
+local WhiffEvent = CombatRemotes:WaitForChild("WhiffEvent")
 
 -- ✅ Create visual debug hitbox (attached to HRP)
 local function createWeldedHitbox(hrp, offsetCFrame, size, duration, shape, startCF)
@@ -154,14 +155,18 @@ function HitboxClient.CastHitbox(
                                                 else
                                                         local comboIndex = CombatConfig._lastUsedComboIndex or 1
                                                         local isFinal = comboIndex == CombatConfig.M1.ComboHits
-                                                        HitConfirmEvent:FireServer(
-                                                            playerTargets,
-                                                            comboIndex,
-                                                            isFinal,
-                                                            originCF,
-                                                            size,
-                                                            travelDistance
-                                                        )
+                                                        if #playerTargets > 0 then
+                                                                HitConfirmEvent:FireServer(
+                                                                    playerTargets,
+                                                                    comboIndex,
+                                                                    isFinal,
+                                                                    originCF,
+                                                                    size,
+                                                                    travelDistance
+                                                                )
+                                                        elseif fireOnMiss and WhiffEvent then
+                                                                WhiffEvent:FireServer(comboIndex)
+                                                        end
                                                 end
                                         end
                                 end

@@ -11,6 +11,8 @@ local DEBUG = Config.GameSettings.DebugEnabled
 local isStunned = false
 local serverLocked = false
 local localLockUntil = 0
+local guardBroken = false
+local stunEndTime = 0
 
 -- Helper to get remaining local lock duration
 local function getRemaining()
@@ -26,20 +28,32 @@ function StunStatusClient.IsAttackerLocked()
         return serverLocked or tick() < localLockUntil
 end
 
+function StunStatusClient.IsGuardBroken()
+        return guardBroken
+end
+
+function StunStatusClient.EndsAt()
+        return stunEndTime
+end
+
 -- Optional utility
 function StunStatusClient:CanAct()
         return not isStunned and not StunStatusClient.IsAttackerLocked()
 end
 
 -- Allow updates from remote event (used in MovementClient, etc.)
-function StunStatusClient.SetStatus(stunned, locked, lockRemaining)
+function StunStatusClient.SetStatus(stunned, locked, lockRemaining, isGuardBrokenRemote, stunRemaining)
         isStunned = stunned
         serverLocked = locked
+        guardBroken = isGuardBrokenRemote or false
+        if typeof(stunRemaining) == "number" then
+            stunEndTime = tick() + math.max(0, stunRemaining)
+        end
         if typeof(lockRemaining) == "number" and lockRemaining > 0 then
             localLockUntil = math.max(localLockUntil, tick() + lockRemaining)
         end
         if DEBUG then
-            print("[StunStatusClient] Status update", stunned, locked, lockRemaining)
+            print("[StunStatusClient] Status update", stunned, locked, lockRemaining, guardBroken, stunRemaining)
         end
 end
 

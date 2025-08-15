@@ -2,6 +2,13 @@ local DashConfig = {}
 
 DashConfig.Cooldown = 2
 
+-- Additional dash metadata for AI hooks
+DashConfig.IFrameDuration = 0 -- ms of invulnerability
+DashConfig.MinDistance = 6
+DashConfig.MaxDistance = 15
+DashConfig.RotationLocked = true
+DashConfig.StopOnCollision = true
+
 DashConfig.Sound = { Id = "rbxassetid://72014632956520", Pitch = 1, Volume = 1 }  -- Replace with your dash SFX asset id
 
 -- Duration that characters stay invisible when performing the Rokushiki dash

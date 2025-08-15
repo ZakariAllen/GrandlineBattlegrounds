@@ -133,7 +133,17 @@ local function PlayAnimation(humanoid, animId, category)
 end
 
 -- 🔥 Client triggers animation (server replicates for others)
-M1Event.OnServerEvent:Connect(function(player, comboIndex)
+M1Event.OnServerEvent:Connect(function(player, payload)
+        local comboIndex
+        local toolName
+        local aimDir
+        if typeof(payload) == "table" then
+                comboIndex = payload.step or payload[1]
+                toolName = payload.toolName
+                aimDir = payload.aimDir
+        else
+                comboIndex = payload
+        end
         if typeof(comboIndex) ~= "number" then return end
         comboIndex = math.floor(comboIndex)
         if comboIndex < 1 or comboIndex > CombatConfig.M1.ComboHits then return end
