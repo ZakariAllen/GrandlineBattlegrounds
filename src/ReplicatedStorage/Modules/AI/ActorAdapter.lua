@@ -1,6 +1,6 @@
 --ReplicatedStorage.Modules.AI.ActorAdapter
 -- Utility to normalize players and NPC models into a common actor record.
--- Returns: {Character, Humanoid, StyleKey, Player, IsPlayer, Key}
+-- Returns: { Character, Humanoid, Root, Player, IsPlayer, StyleKey }
 
 local ActorAdapter = {}
 
@@ -30,43 +30,45 @@ function ActorAdapter.Get(actor)
     if not actor then
         return nil
     end
+
     if actor:IsA("Player") then
         local char = actor.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and char:FindFirstChild("HumanoidRootPart")
         return {
             Character = char,
             Humanoid = hum,
-            StyleKey = resolveStyle(char),
+            Root = root,
             Player = actor,
             IsPlayer = true,
-            Key = actor,
-        }
-    end
-    if actor:IsA("Humanoid") then
-        local char = actor.Parent
-        return {
-            Character = char,
-            Humanoid = actor,
             StyleKey = resolveStyle(char),
-            Player = Players:GetPlayerFromCharacter(char),
-            IsPlayer = false,
-            Key = actor,
         }
     end
-    local model = actor:IsA("Model") and actor or actor:FindFirstAncestorOfClass("Model")
+
+    local model
+    if actor:IsA("Humanoid") then
+        model = actor.Parent
+    elseif actor:IsA("Model") then
+        model = actor
+    else
+        model = actor:FindFirstAncestorOfClass("Model")
+    end
+
     if model then
         local hum = model:FindFirstChildOfClass("Humanoid")
+        local root = model:FindFirstChild("HumanoidRootPart")
         local player = Players:GetPlayerFromCharacter(model)
         return {
             Character = model,
             Humanoid = hum,
-            StyleKey = resolveStyle(model),
+            Root = root,
             Player = player,
             IsPlayer = player ~= nil,
-            Key = player or hum,
+            StyleKey = resolveStyle(model),
         }
     end
-return nil
+
+    return nil
 end
 
 -- Convenience helpers mirroring the original spec --------------------------
@@ -82,8 +84,8 @@ function ActorAdapter.GetHumanoid(actor)
 end
 
 function ActorAdapter.GetRoot(actor)
-    local char = ActorAdapter.GetCharacter(actor)
-    return char and char:FindFirstChild("HumanoidRootPart") or nil
+    local info = ActorAdapter.Get(actor)
+    return info and info.Root or nil
 end
 
 function ActorAdapter.IsPlayer(actor)

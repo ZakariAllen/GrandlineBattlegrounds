@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
+local ActorAdapter = require(ReplicatedStorage.Modules.AI.ActorAdapter)
 
 -- Remotes (may not exist during tests)
 local StunStatusEvent
@@ -57,7 +58,7 @@ local DEBUG = Config.GameSettings.DebugEnabled
 
 local StunService = {}
 
--- Tables keyed by either Player instances or Humanoids for NPCs
+-- Tables keyed by character models so players and NPCs share code paths
 local StunnedEntities = {}
 local AttackerLockouts = {}
 local HitReservations = {}
@@ -66,35 +67,16 @@ local ActiveAnimations = {}
 -- forward declaration for sendStatus so callbacks defined below can reference it
 local sendStatus
 
--- Resolve an arbitrary instance to a key, associated player (if any), and humanoid
-local function resolveEntity(thing)
-    if typeof(thing) ~= "Instance" then return nil, nil, nil end
-    if thing:IsA("Player") then
-        local char = thing.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        return thing, thing, hum
+local function resolveEntity(actor)
+    local info = ActorAdapter.Get(actor)
+    if not info or not info.Character or not info.Humanoid then
+        return nil, nil, nil
     end
-    if thing:IsA("Humanoid") then
-        local player = Players:GetPlayerFromCharacter(thing.Parent)
-        if player then
-            return player, player, thing
-        end
-        return thing, nil, thing
-    end
-    local model = thing:IsA("Model") and thing or thing:FindFirstAncestorOfClass("Model")
-    if model then
-        local player = Players:GetPlayerFromCharacter(model)
-        local hum = model:FindFirstChildOfClass("Humanoid")
-        if player then
-            return player, player, hum
-        elseif hum then
-            return hum, nil, hum
-        end
-    end
-    return nil, nil, nil
+    return info.Character, info.Player, info.Humanoid
 end
 
-local function cleanupEntity(key)
+local function cleanupEntity(actor)
+    local key = ActorAdapter.GetCharacter(actor) or actor
     local data = StunnedEntities[key]
     if data then
         if data.HRP and data.PreserveVelocity then
@@ -146,15 +128,16 @@ end
 
 sendStatus = function(player)
     if RunService:IsServer() and fetchStunEvent() and player then
+        local char = player.Character
         local remainingStun = 0
         local guardBroken = false
-        local stunData = StunnedEntities[player]
+        local stunData = char and StunnedEntities[char]
         if stunData then
             remainingStun = math.max(0, stunData.EndsAt - tick())
             guardBroken = stunData.GuardBroken or false
         end
 
-        local lockEnd = AttackerLockouts[player]
+        local lockEnd = char and AttackerLockouts[char]
         local lockRemaining = lockEnd and math.max(0, lockEnd - tick()) or 0
 
         local data = {
@@ -253,10 +236,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
     end
 
     -- Stop any active dash immediately when stunned
-    if targetPlayer then
-        DashModule.CancelDash(targetPlayer)
-        BlockService.StopBlocking(targetPlayer)
-    end
+    DashModule.CancelDash(targetPlayer or targetHum)
+    BlockService.StopBlocking(targetPlayer or targetHum)
 
     if self:WasRecentlyHit(targetKey) then return end
     HitReservations[targetKey] = tick()

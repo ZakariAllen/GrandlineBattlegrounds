@@ -4,7 +4,6 @@
     Extracted from CombatService so that NPCs can reuse the exact same logic.
 ]]
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
 
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
@@ -55,24 +54,11 @@ local function ShouldApplyHit(attackerKey, defenderKey)
 end
 
 local function resolveTarget(entry)
-    if typeof(entry) ~= "Instance" then return nil end
-    if entry:IsA("Player") then
-        local char = entry.Character
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            return {Key = entry, Player = entry, Humanoid = hum}
-        end
+    local info = ActorAdapter.Get(entry)
+    if not info or not info.Character or not info.Humanoid then
         return nil
     end
-    local model = entry:IsA("Model") and entry or entry:FindFirstAncestorOfClass("Model")
-    if model then
-        local player = Players:GetPlayerFromCharacter(model)
-        local hum = model:FindFirstChildOfClass("Humanoid")
-        if hum then
-            return {Key = player or hum, Player = player, Humanoid = hum}
-        end
-    end
-    return nil
+    return { Character = info.Character, Player = info.Player, Humanoid = info.Humanoid }
 end
 
 local function sanitizeTargets(list)
@@ -80,8 +66,8 @@ local function sanitizeTargets(list)
     local added = {}
     for _, entry in ipairs(list) do
         local target = resolveTarget(entry)
-        if target and not added[target.Key] then
-            added[target.Key] = true
+        if target and not added[target.Character] then
+            added[target.Character] = true
             table.insert(cleaned, target)
         end
     end
@@ -128,7 +114,7 @@ function M1Service.ProcessM1Request(actor, payload)
     if not info or not info.Character or not info.Humanoid then
         return
     end
-    local key = info.Key
+    local key = info.Character
     if StunService:IsStunned(key) or StunService:IsAttackerLocked(key) then
         return
     end
@@ -191,8 +177,8 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
         local added = {}
         for _, part in ipairs(workspace:GetPartBoundsInBox(castCF, size, params)) do
             local target = resolveTarget(part)
-            if target and target.Key ~= info.Key and not added[target.Key] then
-                added[target.Key] = true
+            if target and target.Character ~= info.Character and not added[target.Character] then
+                added[target.Character] = true
                 table.insert(serverTargets, target)
             end
         end
@@ -223,8 +209,8 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
         if enemyPlayer and EvasiveService and EvasiveService.IsActive(enemyPlayer) then
             continue
         end
-        if not StunService:CanBeHitBy(info.Key, target.Key) then continue end
-        if not ShouldApplyHit(info.Key, target.Key) then continue end
+        if not StunService:CanBeHitBy(info.Character, target.Character) then continue end
+        if not ShouldApplyHit(info.Character, target.Character) then continue end
 
         local enemyRoot = enemyHumanoid.Parent and enemyHumanoid.Parent:FindFirstChild("HumanoidRootPart")
         if not enemyRoot then continue end
@@ -237,10 +223,10 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
             continue
         end
 
-        local blockResult = BlockService.ApplyBlockDamage(target.Key, damage, false, hrp)
+        local blockResult = BlockService.ApplyBlockDamage(target.Character, damage, false, hrp)
         if blockResult == "Perfect" then
             blockHit = true
-            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, info.Key)
+            StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, info.Character)
             local soundId = SoundConfig.Blocking.PerfectBlock
             if soundId then
                 SoundUtils:PlaySpatialSound(soundId, hrp)
@@ -255,7 +241,7 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
             continue
         elseif blockResult == "Broken" then
             blockHit = true
-            StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), AnimationData.Stun.BlockBreak, info.Key)
+            StunService:ApplyStun(enemyHumanoid, BlockService.GetBlockBreakStunDuration(), AnimationData.Stun.BlockBreak, info.Character)
             if enemyPlayer then
                 BlockEvent:FireClient(enemyPlayer, false)
             elseif BlockVFXEvent then
@@ -279,7 +265,7 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
 
         local stunDuration = isFinal and CombatConfig.M1.M1_5StunDuration or CombatConfig.M1.M1StunDuration
         local preserve = isFinal and 0.5 or false
-        StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, info.Key, preserve)
+        StunService:ApplyStun(enemyHumanoid, stunDuration, isFinal, info.Character, preserve)
 
         local enemyDied = enemyHumanoid.Health <= 0
         if (isFinal or enemyDied) and enemyRoot then
