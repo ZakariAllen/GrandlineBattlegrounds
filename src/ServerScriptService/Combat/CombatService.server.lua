@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ActorAdapter = require(ReplicatedStorage.Modules.AI.ActorAdapter)
 
 local M1Service = require(script.Parent.M1Service)
 local comboTimestamps = M1Service.ComboTimestamps
@@ -9,8 +10,11 @@ local CombatRemotes = Remotes:WaitForChild("Combat")
 local M1Event = CombatRemotes:WaitForChild("M1Event")
 local HitConfirmEvent = CombatRemotes:WaitForChild("HitConfirmEvent")
 
-local function cleanup(player)
-    comboTimestamps[player] = nil
+local function cleanup(actor)
+    local char = ActorAdapter.GetCharacter(actor)
+    if char then
+        comboTimestamps[char] = nil
+    end
 end
 
 Players.PlayerRemoving:Connect(cleanup)

@@ -20,21 +20,21 @@ local VFXEvent = combatFolder:WaitForChild("BlockVFX")
 local BlockEvent = combatFolder:WaitForChild("BlockEvent")
 
 -- 🧠 Block state
-local BlockingPlayers = {}    -- [key] = true/false
-local BlockHP = {}            -- [key] = number
-local PerfectBlockTimers = {} -- [key] = tick()
-local BlockCooldowns = {}     -- [key] = time
-local BlockStartup = {}       -- [key] = true
+local BlockingPlayers = {}    -- [char] = true/false
+local BlockHP = {}            -- [char] = number
+local PerfectBlockTimers = {} -- [char] = tick()
+local BlockCooldowns = {}     -- [char] = time
+local BlockStartup = {}       -- [char] = true
 
 -- ✅ Public access
 local function resolve(actor)
        local info = ActorAdapter.Get(actor)
-       return info and info.Key, info
+       return info and info.Character, info
 end
 
 function BlockService.IsBlocking(actor)
-        local key = resolve(actor)
-        return key and BlockingPlayers[key] == true
+       local key = resolve(actor)
+       return key and BlockingPlayers[key] == true
 end
 
 function BlockService.IsInStartup(actor)
@@ -62,9 +62,9 @@ function BlockService.GetBlockBreakStunDuration()
 end
 
 function BlockService.IsOnCooldown(actor)
-        local key = resolve(actor)
-        local t = key and BlockCooldowns[key]
-        return t and tick() < t
+       local key = resolve(actor)
+       local t = key and BlockCooldowns[key]
+       return t and tick() < t
 end
 
 -- 🛡️ Called when player starts blocking
@@ -91,6 +91,8 @@ function BlockService.StartBlocking(actor)
                        if info and info.IsPlayer then
                                OverheadBarService.SetBlockActive(info.Player, true)
                                OverheadBarService.UpdateBlock(info.Player, PlayerStats.BlockHP)
+                       elseif VFXEvent then
+                               VFXEvent:FireAllClients(info.Character, true)
                        end
                end
        end)
@@ -114,13 +116,13 @@ function BlockService.StopBlocking(actor)
        BlockHP[key] = nil
        PerfectBlockTimers[key] = nil
 
+       if VFXEvent then
+               VFXEvent:FireAllClients(info.Player or info.Character, false)
+       end
+       if info and info.IsPlayer and BlockEvent and hadBlock then
+               BlockEvent:FireClient(info.Player, false)
+       end
        if info and info.IsPlayer then
-               if VFXEvent then
-                       VFXEvent:FireAllClients(info.Player, false)
-               end
-               if BlockEvent and hadBlock then
-                       BlockEvent:FireClient(info.Player, false)
-               end
                OverheadBarService.SetBlockActive(info.Player, false)
                OverheadBarService.UpdateBlock(info.Player, 0)
        end
@@ -185,7 +187,7 @@ function BlockService.ApplyBlockDamage(actor, damage, isBlockBreaker, attackerRo
          if info.Player then
                  PersistentStats.RecordBlockedDamage(info.Player, damage, false)
          end
-        if hp <= 0 then
+       if hp <= 0 then
                BlockService.StopBlocking(actor)
                return "Broken"
        else
@@ -198,19 +200,22 @@ function BlockService.ApplyBlockDamage(actor, damage, isBlockBreaker, attackerRo
 end
 
 -- 🧹 Cleanup if player leaves or dies
-local function cleanup(player)
-        BlockService.StopBlocking(player)
-        BlockCooldowns[player] = nil
-        if TekkaiService.IsActive(player) then
-                TekkaiService.Stop(player)
-        end
+local function cleanup(actor)
+       BlockService.StopBlocking(actor)
+       local key = ActorAdapter.GetCharacter(actor)
+       if key then
+               BlockCooldowns[key] = nil
+       end
+       if ActorAdapter.IsPlayer(actor) and TekkaiService.IsActive(actor) then
+               TekkaiService.Stop(actor)
+       end
 end
 
 Players.PlayerRemoving:Connect(cleanup)
 Players.PlayerAdded:Connect(function(player)
-	player.CharacterAdded:Connect(function()
-		cleanup(player)
-	end)
+       player.CharacterAdded:Connect(function()
+               cleanup(player)
+       end)
 end)
 
 return BlockService
