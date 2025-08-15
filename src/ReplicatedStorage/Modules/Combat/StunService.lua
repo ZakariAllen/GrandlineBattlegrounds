@@ -52,7 +52,8 @@ local DEBUG = Config.GameSettings.DebugEnabled
 
 local StunService = {}
 
-local StunnedPlayers = {}
+-- Tables keyed by either Player instances or Humanoids for NPCs
+local StunnedEntities = {}
 local AttackerLockouts = {}
 local HitReservations = {}
 local ActiveAnimations = {}
@@ -60,35 +61,63 @@ local ActiveAnimations = {}
 -- forward declaration for sendStatus so callbacks defined below can reference it
 local sendStatus
 
-local function cleanupPlayer(player)
-    local data = StunnedPlayers[player]
+-- Resolve an arbitrary instance to a key, associated player (if any), and humanoid
+local function resolveEntity(thing)
+    if typeof(thing) ~= "Instance" then return nil, nil, nil end
+    if thing:IsA("Player") then
+        local char = thing.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        return thing, thing, hum
+    end
+    if thing:IsA("Humanoid") then
+        local player = Players:GetPlayerFromCharacter(thing.Parent)
+        if player then
+            return player, player, thing
+        end
+        return thing, nil, thing
+    end
+    local model = thing:IsA("Model") and thing or thing:FindFirstAncestorOfClass("Model")
+    if model then
+        local player = Players:GetPlayerFromCharacter(model)
+        local hum = model:FindFirstChildOfClass("Humanoid")
+        if player then
+            return player, player, hum
+        elseif hum then
+            return hum, nil, hum
+        end
+    end
+    return nil, nil, nil
+end
+
+local function cleanupEntity(key)
+    local data = StunnedEntities[key]
     if data then
         if data.HRP and data.PreserveVelocity then
             data.HRP:SetAttribute("StunPreserveVelocity", nil)
         end
-        StunnedPlayers[player] = nil
+        StunnedEntities[key] = nil
     end
-    AttackerLockouts[player] = nil
-    HitReservations[player] = nil
-    local track = ActiveAnimations[player]
+    AttackerLockouts[key] = nil
+    HitReservations[key] = nil
+    local track = ActiveAnimations[key]
     if track then
         track:Stop()
         track:Destroy()
-        ActiveAnimations[player] = nil
+        ActiveAnimations[key] = nil
     end
 end
 
 if RunService:IsServer() then
-    Players.PlayerRemoving:Connect(cleanupPlayer)
+    Players.PlayerRemoving:Connect(cleanupEntity)
     Players.PlayerAdded:Connect(function(p)
         p.CharacterAdded:Connect(function()
-            cleanupPlayer(p)
+            cleanupEntity(p)
             sendStatus(p)
         end)
     end)
     RunService.Heartbeat:Connect(function()
-        for player, data in pairs(StunnedPlayers) do
-            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        for key, data in pairs(StunnedEntities) do
+            local hum = data.Humanoid
             if hum then
                 hum.WalkSpeed = 0
                 hum.Jump = false
@@ -101,7 +130,8 @@ if RunService:IsServer() then
                     and not hrp:GetAttribute("StunPreserveVelocity") then
                     hrp.AssemblyLinearVelocity = Vector3.new(0, v.Y, 0)
                 elseif DEBUG then
-                    print("[StunService] Preserving velocity for", player.Name)
+                    local name = key and key.Name or tostring(key)
+                    print("[StunService] Preserving velocity for", name)
                 end
                 hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
             end
@@ -112,7 +142,7 @@ end
 sendStatus = function(player)
     if RunService:IsServer() and fetchStunEvent() and player then
         local remainingStun = 0
-        local stunData = StunnedPlayers[player]
+        local stunData = StunnedEntities[player]
         if stunData then
             remainingStun = math.max(0, stunData.EndsAt - tick())
         end
@@ -133,48 +163,50 @@ sendStatus = function(player)
     end
 end
 
-local function getPlayer(thing)
-	if typeof(thing) == "Instance" then
-		if thing:IsA("Player") then return thing end
-		local model = thing:IsA("Model") and thing or thing:FindFirstAncestorOfClass("Model")
-		if model then return Players:GetPlayerFromCharacter(model) end
-	end
-	return nil
+function StunService:IsStunned(entity)
+    local key = resolveEntity(entity)
+    return key ~= nil and StunnedEntities[key] ~= nil
 end
 
-function StunService:IsStunned(player)
-	return StunnedPlayers[player] ~= nil
+function StunService:IsAttackerLocked(entity)
+    local key = resolveEntity(entity)
+    return key ~= nil and AttackerLockouts[key] ~= nil and tick() < AttackerLockouts[key]
 end
 
-function StunService:IsAttackerLocked(player)
-        return AttackerLockouts[player] ~= nil and tick() < AttackerLockouts[player]
-end
-
-function StunService:GetStunRemaining(player)
-    local data = StunnedPlayers[player]
-    if data then
-        return math.max(0, data.EndsAt - tick())
+function StunService:GetStunRemaining(entity)
+    local key = resolveEntity(entity)
+    if key then
+        local data = StunnedEntities[key]
+        if data then
+            return math.max(0, data.EndsAt - tick())
+        end
     end
     return 0
 end
 
-function StunService:GetLockRemaining(player)
-    local endTime = AttackerLockouts[player]
-    if endTime then
-        return math.max(0, endTime - tick())
+function StunService:GetLockRemaining(entity)
+    local key = resolveEntity(entity)
+    if key then
+        local endTime = AttackerLockouts[key]
+        if endTime then
+            return math.max(0, endTime - tick())
+        end
     end
     return 0
 end
 
-function StunService:WasRecentlyHit(targetPlayer)
-	local t = HitReservations[targetPlayer]
-	return t and (tick() - t < 0.1)
+function StunService:WasRecentlyHit(target)
+    local key = resolveEntity(target)
+    local t = key and HitReservations[key]
+    return t and (tick() - t < 0.1)
 end
 
 function StunService:CanBeHitBy(attacker, target)
-        -- Currently all attackers may hit a stunned target
-        if not attacker or not target then return false end
-        return true
+    local atkKey = resolveEntity(attacker)
+    local tgtKey = resolveEntity(target)
+    if not atkKey or not tgtKey then return false end
+    -- Currently all attackers may hit a stunned target
+    return true
 end
 
 --[[@
@@ -190,24 +222,27 @@ end
     the given duration in seconds.
 ]]
 function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity)
-        local targetPlayer = getPlayer(targetHumanoid)
-        local attackerPlayer = getPlayer(attacker)
-        if not targetPlayer or not attackerPlayer then return end
+    local targetKey, targetPlayer, targetHum = resolveEntity(targetHumanoid)
+    local attackerKey, attackerPlayer = resolveEntity(attacker)
+    if not targetKey or not attackerKey or not targetHum then return end
 
     if DEBUG then
-        print("[StunService] ApplyStun", targetPlayer.Name, "duration", duration, "attacker", attackerPlayer.Name)
+        local tName = targetPlayer and targetPlayer.Name or targetHum.Parent and targetHum.Parent.Name
+        local aName = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
+        print("[StunService] ApplyStun", tName, "duration", duration, "attacker", aName)
     end
 
     -- Stop any active dash immediately when stunned
-    DashModule.CancelDash(targetPlayer)
+    if targetPlayer then
+        DashModule.CancelDash(targetPlayer)
+        BlockService.StopBlocking(targetPlayer)
+    end
 
-       BlockService.StopBlocking(targetPlayer)
+    if self:WasRecentlyHit(targetKey) then return end
+    HitReservations[targetKey] = tick()
 
-        if self:WasRecentlyHit(targetPlayer) then return end
-        HitReservations[targetPlayer] = tick()
-
-    local prevWalkSpeed = targetHumanoid.WalkSpeed
-    local prevJumpPower = targetHumanoid.JumpPower
+    local prevWalkSpeed = targetHum.WalkSpeed
+    local prevJumpPower = targetHum.JumpPower
 
     local preserveVelocityDuration
     if typeof(preserveVelocity) == "number" then
@@ -215,7 +250,7 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         preserveVelocity = true
     end
 
-    local existing = StunnedPlayers[targetPlayer]
+    local existing = StunnedEntities[targetKey]
     if existing then
         if existing.Task then
             task.cancel(existing.Task)
@@ -225,22 +260,22 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         end
         prevWalkSpeed = existing.PrevWalkSpeed or prevWalkSpeed
         prevJumpPower = existing.PrevJumpPower or prevJumpPower
-        StunnedPlayers[targetPlayer] = nil
+        StunnedEntities[targetKey] = nil
     end
 
-        if ActiveAnimations[targetPlayer] then
-                ActiveAnimations[targetPlayer]:Stop()
-                ActiveAnimations[targetPlayer]:Destroy()
-                ActiveAnimations[targetPlayer] = nil
+        if ActiveAnimations[targetKey] then
+                ActiveAnimations[targetKey]:Stop()
+                ActiveAnimations[targetKey]:Destroy()
+                ActiveAnimations[targetKey] = nil
         end
 
-    targetHumanoid.WalkSpeed = 0
-    targetHumanoid.JumpPower = 0
-    local hrp = targetHumanoid.Parent and targetHumanoid.Parent:FindFirstChild("HumanoidRootPart")
+    targetHum.WalkSpeed = 0
+    targetHum.JumpPower = 0
+    local hrp = targetHum.Parent and targetHum.Parent:FindFirstChild("HumanoidRootPart")
     local prevAutoRotate
     if hrp then
-        prevAutoRotate = targetHumanoid.AutoRotate
-        targetHumanoid.AutoRotate = false
+        prevAutoRotate = targetHum.AutoRotate
+        targetHum.AutoRotate = false
         -- Clear all momentum on hit so gravity takes over
         hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
         hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
@@ -248,7 +283,7 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
             hrp:SetAttribute("StunPreserveVelocity", true)
             if preserveVelocityDuration then
                 task.delay(preserveVelocityDuration, function()
-                    local data = StunnedPlayers[targetPlayer]
+                    local data = StunnedEntities[targetKey]
                     if data and data.HRP == hrp then
                         hrp:SetAttribute("StunPreserveVelocity", nil)
                         data.PreserveVelocity = false
@@ -272,80 +307,100 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         end
 
         if not skipAnim then
-                local animator = targetHumanoid:FindFirstChildOfClass("Animator")
+                local animator = targetHum:FindFirstChildOfClass("Animator")
                 if animator and stunAnimId then
                         local track = AnimationUtils.PlayAnimation(animator, stunAnimId)
-                        ActiveAnimations[targetPlayer] = track
+                        ActiveAnimations[targetKey] = track
                 end
         end
         local endTime = tick() + duration
         local taskRef
         taskRef = task.delay(duration, function()
-                local data = StunnedPlayers[targetPlayer]
+                local data = StunnedEntities[targetKey]
                 if data and tick() >= data.EndsAt then
-                        StunnedPlayers[targetPlayer] = nil
-                        if data.HRP then
-                                targetHumanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
+                        StunnedEntities[targetKey] = nil
+                        if data.HRP and data.Humanoid then
+                                data.Humanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
                                 if data.PreserveVelocity then
                                         data.HRP:SetAttribute("StunPreserveVelocity", nil)
                                 end
                         end
 
                         if DEBUG then
-                            print("[StunService] Stun ended for", targetPlayer.Name)
+                            local name = targetPlayer and targetPlayer.Name or tostring(targetKey)
+                            print("[StunService] Stun ended for", name)
                         end
 
-                        targetHumanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
-                        targetHumanoid.JumpPower = data.PrevJumpPower or Config.GameSettings.DefaultJumpPower
-
-                        if ActiveAnimations[targetPlayer] then
-                                ActiveAnimations[targetPlayer]:Stop()
-                                ActiveAnimations[targetPlayer]:Destroy()
-                                ActiveAnimations[targetPlayer] = nil
+                        if data.Humanoid then
+                            data.Humanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
+                            data.Humanoid.JumpPower = data.PrevJumpPower or Config.GameSettings.DefaultJumpPower
                         end
-                        sendStatus(targetPlayer)
+
+                        if ActiveAnimations[targetKey] then
+                                ActiveAnimations[targetKey]:Stop()
+                                ActiveAnimations[targetKey]:Destroy()
+                                ActiveAnimations[targetKey] = nil
+                        end
+                        if targetPlayer then
+                            sendStatus(targetPlayer)
+                        end
                 end
         end)
-
-        StunnedPlayers[targetPlayer] = {
+        StunnedEntities[targetKey] = {
             EndsAt = endTime,
             HRP = hrp,
+            Humanoid = targetHum,
             PrevAutoRotate = prevAutoRotate,
             PreserveVelocity = preserveVelocity,
             PrevWalkSpeed = prevWalkSpeed,
             PrevJumpPower = prevJumpPower,
             Task = taskRef,
         }
-        sendStatus(targetPlayer)
+        if targetPlayer then
+            sendStatus(targetPlayer)
+        end
 
         local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
         local unlockTime = tick() + lockoutDuration
-        AttackerLockouts[attackerPlayer] = unlockTime
+        AttackerLockouts[attackerKey] = unlockTime
         if DEBUG then
-            print("[StunService] Locking attacker", attackerPlayer.Name, "for", lockoutDuration)
+            local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
+            print("[StunService] Locking attacker", name, "for", lockoutDuration)
         end
-        sendStatus(attackerPlayer)
+        if attackerPlayer then
+            sendStatus(attackerPlayer)
+        end
 
         task.delay(lockoutDuration, function()
-                if AttackerLockouts[attackerPlayer] and tick() >= unlockTime then
-                        AttackerLockouts[attackerPlayer] = nil
+                if AttackerLockouts[attackerKey] and tick() >= unlockTime then
+                        AttackerLockouts[attackerKey] = nil
                         if DEBUG then
-                            print("[StunService] Attacker lock ended for", attackerPlayer.Name)
+                            local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
+                            print("[StunService] Attacker lock ended for", name)
                         end
-                        sendStatus(attackerPlayer)
+                        if attackerPlayer then
+                            sendStatus(attackerPlayer)
+                        end
                 end
         end)
+
+        if not targetPlayer then
+            targetHum.Destroying:Connect(function()
+                cleanupEntity(targetKey)
+            end)
+        end
 end
 
-function StunService.ClearStun(player)
-    local data = StunnedPlayers[player]
+function StunService.ClearStun(entity)
+    local key = resolveEntity(entity)
+    local data = key and StunnedEntities[key]
     if data then
         if data.Task then
             task.cancel(data.Task)
         end
-        StunnedPlayers[player] = nil
+        StunnedEntities[key] = nil
 
-        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        local humanoid = data.Humanoid
         if humanoid then
             humanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
             humanoid.WalkSpeed = data.PrevWalkSpeed or Config.GameSettings.DefaultWalkSpeed
@@ -354,26 +409,35 @@ function StunService.ClearStun(player)
         if data.HRP and data.PreserveVelocity then
             data.HRP:SetAttribute("StunPreserveVelocity", nil)
         end
-        local track = ActiveAnimations[player]
+        local track = ActiveAnimations[key]
         if track then
             track:Stop()
             track:Destroy()
-            ActiveAnimations[player] = nil
+            ActiveAnimations[key] = nil
         end
-        sendStatus(player)
+        local _, player = resolveEntity(entity)
+        if player then
+            sendStatus(player)
+        end
     end
 end
 
-function StunService.LockAttacker(player, duration)
+function StunService.LockAttacker(entity, duration)
     if not RunService:IsServer() then return end
+    local key, player = resolveEntity(entity)
+    if not key then return end
     duration = duration or (Config.GameSettings.AttackerLockoutDuration or 0.5)
     local unlockTime = tick() + duration
-    AttackerLockouts[player] = unlockTime
-    sendStatus(player)
+    AttackerLockouts[key] = unlockTime
+    if player then
+        sendStatus(player)
+    end
     task.delay(duration, function()
-        if AttackerLockouts[player] and tick() >= unlockTime then
-            AttackerLockouts[player] = nil
-            sendStatus(player)
+        if AttackerLockouts[key] and tick() >= unlockTime then
+            AttackerLockouts[key] = nil
+            if player then
+                sendStatus(player)
+            end
         end
     end)
 end
