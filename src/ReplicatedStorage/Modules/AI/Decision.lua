@@ -1,41 +1,46 @@
---[[
-    Decision.lua
-    Very small utility based decision system. Scores a few candidate actions and
-    returns a list ordered by desirability. This is a greatly simplified variant
-    of the design outlined in project docs but keeps the same public surface.
-]]
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AIConfig = require(ReplicatedStorage.Modules.Config.AIConfig)
+--ReplicatedStorage.Modules.AI.Decision
+-- Simple utility-based decision maker.
 
 local Decision = {}
 
--- Computes a set of desired actions for the NPC
--- @param npc Model
--- @param blackboard Blackboard
--- @return table of action strings
-function Decision.Tick(npc, blackboard)
-    local actions = {}
-    local level = blackboard.ArchetypeLevel or 1
-    local levelCfg = AIConfig.Levels[level] or AIConfig.Levels[1]
-    local dist = blackboard.DistanceBand
+-- Evaluates current state and queues actions.
+-- @param model Model NPC
+-- @param bb Blackboard
+-- @param queue ActionQueue
+function Decision.Tick(model, bb, queue)
+    local target = bb.Target
+    if not target then
+        return
+    end
+    local hrp = model:FindFirstChild("HumanoidRootPart")
+    local targetRoot = target:FindFirstChild("HumanoidRootPart")
+    if not hrp or not targetRoot then
+        return
+    end
+    local dist = (targetRoot.Position - hrp.Position).Magnitude
+    bb.TargetDistance = dist
 
-    if dist == "Ideal" then
-        table.insert(actions, "PressM1")
-    elseif dist == "Long" then
-        table.insert(actions, "DashIn")
-    else -- TooClose
-        if level >= 2 then
-            table.insert(actions, "DashOut")
-        end
+    local hum = model:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum:MoveTo(targetRoot.Position)
     end
 
-    if level >= 2 and not blackboard.Beliefs.IsBlocking then
-        if math.random() < levelCfg.DashDefense then
-            table.insert(actions, "StartBlock")
-        end
+    -- L1: only basic M1 when close
+    if dist <= 8 then
+        queue:PressM1()
     end
 
-    return actions
+    -- L2+: occasional blocking or dash back
+    if bb.Level >= 2 then
+        local cfg = bb.Config
+        if dist <= 10 and math.random() < (cfg.DashDefense or 0) then
+            queue:Dash("Backward")
+        elseif not bb.IsBlocking and math.random() < 0.1 then
+            queue:StartBlock()
+        elseif bb.IsBlocking and math.random() < 0.05 then
+            queue:ReleaseBlock()
+        end
+    end
 end
 
 return Decision

@@ -222,10 +222,7 @@ HitConfirmEvent.OnServerEvent:Connect(function(player, targetPlayers, comboIndex
                         continue
                 end
 
-               local blockResult
-               if enemyPlayer then
-                       blockResult = BlockService.ApplyBlockDamage(enemyPlayer, damage, false, hrp)
-               end
+               local blockResult = BlockService.ApplyBlockDamage(target.Key, damage, false, hrp)
                if blockResult == "Perfect" then
                         blockHit = true
                         StunService:ApplyStun(humanoid, BlockService.GetPerfectBlockStunDuration(), AnimationData.Stun.PerfectBlock, player)
