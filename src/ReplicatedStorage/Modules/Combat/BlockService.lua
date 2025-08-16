@@ -91,22 +91,23 @@ function BlockService.StartBlocking(actor)
                return false
        end
 
-       BlockStartup[key] = true
-       local startup = CombatConfig.Blocking.StartupTime or 0.1
-       task.delay(startup, function()
-               if BlockStartup[key] then
-                       BlockStartup[key] = nil
-                       BlockHP[key] = PlayerStats.BlockHP
-                       BlockingPlayers[key] = true
-                       PerfectBlockTimers[key] = tick()
-                       if info and info.IsPlayer then
-                               OverheadBarService.SetBlockActive(info.Player, true)
-                               OverheadBarService.UpdateBlock(info.Player, PlayerStats.BlockHP)
-                       elseif VFXEvent then
-                               VFXEvent:FireAllClients(info.Character, true)
-                       end
-               end
-       end)
+		BlockStartup[key] = true
+		local startup = CombatConfig.Blocking.StartupTime or 0.1
+		task.delay(startup, function()
+			if BlockStartup[key] then
+				BlockStartup[key] = nil
+				BlockHP[key] = PlayerStats.BlockHP
+				BlockingPlayers[key] = true
+				PerfectBlockTimers[key] = tick()
+				if info and info.IsPlayer then
+					OverheadBarService.SetBlockActive(info.Player, true)
+					OverheadBarService.UpdateBlock(info.Player, PlayerStats.BlockHP)
+				end
+				if VFXEvent then
+					VFXEvent:FireAllClients(info.Player or info.Character, true)
+				end
+			end
+		end)
        return true
 end
 
