@@ -7,6 +7,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Debris = game:GetService("Debris")
 
+local player = Players.LocalPlayer
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PowerPunchStart")
 local HitEvent = CombatRemotes:WaitForChild("PowerPunchHit")
@@ -45,13 +46,7 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 local function getCharacter()
-    local player = Players.LocalPlayer
     local char = player.Character
     if not char then return nil end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -168,7 +163,7 @@ end
 
 VFXEvent.OnClientEvent:Connect(function(punchActor)
     local char = resolveChar(punchActor)
-    if not char then return end
+    if not char or char == player.Character then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
         playVFX(hrp)

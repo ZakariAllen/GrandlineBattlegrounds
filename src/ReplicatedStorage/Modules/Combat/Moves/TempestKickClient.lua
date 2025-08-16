@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
+local player = Players.LocalPlayer
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("TempestKickStart")
 local HitEvent = CombatRemotes:WaitForChild("TempestKickHit")
@@ -45,13 +46,7 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 local function getCharacter()
-    local player = Players.LocalPlayer
     local char = player.Character
     if not char then return nil end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -149,7 +144,7 @@ end
 -- Play VFX for other actors when the server notifies us
 VFXEvent.OnClientEvent:Connect(function(kickActor, startCF)
     local char = resolveChar(kickActor)
-    if not char or char == Players.LocalPlayer.Character then return end
+    if not char or char == player.Character then return end
     if typeof(startCF) ~= "CFrame" then return end
 
     local hitbox = HitboxClient.CastHitbox(

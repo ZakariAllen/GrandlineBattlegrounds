@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
+local player = Players.LocalPlayer
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local StartEvent = CombatRemotes:WaitForChild("PartyTableKickStart")
 local HitEvent = CombatRemotes:WaitForChild("PartyTableKickHit")
@@ -49,13 +50,7 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 local function getCharacter()
-    local player = Players.LocalPlayer
     local char = player.Character
     if not char then return nil end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -220,9 +215,8 @@ function PartyTableKick.OnInputEnded(input)
 end
 
 VFXEvent.OnClientEvent:Connect(function(kickActor)
-    if kickActor == Players.LocalPlayer then return end
     local char = resolveChar(kickActor)
-    if not char then return end
+    if not char or char == player.Character then return end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
         PartyTableKickVFX.Create(hrp)
