@@ -14,9 +14,7 @@ local function resolve(actor)
         return info.Character, info.Humanoid, info.StyleKey
 end
 
--- Called when a dash is requested. Works for players or NPC models.
--- styleKey specifies the equipped combat style, e.g. "Rokushiki".
-function DashModule.ExecuteDash(actor, direction, dashVector, styleKey)
+local function execute(actor, direction, dashVector, styleKey)
         local key, humanoid, resolvedStyle = resolve(actor)
         if not key then
                 return
@@ -54,9 +52,14 @@ function DashModule.ExecuteDash(actor, direction, dashVector, styleKey)
         end)
 end
 
--- Backwards compatibility wrapper for old NPC API
+-- Called when a player requests a dash.
+function DashModule.ExecuteDash(player, direction, dashVector, styleKey)
+        execute(player, direction, dashVector, styleKey)
+end
+
+-- Mirrors ExecuteDash but accepts an NPC model.
 function DashModule.ExecuteDashForModel(model, direction, dashVector, styleKey)
-        DashModule.ExecuteDash(model, direction, dashVector, styleKey)
+        execute(model, direction, dashVector, styleKey)
 end
 
 -- Helper to check dash state

@@ -224,10 +224,28 @@ end
     moving while stunned. If a number is supplied, velocity is preserved only for
     the given duration in seconds.
 ]]
-function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, preserveVelocity, isGuardBreak)
+function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, preserveVelocity, isGuardBreak)
     local targetKey, targetPlayer, targetHum = resolveEntity(targetHumanoid)
-    local attackerKey, attackerPlayer = resolveEntity(attacker)
-    if not targetKey or not attackerKey or not targetHum then return end
+    if not targetKey or not targetHum then return end
+
+    local attackerKey, attackerPlayer
+    if attacker ~= nil then
+        attackerKey, attackerPlayer = resolveEntity(attacker)
+    end
+
+    -- Support new API format: ApplyStun(actor, duration, guardBroken?)
+    local skipAnim = false
+    local stunAnimId
+    local guardBroken = isGuardBreak
+    if attacker == nil and preserveVelocity == nil and isGuardBreak == nil then
+        guardBroken = param3
+    else
+        if typeof(param3) == "boolean" then
+            skipAnim = param3
+        elseif typeof(param3) == "string" or typeof(param3) == "number" then
+            stunAnimId = param3
+        end
+    end
 
     if DEBUG then
         local tName = targetPlayer and targetPlayer.Name or targetHum.Parent and targetHum.Parent.Name
@@ -294,13 +312,6 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
         end
     end
 
-        local skipAnim = false
-        local stunAnimId
-        if typeof(animOrSkip) == "boolean" then
-                skipAnim = animOrSkip
-        elseif typeof(animOrSkip) == "string" or typeof(animOrSkip) == "number" then
-                stunAnimId = animOrSkip
-        end
         stunAnimId = stunAnimId or CombatAnimations.Stun.Default
 
         if hrp and hrp:GetAttribute("Ragdolled") then
@@ -326,8 +337,8 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
                                         data.HRP:SetAttribute("StunPreserveVelocity", nil)
                                 end
                         end
-                        if StunChangedEvent then
-                                StunChangedEvent:FireAllClients(targetHum.Parent, false, false, tick())
+                        if StunChangedEvent and targetPlayer then
+                                StunChangedEvent:FireClient(targetPlayer, false, false, tick())
                         end
 
                         if DEBUG then
@@ -359,38 +370,40 @@ function StunService:ApplyStun(targetHumanoid, duration, animOrSkip, attacker, p
             PrevWalkSpeed = prevWalkSpeed,
             PrevJumpPower = prevJumpPower,
             Task = taskRef,
-            GuardBroken = isGuardBreak or false,
+            GuardBroken = guardBroken or false,
         }
-        if StunChangedEvent then
-            StunChangedEvent:FireAllClients(targetHum.Parent, true, isGuardBreak or false, endTime)
+        if StunChangedEvent and targetPlayer then
+            StunChangedEvent:FireClient(targetPlayer, true, guardBroken or false, endTime)
         end
         if targetPlayer then
             sendStatus(targetPlayer)
         end
 
-        local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
-        local unlockTime = tick() + lockoutDuration
-        AttackerLockouts[attackerKey] = unlockTime
-        if DEBUG then
-            local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
-            print("[StunService] Locking attacker", name, "for", lockoutDuration)
-        end
-        if attackerPlayer then
-            sendStatus(attackerPlayer)
-        end
+        if attackerKey then
+            local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
+            local unlockTime = tick() + lockoutDuration
+            AttackerLockouts[attackerKey] = unlockTime
+            if DEBUG then
+                local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
+                print("[StunService] Locking attacker", name, "for", lockoutDuration)
+            end
+            if attackerPlayer then
+                sendStatus(attackerPlayer)
+            end
 
-        task.delay(lockoutDuration, function()
-                if AttackerLockouts[attackerKey] and tick() >= unlockTime then
-                        AttackerLockouts[attackerKey] = nil
-                        if DEBUG then
-                            local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
-                            print("[StunService] Attacker lock ended for", name)
-                        end
-                        if attackerPlayer then
-                            sendStatus(attackerPlayer)
-                        end
-                end
-        end)
+            task.delay(lockoutDuration, function()
+                    if AttackerLockouts[attackerKey] and tick() >= unlockTime then
+                            AttackerLockouts[attackerKey] = nil
+                            if DEBUG then
+                                local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
+                                print("[StunService] Attacker lock ended for", name)
+                            end
+                            if attackerPlayer then
+                                sendStatus(attackerPlayer)
+                            end
+                    end
+            end)
+        end
 
         if not targetPlayer then
             targetHum.Destroying:Connect(function()
@@ -424,8 +437,8 @@ function StunService.ClearStun(entity)
             ActiveAnimations[key] = nil
         end
         local _, player = resolveEntity(entity)
-        if StunChangedEvent and data.Humanoid then
-            StunChangedEvent:FireAllClients(data.Humanoid.Parent, false, false, tick())
+        if StunChangedEvent and player and data.Humanoid then
+            StunChangedEvent:FireClient(player, false, false, tick())
         end
         if player then
             sendStatus(player)
@@ -433,7 +446,7 @@ function StunService.ClearStun(entity)
     end
 end
 
-function StunService.LockAttacker(entity, duration)
+function StunService.LockFor(entity, duration)
     if not RunService:IsServer() then return end
     local key, player = resolveEntity(entity)
     if not key then return end
@@ -452,5 +465,7 @@ function StunService.LockAttacker(entity, duration)
         end
     end)
 end
+
+StunService.LockAttacker = StunService.LockFor
 
 return StunService
