@@ -5,20 +5,17 @@
 local ActorAdapter = {}
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
-
 -- Resolves the equipped style based on an attribute or equipped tool
 local function resolveStyle(char)
     if not char then
         return "BasicCombat"
     end
     local style = char:GetAttribute("StyleKey")
-    if style and ToolConfig.ValidCombatTools[style] then
+    if typeof(style) == "string" and style ~= "" then
         return style
     end
     local tool = char:FindFirstChildOfClass("Tool")
-    if tool and ToolConfig.ValidCombatTools[tool.Name] then
+    if tool then
         return tool.Name
     end
     return "BasicCombat"

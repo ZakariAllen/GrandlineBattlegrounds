@@ -53,6 +53,17 @@ function BlockService.GetBlockHP(actor)
        return BlockHP[key] or PlayerStats.BlockHP
 end
 
+function BlockService.SetBlockHP(actor, value)
+       local key, info = resolve(actor)
+       if not key then
+               return
+       end
+       BlockHP[key] = value
+       if info and info.IsPlayer then
+               OverheadBarService.UpdateBlock(info.Player, value)
+       end
+end
+
 function BlockService.GetPerfectBlockStunDuration()
 	return CombatConfig.Blocking.PerfectBlockStunDuration or 6
 end
