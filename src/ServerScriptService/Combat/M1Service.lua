@@ -16,11 +16,6 @@ local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local StunService = require(ReplicatedStorage.Modules.Combat.StunService)
 local RagdollKnockback = require(ReplicatedStorage.Modules.Combat.RagdollKnockback)
 
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-local CombatFolder = Remotes:WaitForChild("Combat")
-local BlockEvent = CombatFolder:WaitForChild("BlockEvent")
-local BlockVFXEvent = CombatFolder:WaitForChild("BlockVFX")
-
 local M1Service = {}
 
 -- Track combo windows per character
@@ -197,15 +192,10 @@ function M1Service.ProcessM1HitConfirm(attacker, targetPlayers, comboIndex, isFi
         local hum = tInfo.Humanoid
         if hum and hum.Health > 0 and not wasDebounced(attackerChar, character, comboIndex) then
             setDebounce(attackerChar, character, comboIndex)
-            if BlockService.IsBlocking(character) then
+            if BlockService.IsBlocking(character) and not StunService:IsGuardBroken(character) then
                 local result = BlockService.ApplyBlockDamage(character, damage, false, attackerRoot)
                 if result == "Broken" then
                     StunService:ApplyStun(hum, BlockService.GetBlockBreakStunDuration(), nil, attackerChar, nil, true)
-                    if tInfo.Player then
-                        BlockEvent:FireClient(tInfo.Player, false)
-                    else
-                        BlockVFXEvent:FireAllClients(character, false)
-                    end
                 elseif result == "Perfect" then
                     StunService:ApplyStun(attackerHum, BlockService.GetPerfectBlockStunDuration(), nil, character)
                 end
