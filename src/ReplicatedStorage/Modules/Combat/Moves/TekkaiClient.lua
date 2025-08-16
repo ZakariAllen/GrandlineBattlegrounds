@@ -5,6 +5,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
+local player = Players.LocalPlayer
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
 local TekkaiEvent = CombatRemotes:WaitForChild("TekkaiEvent")
 
@@ -38,13 +39,7 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 local function getCharacter()
-    local player = Players.LocalPlayer
     local char = player.Character
     if not char then return nil end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -64,9 +59,9 @@ local function playAnimation(animator, animId)
 end
 
 TekkaiEvent.OnClientEvent:Connect(function(tekkaiActor, state)
-    if tekkaiActor ~= Players.LocalPlayer then return end
+    if typeof(state) ~= "boolean" then return end
     local char = resolveChar(tekkaiActor)
-    if not char then return end
+    if not char or char ~= player.Character then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
     if not humanoid then return end

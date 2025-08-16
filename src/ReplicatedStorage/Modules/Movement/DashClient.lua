@@ -37,11 +37,6 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 -- Immediately stop any active dash and clear velocity
 function DashClient.CancelDash()
     if dashConn then
@@ -279,11 +274,10 @@ end
 
 -- Play dash VFX/SFX when another player dashes
 DashEvent.OnClientEvent:Connect(function(dashActor, direction, styleKey)
-       if dashActor == player then return end
        if typeof(direction) ~= "string" then return end
 
        local char = resolveChar(dashActor)
-       if not char then return end
+       if not char or char == player.Character then return end
        local hrp = char:FindFirstChild("HumanoidRootPart")
        if not hrp then return end
 

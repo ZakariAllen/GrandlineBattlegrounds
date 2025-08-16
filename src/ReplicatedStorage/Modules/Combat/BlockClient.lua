@@ -46,11 +46,6 @@ local function resolveChar(actor)
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
 -- Plays the block hold animation. When skipVFX is true the visual effect is not
 -- spawned yet, allowing us to wait for server confirmation before showing it.
 local function playBlockAnimation(skipVFX)
@@ -113,41 +108,39 @@ end)
 
 -- Show or hide block VFX for other actors
 BlockVFXEvent.OnClientEvent:Connect(function(blockActor, active)
-       if blockActor == player then return end
        if typeof(active) ~= "boolean" then return end
 
        local char = resolveChar(blockActor)
-       if not char then return end
+       if not char or char == player.Character then return end
        local hrp = char:FindFirstChild("HumanoidRootPart")
-       local key = charKey(blockActor)
-       local vfx = otherVFX[key]
+       local vfx = otherVFX[char]
 
        if active then
                if hrp and not vfx then
                        vfx = BlockVFX.Create(hrp)
-                       otherVFX[key] = vfx
+                       otherVFX[char] = vfx
                        char.AncestryChanged:Once(function(_, parent)
                                if parent == nil then
-                                       local vv = otherVFX[key]
+                                       local vv = otherVFX[char]
                                        if vv then BlockVFX.Remove(vv) end
-                                       otherVFX[key] = nil
+                                       otherVFX[char] = nil
                                end
                        end)
                end
        else
                if vfx then
                        BlockVFX.Remove(vfx)
-                       otherVFX[key] = nil
+                       otherVFX[char] = nil
                end
        end
 end)
 
 -- Clean up VFX if another player leaves the game
 Players.PlayerRemoving:Connect(function(leftPlayer)
-       local k = resolveChar(leftPlayer)
-       if k and otherVFX[k] then
-               BlockVFX.Remove(otherVFX[k])
-               otherVFX[k] = nil
+       local ch = resolveChar(leftPlayer)
+       if ch and otherVFX[ch] then
+               BlockVFX.Remove(otherVFX[ch])
+               otherVFX[ch] = nil
        end
 end)
 

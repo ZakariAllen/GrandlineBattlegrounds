@@ -29,54 +29,45 @@ local addedTextures = {}
 
 local function resolveChar(actor)
        if typeof(actor) ~= "Instance" then return nil end
-       if actor:IsA("Player") then
-               return actor.Character
-       elseif actor:IsA("Model") then
-               return actor
-       elseif actor:IsA("Humanoid") then
-               return actor.Parent
-       end
+       if actor:IsA("Player") then return actor.Character end
+       if actor:IsA("Model") then return actor end
+       if actor:IsA("Humanoid") then return actor.Parent end
        return nil
 end
 
-local function charKey(actor)
-       local c = resolveChar(actor)
-       return c
-end
-
-local function applyColor(char, style, hakiPlayer)
+local function applyColor(char, style)
     local names
     if style == "BlackLeg" then
         names = {"LeftFoot","LeftLowerLeg","RightFoot","RightLowerLeg"}
     else
         names = {"LeftHand","LeftLowerArm","RightHand","RightLowerArm"}
     end
-    coloredParts[hakiPlayer] = {}
-    originalColors[hakiPlayer] = {}
+    coloredParts[char] = {}
+    originalColors[char] = {}
     for _, partName in ipairs(names) do
         local part = char:FindFirstChild(partName)
         if part and part:IsA("BasePart") then
-            originalColors[hakiPlayer][part] = part.Color
-            table.insert(coloredParts[hakiPlayer], part)
+            originalColors[char][part] = part.Color
+            table.insert(coloredParts[char], part)
             part.Color = Color3.new(0,0,0)
         end
     end
 end
 
-local function clearColor(hakiPlayer)
-    for _, part in ipairs(coloredParts[hakiPlayer] or {}) do
-        local col = originalColors[hakiPlayer] and originalColors[hakiPlayer][part]
+local function clearColor(char)
+    for _, part in ipairs(coloredParts[char] or {}) do
+        local col = originalColors[char] and originalColors[char][part]
         if part and col then
             part.Color = col
         end
     end
-    coloredParts[hakiPlayer] = nil
-    originalColors[hakiPlayer] = nil
+    coloredParts[char] = nil
+    originalColors[char] = nil
 end
 
-local function applyTextures(char, hakiPlayer)
+local function applyTextures(char)
     if not hakiTemplate then return end
-    addedTextures[hakiPlayer] = {}
+    addedTextures[char] = {}
     for _, src in ipairs(hakiTemplate:GetDescendants()) do
         if src:IsA("BasePart") then
             local target = char:FindFirstChild(src.Name)
@@ -85,7 +76,7 @@ local function applyTextures(char, hakiPlayer)
                     if child:IsA("Texture") or child:IsA("Decal") or child:IsA("SurfaceAppearance") then
                         local clone = child:Clone()
                         clone.Parent = target
-                        table.insert(addedTextures[hakiPlayer], clone)
+                        table.insert(addedTextures[char], clone)
                     end
                 end
             end
@@ -93,13 +84,13 @@ local function applyTextures(char, hakiPlayer)
     end
 end
 
-local function clearTextures(hakiPlayer)
-    for _, obj in ipairs(addedTextures[hakiPlayer] or {}) do
+local function clearTextures(char)
+    for _, obj in ipairs(addedTextures[char] or {}) do
         if obj and obj.Parent then
             obj:Destroy()
         end
     end
-    addedTextures[hakiPlayer] = nil
+    addedTextures[char] = nil
 end
 
 HakiEvent.OnClientEvent:Connect(function(hakiActor, state)
@@ -108,7 +99,7 @@ HakiEvent.OnClientEvent:Connect(function(hakiActor, state)
     local char = resolveChar(hakiActor)
     if not char then return end
 
-    active[hakiActor] = state
+    active[char] = state
 
     if state then
         local style
@@ -118,8 +109,8 @@ HakiEvent.OnClientEvent:Connect(function(hakiActor, state)
             local tool = char and char:FindFirstChildOfClass("Tool")
             style = tool and tool.Name
         end
-        applyColor(char, style, hakiActor)
-        applyTextures(char, hakiActor)
+        applyColor(char, style)
+        applyTextures(char)
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if hrp then
             local soundId = SoundConfig.Haki and SoundConfig.Haki.Activate
@@ -127,9 +118,16 @@ HakiEvent.OnClientEvent:Connect(function(hakiActor, state)
                 SoundUtils:PlaySpatialSound(soundId, hrp)
             end
         end
+        char.AncestryChanged:Once(function(_, parent)
+            if parent == nil then
+                clearColor(char)
+                clearTextures(char)
+                active[char] = nil
+            end
+        end)
     else
-        clearColor(hakiActor)
-        clearTextures(hakiActor)
+        clearColor(char)
+        clearTextures(char)
     end
 end)
 
@@ -139,7 +137,9 @@ function HakiClient.OnInputBegan(input, gp)
     if input.KeyCode ~= KEY then return end
 
     if HakiService.GetHaki(player) <= 0 then return end
-    local newState = not active[player]
+    local char = resolveChar(player)
+    if not char then return end
+    local newState = not active[char]
     HakiEvent:FireServer(newState)
     MoveListManager.StartCooldown(KEY.Name, TOGGLE_COOLDOWN)
 end
