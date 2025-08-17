@@ -9,6 +9,7 @@ local M1Service = require(game.ServerScriptService.Combat.M1Service)
 local BlockService = require(ReplicatedStorage.Modules.Combat.BlockService)
 local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 local ActorAdapter = require(ReplicatedStorage.Modules.AI.ActorAdapter)
+local CombatAnimations = require(ReplicatedStorage.Modules.Animations.Combat)
 
 local ActionQueue = {}
 ActionQueue.__index = ActionQueue
@@ -35,8 +36,33 @@ end
 function ActionQueue:PressM1()
     schedule(self, function()
         self.ComboStep += 1
-        M1Service.ProcessM1Request(self.Model, {step = self.ComboStep})
-        if self.ComboStep >= CombatConfig.M1.ComboHits then
+        local comboIndex = self.ComboStep
+
+        local info = ActorAdapter.Get(self.Model)
+        if info and info.Humanoid then
+            local style = info.StyleKey or "BasicCombat"
+            local animSet = CombatAnimations.M1[style]
+            if animSet and animSet.Combo then
+                local animId = animSet.Combo[comboIndex]
+                if animId then
+                    local animator = info.Humanoid:FindFirstChildOfClass("Animator")
+                    if animator then
+                        local animation = Instance.new("Animation")
+                        animation.AnimationId = animId
+                        local track = animator:LoadAnimation(animation)
+                        track.Looped = false
+                        track.Priority = Enum.AnimationPriority.Action
+                        track:Play()
+                    end
+                end
+            end
+        end
+
+        task.delay(CombatConfig.M1.HitDelay or 0.15, function()
+            M1Service.ApplyHit(self.Model, comboIndex)
+        end)
+
+        if comboIndex >= CombatConfig.M1.ComboHits then
             self.ComboStep = 0
         end
     end)
