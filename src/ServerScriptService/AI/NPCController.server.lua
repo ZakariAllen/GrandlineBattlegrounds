@@ -7,6 +7,8 @@ local Workspace = game:GetService("Workspace")
 
 local AIConfig = require(ReplicatedStorage.Modules.Config.AIConfig)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
+local Config = require(ReplicatedStorage.Modules.Config.Config)
+local MovementAnimations = require(ReplicatedStorage.Modules.Animations.Movement)
 local Blackboard = require(ReplicatedStorage.Modules.AI.Blackboard)
 local Perception = require(ReplicatedStorage.Modules.AI.Perception)
 local Decision = require(ReplicatedStorage.Modules.AI.Decision)
@@ -47,12 +49,53 @@ local function bindNPC(model)
         return
     end
 
+    local animator = hum:FindFirstChildOfClass("Animator")
+    if not animator then
+        animator = Instance.new("Animator")
+        animator.Parent = hum
+    end
+
+    local animateScript = model:FindFirstChild("Animate")
+    if animateScript then
+        animateScript:Destroy()
+    end
+
+    hum.WalkSpeed = Config.GameSettings.DefaultWalkSpeed or 10
+
     local styleKey = styleKeys[math.random(1, #styleKeys)] or "BasicCombat"
     model:SetAttribute("StyleKey", styleKey)
     createTool(model, styleKey)
 
     local bb = Blackboard.new(n, AIConfig.Levels[n])
     local queue = ActionQueue.new(model, bb)
+
+    local animCache = {}
+    local currentTrack
+    local currentState
+
+    local function playState(state, animId)
+        if currentState == state then
+            return
+        end
+        currentState = state
+        if currentTrack then
+            currentTrack:Stop(0.15)
+        end
+        if not animId then
+            currentTrack = nil
+            return
+        end
+        local anim = animCache[animId]
+        if not anim then
+            anim = Instance.new("Animation")
+            anim.AnimationId = animId
+            animCache[animId] = anim
+        end
+        currentTrack = animator:LoadAnimation(anim)
+        currentTrack.Priority = Enum.AnimationPriority.Movement
+        currentTrack.Looped = true
+        currentTrack:Play(0.15)
+    end
 
     local running = true
     task.spawn(function()
@@ -71,8 +114,45 @@ local function bindNPC(model)
         end
     end)
 
+    task.spawn(function()
+        local defaultWalk = Config.GameSettings.DefaultWalkSpeed or 10
+        local sprintSpeed = Config.GameSettings.DefaultSprintSpeed or 20
+        while running and model.Parent do
+            local engaged = bb.Target ~= nil
+            hum.WalkSpeed = engaged and sprintSpeed or defaultWalk
+
+            local state
+            if hum.MoveDirection.Magnitude < 0.05 then
+                state = "Idle"
+            elseif hum.WalkSpeed >= sprintSpeed then
+                state = "Sprint"
+            else
+                state = "Walk"
+            end
+
+            if state == "Idle" then
+                playState(state, MovementAnimations.Idle)
+            elseif state == "Sprint" then
+                playState(state, MovementAnimations.Sprint)
+            else
+                playState(state, MovementAnimations.Run or MovementAnimations.Walk)
+            end
+
+            task.wait(0.1)
+        end
+
+        if currentTrack then
+            currentTrack:Stop(0.15)
+            currentTrack = nil
+        end
+    end)
+
     local function cleanup()
         running = false
+        if currentTrack then
+            currentTrack:Stop(0.15)
+            currentTrack = nil
+        end
     end
 
     hum.Died:Connect(cleanup)
