@@ -2,6 +2,7 @@
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local StunStatusClient = require(ReplicatedStorage.Modules.Combat.StunStatusClient)
 
@@ -48,14 +49,14 @@ RunService.Heartbeat:Connect(function()
     end
 
 	-- Reset invalid physics states on delay
-        if tick() - lastCorrection >= CORRECTION_DELAY then
+        if Time.now() - lastCorrection >= CORRECTION_DELAY then
                 local state = humanoid:GetState()
                 local knockback = hrp:GetAttribute("KnockbackActive") or hrp:GetAttribute("Ragdolled")
                 if not knockback and (state == Enum.HumanoidStateType.Ragdoll
                         or state == Enum.HumanoidStateType.FallingDown
                         or state == Enum.HumanoidStateType.PlatformStanding) then
                         humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
-                        lastCorrection = tick()
+                        lastCorrection = Time.now()
                 end
         end
 

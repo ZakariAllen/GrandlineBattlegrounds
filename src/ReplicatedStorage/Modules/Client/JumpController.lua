@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 local BlockClient = require(ReplicatedStorage.Modules.Combat.BlockClient)
@@ -36,7 +37,7 @@ end
 -- ⏱ Begin jump cooldown
 function JumpController.StartCooldown(duration)
 	local time = duration or JUMP_COOLDOWN
-	jumpBlockedUntil = tick() + time
+	jumpBlockedUntil = Time.now() + time
 	if DEBUG then print("[JumpController] Jump cooldown started:", time, "s") end
 
         if cooldownTask then
@@ -46,7 +47,7 @@ function JumpController.StartCooldown(duration)
 
         blockJump()
         cooldownTask = task.delay(time, function()
-                if tick() >= jumpBlockedUntil then
+                if Time.now() >= jumpBlockedUntil then
                         restoreJump()
                         cooldownTask = nil
                 end
@@ -60,8 +61,8 @@ local function onJumpRequest()
                 blockJump()
                 return
         end
-        if tick() < jumpBlockedUntil then
-                if DEBUG then print("[JumpController] Jump blocked. Time left:", jumpBlockedUntil - tick()) end
+        if Time.now() < jumpBlockedUntil then
+                if DEBUG then print("[JumpController] Jump blocked. Time left:", jumpBlockedUntil - Time.now()) end
                 blockJump()
         else
                 humanoid:ChangeState(Enum.HumanoidStateType.Jumping)

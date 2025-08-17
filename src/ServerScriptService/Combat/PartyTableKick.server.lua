@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
@@ -99,7 +100,7 @@ StartEvent.OnServerEvent:Connect(function(player)
         return
     end
     StaminaService.PauseRegen(player)
-    activeDrain[player] = tick()
+    activeDrain[player] = Time.now()
     playAnimation(humanoid, AnimationData.SpecialMoves.PartyTableKick)
     if DEBUG then print("[PartyTableKick] Animation triggered") end
     local hrp = char:FindFirstChild("HumanoidRootPart")

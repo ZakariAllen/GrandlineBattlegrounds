@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local DEFAULT_DATA = {
     Kills = 0,
@@ -29,7 +30,7 @@ end
 local cache = {} -- [player] = data table
 local lastAttacker = {} -- [Humanoid] = player
 local processedDeaths = setmetatable({}, {__mode = "k"}) -- [Humanoid] = true
-local joinTimes = {} -- [player] = tick() when they joined
+local joinTimes = {} -- [player] = Time.now() when they joined
 
 local function loadPlayer(player)
     local data
@@ -105,7 +106,7 @@ end
 if RunService:IsServer() then
     Players.PlayerAdded:Connect(function(player)
         loadPlayer(player)
-        joinTimes[player] = tick()
+        joinTimes[player] = Time.now()
         player.CharacterAdded:Connect(function(char)
             trackCharacter(player, char)
         end)
@@ -116,7 +117,7 @@ if RunService:IsServer() then
 
     for _, p in ipairs(Players:GetPlayers()) do
         loadPlayer(p)
-        joinTimes[p] = tick()
+        joinTimes[p] = Time.now()
         if p.Character then
             trackCharacter(p, p.Character)
         end
@@ -125,7 +126,7 @@ if RunService:IsServer() then
     Players.PlayerRemoving:Connect(function(player)
         local join = joinTimes[player]
         if join then
-            local delta = tick() - join
+            local delta = Time.now() - join
             PersistentStatsService.AddStat(player, "PlaytimeHours", delta / 3600)
         end
         joinTimes[player] = nil

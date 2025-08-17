@@ -4,6 +4,7 @@ local HitboxClient = {}
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local Debris = game:GetService("Debris")
 local Workspace = game:GetService("Workspace")
 
@@ -107,11 +108,11 @@ function HitboxClient.CastHitbox(
     local alreadyHit = {}
         local overlapParams = getOverlapParams(char)
 
-	local startTime = tick()
+	local startTime = Time.now()
 	local connection
 
         connection = RunService.RenderStepped:Connect(function()
-                local elapsed = tick() - startTime
+                local elapsed = Time.now() - startTime
                 local progress = math.clamp(elapsed / duration, 0, 1)
                 if travelDistance and travelDistance ~= 0 then
                         hitbox.CFrame = originCF + dir * travelDistance * progress

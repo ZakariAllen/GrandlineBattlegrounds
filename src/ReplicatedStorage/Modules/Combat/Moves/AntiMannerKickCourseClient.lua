@@ -3,6 +3,7 @@ local AntiMannerKickCourse = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 
 local CombatRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat")
@@ -103,10 +104,10 @@ function AntiMannerKickCourse.OnInputBegan(input, gp)
 
     if UltService.GetUlt(Players.LocalPlayer) < UltService.GetMaxUlt(Players.LocalPlayer) then return end
 
-    if tick() - lastUse < (MoveConfig.Cooldown or 0) then return end
+    if Time.now() - lastUse < (MoveConfig.Cooldown or 0) then return end
 
     active = true
-    lastUse = tick()
+    lastUse = Time.now()
     MoveListManager.StartCooldown(KEY.Name, MoveConfig.Cooldown or 0)
 
     MovementClient.StopSprint()

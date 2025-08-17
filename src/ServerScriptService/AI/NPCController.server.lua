@@ -2,6 +2,7 @@
 -- Scans workspace.AI for NPC models and runs simple combat brains.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local Workspace = game:GetService("Workspace")
 
 local AIConfig = require(ReplicatedStorage.Modules.Config.AIConfig)
@@ -57,7 +58,7 @@ local function bindNPC(model)
     task.spawn(function()
         while running and model.Parent do
             Perception.Update(bb, model)
-            bb.LastPerception = tick()
+            bb.LastPerception = Time.now()
             task.wait(1 / AIConfig.PerceptionHz)
         end
     end)

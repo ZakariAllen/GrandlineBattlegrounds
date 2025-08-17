@@ -5,6 +5,7 @@ local BlockClient = {}
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
@@ -100,7 +101,7 @@ BlockEvent.OnClientEvent:Connect(function(active)
                         activeVFX = BlockVFX.Create(hrp)
                 end
         else
-                lastBlockEnd = tick()
+                lastBlockEnd = Time.now()
                 stopBlockAnimation()
                 MoveListManager.StartCooldown(Enum.KeyCode.F.Name, blockCooldown)
         end
@@ -163,7 +164,7 @@ end
 local function attemptBlock()
        if not blockHeld or isBlocking then return end
        if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
-       local now = tick()
+       local now = Time.now()
        if now < blockDisabledUntil then return end
        if now - lastBlockEnd < blockCooldown then return end
        if not HasValidBlockingTool() then return end
@@ -219,7 +220,7 @@ function BlockClient.OnInputEnded(input, gameProcessed)
        if not isBlocking then return end
 
        isBlocking = false
-       lastBlockEnd = tick()
+       lastBlockEnd = Time.now()
        stopBlockAnimation()
        BlockEvent:FireServer(false)
 end
@@ -231,7 +232,7 @@ end
 -- Prevent starting a block for the given duration (in seconds)
 function BlockClient.DisableFor(duration)
         if typeof(duration) ~= "number" or duration <= 0 then return end
-        local endTime = tick() + duration
+        local endTime = Time.now() + duration
         if endTime > blockDisabledUntil then
                 blockDisabledUntil = endTime
         end

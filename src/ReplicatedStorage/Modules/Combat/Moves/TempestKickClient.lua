@@ -3,6 +3,7 @@ local TempestKick = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
@@ -124,10 +125,10 @@ function TempestKick.OnInputBegan(input, gp)
 
     if StaminaService.GetStamina(Players.LocalPlayer) < 75 then return end
 
-    if tick() - lastUse < (TempestKickConfig.Cooldown or 0) then return end
+    if Time.now() - lastUse < (TempestKickConfig.Cooldown or 0) then return end
 
     active = true
-    lastUse = tick()
+    lastUse = Time.now()
     MoveListManager.StartCooldown(KEY.Name, TempestKickConfig.Cooldown or 0)
 
     MovementClient.StopSprint()

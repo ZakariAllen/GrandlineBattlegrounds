@@ -3,6 +3,7 @@ local PartyTableKick = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
@@ -105,9 +106,9 @@ local function performMove()
         cleanup()
     end
 
-    local startTime = tick()
+    local startTime = Time.now()
     local canCancel = cfg.Cancelable ~= false
-    while tick() - startTime < cfg.Startup do
+    while Time.now() - startTime < cfg.Startup do
         if not held or (canCancel and not cfg.HyperArmor and StunStatusClient.IsStunned()) then
             if DEBUG then print("[PartyTableKickClient] Startup cancelled") end
             endMove()
@@ -136,8 +137,8 @@ local function performMove()
             PartyTableKickVFX.Create(hitbox)
         end
         if i < cfg.Hits then
-            local waitStart = tick()
-            while tick() - waitStart < interval do
+            local waitStart = Time.now()
+            while Time.now() - waitStart < interval do
                 if not held or (canCancel and StunStatusClient.IsStunned()) then
                     endMove()
                     return
@@ -182,7 +183,7 @@ function PartyTableKick.OnInputBegan(input, gp)
         return
     end
     local cfg = PartyTableKickConfig
-    if tick() - lastUse < (cfg.Cooldown or 0) then
+    if Time.now() - lastUse < (cfg.Cooldown or 0) then
         if DEBUG then print("[PartyTableKickClient] On cooldown") end
         return
     end
@@ -190,7 +191,7 @@ function PartyTableKick.OnInputBegan(input, gp)
     if DEBUG then print("[PartyTableKickClient] Move initiated") end
     held = true
     active = true
-    lastUse = tick()
+    lastUse = Time.now()
     MoveListManager.StartCooldown(KEY.Name, cfg.Cooldown or 0)
 
     MovementClient.StopSprint()

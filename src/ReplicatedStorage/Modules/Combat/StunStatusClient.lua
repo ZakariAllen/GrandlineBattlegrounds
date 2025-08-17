@@ -1,6 +1,7 @@
 --ReplicatedStorage.Modules.Combat.StunStatusClient
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local Config = require(ReplicatedStorage.Modules.Config.Config)
 
 local StunStatusClient = {}
@@ -16,7 +17,7 @@ local stunEndTime = 0
 
 -- Helper to get remaining local lock duration
 local function getRemaining()
-    return math.max(0, localLockUntil - tick())
+    return math.max(0, localLockUntil - Time.now())
 end
 
 -- Getter functions (to be called)
@@ -25,7 +26,7 @@ function StunStatusClient.IsStunned()
 end
 
 function StunStatusClient.IsAttackerLocked()
-        return serverLocked or tick() < localLockUntil
+        return serverLocked or Time.now() < localLockUntil
 end
 
 function StunStatusClient.IsGuardBroken()
@@ -47,10 +48,10 @@ function StunStatusClient.SetStatus(stunned, locked, lockRemaining, isGuardBroke
         serverLocked = locked
         guardBroken = isGuardBrokenRemote or false
         if typeof(stunRemaining) == "number" then
-            stunEndTime = tick() + math.max(0, stunRemaining)
+            stunEndTime = Time.now() + math.max(0, stunRemaining)
         end
         if typeof(lockRemaining) == "number" and lockRemaining > 0 then
-            localLockUntil = math.max(localLockUntil, tick() + lockRemaining)
+            localLockUntil = math.max(localLockUntil, Time.now() + lockRemaining)
         end
         if DEBUG then
             print("[StunStatusClient] Status update", stunned, locked, lockRemaining, guardBroken, stunRemaining)
@@ -59,7 +60,7 @@ end
 
 function StunStatusClient.LockFor(duration)
         if typeof(duration) ~= "number" or duration <= 0 then return end
-        localLockUntil = math.max(localLockUntil, tick() + duration)
+        localLockUntil = math.max(localLockUntil, Time.now() + duration)
         if DEBUG then
             print("[StunStatusClient] Local lock for", duration)
         end
@@ -69,7 +70,7 @@ end
 -- otherwise last longer. This cannot shorten server-applied locks.
 function StunStatusClient.ReduceLockTo(duration)
     if typeof(duration) ~= "number" or duration < 0 then return end
-    local newEnd = tick() + duration
+    local newEnd = Time.now() + duration
     if newEnd < localLockUntil then
         localLockUntil = newEnd
         if DEBUG then

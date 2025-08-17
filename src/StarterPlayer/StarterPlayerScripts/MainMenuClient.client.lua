@@ -1,6 +1,7 @@
 -- StarterPlayerScripts > MainMenuClient
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -141,10 +142,10 @@ local function spawnAndFollow(toolName)
 	CameraManager.ClearMenuCamera()
 
 	-- 🔄 Enforce camera following for a short time
-	local startTime = tick()
+	local startTime = Time.now()
 	local conn
         conn = RunService.RenderStepped:Connect(function()
-                if tick() - startTime > 2 then
+                if Time.now() - startTime > 2 then
                         conn:Disconnect()
                 else
                         camera.CameraSubject = humanoid

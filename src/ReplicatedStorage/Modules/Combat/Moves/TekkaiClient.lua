@@ -3,6 +3,7 @@ local Tekkai = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
@@ -90,7 +91,7 @@ function Tekkai.OnInputBegan(input, gp)
     if gp then return end
     if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
     if active then return end
-    if tick() - lastUse < (TekkaiConfig.Cooldown or 0) then return end
+    if Time.now() - lastUse < (TekkaiConfig.Cooldown or 0) then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() then return end
     if BlockClient.IsBlocking() then return end
     local style = ToolController.GetEquippedStyleKey()
@@ -104,7 +105,7 @@ function Tekkai.OnInputBegan(input, gp)
         prevJump = humanoid.JumpPower
     end
     MovementClient.StopSprint()
-    lastUse = tick()
+    lastUse = Time.now()
     MoveListManager.StartCooldown(KEY.Name, TekkaiConfig.Cooldown or 0)
     TekkaiEvent:FireServer(true)
 end

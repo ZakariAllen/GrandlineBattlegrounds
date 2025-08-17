@@ -3,6 +3,7 @@
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local Workspace = game:GetService("Workspace")
 
 local Camera = workspace.CurrentCamera
@@ -55,7 +56,7 @@ function CameraManager.ApplyMenuCamera()
 			local y = startPos.Y
 
 			rotationConnection = RunService.RenderStepped:Connect(function()
-				local t = tick() * speed
+				local t = Time.now() * speed
 				local x = math.cos(t) * radius
 				local z = math.sin(t) * radius
 				local pos = Vector3.new(x, y, z)
