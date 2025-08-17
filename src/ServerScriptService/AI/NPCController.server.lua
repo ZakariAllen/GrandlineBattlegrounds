@@ -119,7 +119,11 @@ local function bindNPC(model)
         local sprintSpeed = Config.GameSettings.DefaultSprintSpeed or 20
         while running and model.Parent do
             local engaged = bb.Target ~= nil
-            hum.WalkSpeed = engaged and sprintSpeed or defaultWalk
+            if engaged and (bb.DistanceBand == "Long" or bb.IsClosing) then
+                hum.WalkSpeed = sprintSpeed
+            else
+                hum.WalkSpeed = defaultWalk
+            end
 
             local state
             if hum.MoveDirection.Magnitude < 0.05 then
