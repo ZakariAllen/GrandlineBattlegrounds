@@ -5,6 +5,7 @@ return {
   PerceptionHz = 15,
   DecisionHz   = 7,
   SeededRNG    = true,
+  Detection    = { SightRange = 90, LoseSightTime = 2.0 },
   Levels = {
     [1] = {Aggression=0.55, FeintChance=0.00, PerfectBlock=0.00, WhiffPunish=0.00, UseAbilities=0.00, DashOffense=0.00, DashDefense=0.05, Strafing=0.10, Predictability=0.80, ComboVariety=0.10, RepetitionPenalty=0.05, ReactionTimeMs={min=260,max=360}, MicroJitterMs={min=40,max=90}},
     [2] = {Aggression=0.55, FeintChance=0.00, PerfectBlock=0.00, WhiffPunish=0.05, UseAbilities=0.00, DashOffense=0.00, DashDefense=0.12, Strafing=0.20, Predictability=0.65, ComboVariety=0.25, RepetitionPenalty=0.12, ReactionTimeMs={min=220,max=300}, MicroJitterMs={min=30,max=80}},
