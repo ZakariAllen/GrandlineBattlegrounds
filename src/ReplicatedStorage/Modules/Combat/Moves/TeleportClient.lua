@@ -3,6 +3,7 @@ local Teleport = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 
 local MovementRemotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Movement")
@@ -36,7 +37,7 @@ end
 function Teleport.OnInputBegan(input, gp)
     if input.UserInputType ~= Enum.UserInputType.Keyboard or input.KeyCode ~= KEY then return end
     if active then return end
-    if tick() - lastUse < (TeleportConfig.Cooldown or 0) then return end
+    if Time.now() - lastUse < (TeleportConfig.Cooldown or 0) then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
 
     local style = ToolController.GetEquippedStyleKey()
@@ -49,7 +50,7 @@ function Teleport.OnInputBegan(input, gp)
     if not hrp or not humanoid then return end
 
     active = true
-    lastUse = tick()
+    lastUse = Time.now()
     MoveListManager.StartCooldown(KEY.Name, TeleportConfig.Cooldown or 0)
 
     MovementClient.StopSprint()

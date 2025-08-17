@@ -3,6 +3,7 @@
 local BlockService = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local PersistentStats = require(ReplicatedStorage.Modules.Stats.PersistentStatsService)
 local Players = game:GetService("Players")
 
@@ -22,7 +23,7 @@ local BlockEvent = combatFolder:WaitForChild("BlockEvent")
 -- 🧠 Block state
 local BlockingPlayers = {}    -- [char] = true/false
 local BlockHP = {}            -- [char] = number
-local PerfectBlockTimers = {} -- [char] = tick()
+local PerfectBlockTimers = {} -- [char] = Time.now()
 local BlockCooldowns = {}     -- [char] = time
 local BlockStartup = {}       -- [char] = true
 
@@ -75,7 +76,7 @@ end
 function BlockService.IsOnCooldown(actor)
        local key = resolve(actor)
        local t = key and BlockCooldowns[key]
-       return t and tick() < t
+       return t and Time.now() < t
 end
 
 -- 🛡️ Called when player starts blocking
@@ -98,7 +99,7 @@ function BlockService.StartBlocking(actor)
 				BlockStartup[key] = nil
 				BlockHP[key] = PlayerStats.BlockHP
 				BlockingPlayers[key] = true
-				PerfectBlockTimers[key] = tick()
+				PerfectBlockTimers[key] = Time.now()
 				if info and info.IsPlayer then
 					OverheadBarService.SetBlockActive(info.Player, true)
 					OverheadBarService.UpdateBlock(info.Player, PlayerStats.BlockHP)
@@ -120,7 +121,7 @@ function BlockService.StopBlocking(actor)
        local hadBlock = BlockingPlayers[key] or BlockStartup[key]
 
        if hadBlock and BlockingPlayers[key] then
-               BlockCooldowns[key] = tick() + (CombatConfig.Blocking.BlockCooldown or 2)
+               BlockCooldowns[key] = Time.now() + (CombatConfig.Blocking.BlockCooldown or 2)
        end
 
        BlockingPlayers[key] = nil
@@ -176,7 +177,7 @@ function BlockService.ApplyBlockDamage(actor, damage, isBlockBreaker, attackerRo
        end
 
        local hp = BlockHP[key] or 0
-       local timeSinceStart = tick() - (PerfectBlockTimers[key] or 0)
+       local timeSinceStart = Time.now() - (PerfectBlockTimers[key] or 0)
 
        -- 🌀 Perfect block window takes priority even against block breakers
        if timeSinceStart <= CombatConfig.Blocking.PerfectBlockWindow then

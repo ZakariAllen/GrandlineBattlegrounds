@@ -3,6 +3,7 @@
 local DashClient = {}
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
@@ -173,7 +174,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
     if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
     if input.KeyCode ~= DASH_KEY then return end
 
-    if tick() - lastDashTime < DashConfig.Cooldown then return end
+    if Time.now() - lastDashTime < DashConfig.Cooldown then return end
     if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() then return end
     -- Basic dashing should be available even when no tool is equipped. We only
     -- restrict dashing if a tool is equipped and specifically disallowed by the
@@ -192,7 +193,7 @@ function DashClient.OnInputBegan(input, gameProcessed)
                 styleKey = nil
         end
 
-        lastDashTime = tick()
+        lastDashTime = Time.now()
         MoveListManager.StartCooldown(DASH_KEY.Name, DashConfig.Cooldown or 0)
         playDashAnimation(direction)
 
@@ -229,10 +230,10 @@ function DashClient.OnInputBegan(input, gameProcessed)
 
 	-- The only dashes that are steerable (dynamic) are the "Forward" and "ForwardLeft/Right" ones.
 	if direction == "Forward" or direction == "ForwardLeft" or direction == "ForwardRight" then
-		local start = tick()
+		local start = Time.now()
 		dashConn = RunService.RenderStepped:Connect(function()
 			if not hrp or not humanoid then return end
-			if tick() - start > duration then
+			if Time.now() - start > duration then
 				if dashConn then dashConn:Disconnect() dashConn = nil end
 				return
 			end

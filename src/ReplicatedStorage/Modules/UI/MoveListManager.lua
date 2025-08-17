@@ -5,6 +5,7 @@ local MoveListManager = {}
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local player = Players.LocalPlayer
@@ -142,10 +143,10 @@ function MoveListManager.StartCooldown(letter, duration)
         bar.Visible = true
         bar.Size = base
     end
-    local endTime = tick() + duration
+    local endTime = Time.now() + duration
 
     entry.conn = RunService.RenderStepped:Connect(function()
-        local remaining = endTime - tick()
+        local remaining = endTime - Time.now()
         if remaining <= 0 then
             if bar then
                 bar.Visible = false

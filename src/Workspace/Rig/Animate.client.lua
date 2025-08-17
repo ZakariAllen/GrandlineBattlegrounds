@@ -1,5 +1,7 @@
 -- humanoidAnimateR15Moods.lua
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local Character = script.Parent
 local Humanoid = Character:WaitForChild("Humanoid")
 local pose = "Standing"
@@ -106,7 +108,7 @@ local animNames = {
 -- Existence in this list signifies that it is an emote, the value indicates if it is a looping emote
 local emoteNames = { wave = false, point = false, dance = true, dance2 = true, dance3 = true, laugh = false, cheer = false}
 
-math.randomseed(tick())
+math.randomseed(Time.now())
 
 function findExistingAnimationInSet(set, anim)
 	if set == nil or anim == nil then

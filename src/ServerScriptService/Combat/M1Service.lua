@@ -6,6 +6,7 @@
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local ToolConfig = require(ReplicatedStorage.Modules.Config.ToolConfig)
@@ -113,7 +114,7 @@ function M1Service.ProcessM1Request(actor, payload)
         return
     end
 
-    local now = tick()
+    local now = Time.now()
     comboState[char] = comboState[char] or {step = 0, lastTime = 0, cooldownEnd = 0}
     local state = comboState[char]
 

@@ -2,6 +2,7 @@
 -- Schedules and executes actions with human-like delays.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local CombatConfig = require(ReplicatedStorage.Modules.Config.CombatConfig)
 local M1Service = require(game.ServerScriptService.Combat.M1Service)
@@ -28,7 +29,7 @@ local function schedule(self, fn)
     local jitter = cfg.MicroJitterMs or {min = 0, max = 0}
     local delayTime = math.random(rt.min, rt.max) / 1000
     delayTime += math.random(jitter.min, jitter.max) / 1000
-    table.insert(self.Queue, {Time = tick() + delayTime, Fn = fn})
+    table.insert(self.Queue, {Time = Time.now() + delayTime, Fn = fn})
 end
 
 function ActionQueue:PressM1()
@@ -66,7 +67,7 @@ end
 
 -- Process due actions
 function ActionQueue:Run()
-    local now = tick()
+    local now = Time.now()
     local q = self.Queue
     for i = #q, 1, -1 do
         local item = q[i]

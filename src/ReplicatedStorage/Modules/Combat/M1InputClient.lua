@@ -4,6 +4,7 @@ local M1InputClient = {}
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local player = Players.LocalPlayer
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -31,7 +32,7 @@ function M1InputClient.OnInputBegan(input, gameProcessed)
 
 	-- 🖱️ Handle M1
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		local now = tick()
+		local now = Time.now()
                 if StunStatusClient.IsStunned() or StunStatusClient.IsAttackerLocked() or BlockClient.IsBlocking() or isAwaitingServer then return end
 		if now - lastClick < CombatConfig.M1.DelayBetweenHits then return end
 

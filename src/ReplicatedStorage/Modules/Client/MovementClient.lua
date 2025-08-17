@@ -4,6 +4,7 @@ local MovementClient = {}
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -70,7 +71,7 @@ function MovementClient.OnInputBegan(input, gameProcessed)
 	end
 
 	if key == "W" then
-		local now = tick()
+		local now = Time.now()
 		if now - lastWPress <= 0.3 and not sprinting then
 			beginSprint()
 		end

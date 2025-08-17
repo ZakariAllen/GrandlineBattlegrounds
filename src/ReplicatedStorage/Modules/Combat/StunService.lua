@@ -3,6 +3,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Time = require(ReplicatedStorage.Modules.Util.Time)
 local DashModule = require(ReplicatedStorage.Modules.Movement.DashModule)
 local ActorAdapter = require(ReplicatedStorage.Modules.AI.ActorAdapter)
 
@@ -133,12 +134,12 @@ sendStatus = function(player)
         local guardBroken = false
         local stunData = char and StunnedEntities[char]
         if stunData then
-            remainingStun = math.max(0, stunData.EndsAt - tick())
+            remainingStun = math.max(0, stunData.EndsAt - Time.now())
             guardBroken = stunData.GuardBroken or false
         end
 
         local lockEnd = char and AttackerLockouts[char]
-        local lockRemaining = lockEnd and math.max(0, lockEnd - tick()) or 0
+        local lockRemaining = lockEnd and math.max(0, lockEnd - Time.now()) or 0
 
         local data = {
             Stunned = stunData ~= nil,
@@ -161,7 +162,7 @@ end
 
 function StunService:IsAttackerLocked(entity)
     local key = resolveEntity(entity)
-    return key ~= nil and AttackerLockouts[key] ~= nil and tick() < AttackerLockouts[key]
+    return key ~= nil and AttackerLockouts[key] ~= nil and Time.now() < AttackerLockouts[key]
 end
 
 function StunService:GetStunRemaining(entity)
@@ -169,7 +170,7 @@ function StunService:GetStunRemaining(entity)
     if key then
         local data = StunnedEntities[key]
         if data then
-            return math.max(0, data.EndsAt - tick())
+            return math.max(0, data.EndsAt - Time.now())
         end
     end
     return 0
@@ -180,7 +181,7 @@ function StunService:GetLockRemaining(entity)
     if key then
         local endTime = AttackerLockouts[key]
         if endTime then
-            return math.max(0, endTime - tick())
+            return math.max(0, endTime - Time.now())
         end
     end
     return 0
@@ -201,7 +202,7 @@ end
 function StunService:WasRecentlyHit(target)
     local key = resolveEntity(target)
     local t = key and HitReservations[key]
-    return t and (tick() - t < 0.1)
+    return t and (Time.now() - t < 0.1)
 end
 
 function StunService:CanBeHitBy(attacker, target)
@@ -258,7 +259,7 @@ function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, prese
     BlockService.StopBlocking(targetPlayer or targetHum)
 
     if self:WasRecentlyHit(targetKey) then return end
-    HitReservations[targetKey] = tick()
+    HitReservations[targetKey] = Time.now()
 
     local prevWalkSpeed = targetHum.WalkSpeed
     local prevJumpPower = targetHum.JumpPower
@@ -325,11 +326,11 @@ function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, prese
                         ActiveAnimations[targetKey] = track
                 end
         end
-        local endTime = tick() + duration
+        local endTime = Time.now() + duration
         local taskRef
         taskRef = task.delay(duration, function()
                 local data = StunnedEntities[targetKey]
-                if data and tick() >= data.EndsAt then
+                if data and Time.now() >= data.EndsAt then
                         StunnedEntities[targetKey] = nil
                         if data.HRP and data.Humanoid then
                                 data.Humanoid.AutoRotate = data.PrevAutoRotate ~= nil and data.PrevAutoRotate or true
@@ -338,7 +339,7 @@ function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, prese
                                 end
                         end
                         if StunChangedEvent and targetPlayer then
-                                StunChangedEvent:FireClient(targetPlayer, false, false, tick())
+                                StunChangedEvent:FireClient(targetPlayer, false, false, Time.now())
                         end
 
                         if DEBUG then
@@ -381,7 +382,7 @@ function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, prese
 
         if attackerKey then
             local lockoutDuration = Config.GameSettings.AttackerLockoutDuration or 0.5
-            local unlockTime = tick() + lockoutDuration
+            local unlockTime = Time.now() + lockoutDuration
             AttackerLockouts[attackerKey] = unlockTime
             if DEBUG then
                 local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
@@ -392,7 +393,7 @@ function StunService:ApplyStun(targetHumanoid, duration, param3, attacker, prese
             end
 
             task.delay(lockoutDuration, function()
-                    if AttackerLockouts[attackerKey] and tick() >= unlockTime then
+                    if AttackerLockouts[attackerKey] and Time.now() >= unlockTime then
                             AttackerLockouts[attackerKey] = nil
                             if DEBUG then
                                 local name = attackerPlayer and attackerPlayer.Name or tostring(attackerKey)
@@ -438,7 +439,7 @@ function StunService.ClearStun(entity)
         end
         local _, player = resolveEntity(entity)
         if StunChangedEvent and player and data.Humanoid then
-            StunChangedEvent:FireClient(player, false, false, tick())
+            StunChangedEvent:FireClient(player, false, false, Time.now())
         end
         if player then
             sendStatus(player)
@@ -451,13 +452,13 @@ function StunService.LockFor(entity, duration)
     local key, player = resolveEntity(entity)
     if not key then return end
     duration = duration or (Config.GameSettings.AttackerLockoutDuration or 0.5)
-    local unlockTime = tick() + duration
+    local unlockTime = Time.now() + duration
     AttackerLockouts[key] = unlockTime
     if player then
         sendStatus(player)
     end
     task.delay(duration, function()
-        if AttackerLockouts[key] and tick() >= unlockTime then
+        if AttackerLockouts[key] and Time.now() >= unlockTime then
             AttackerLockouts[key] = nil
             if player then
                 sendStatus(player)
