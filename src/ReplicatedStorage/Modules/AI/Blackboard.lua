@@ -12,8 +12,12 @@ function Blackboard.new(level, levelConfig)
         Config = levelConfig,
         Target = nil,
         TargetDistance = math.huge,
+        DistanceBand = "Long",
+        IsClosing = false,
         IsBlocking = false,
         LastPerception = 0,
+        StrafeDir = 1,
+        NextStrafeChange = 0,
     }
     return setmetatable(self, Blackboard)
 end
