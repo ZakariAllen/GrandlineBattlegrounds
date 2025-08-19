@@ -38,6 +38,17 @@ local function resolveChar(actor)
        return nil
 end
 
+-- Helper to safely get common character components
+local function getCharacterComponents()
+        local character = player.Character
+        if not character then return nil end
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return nil end
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        return character, humanoid, animator, hrp
+end
+
 -- Immediately stop any active dash and clear velocity
 function DashClient.CancelDash()
     if dashConn then
@@ -104,16 +115,6 @@ local function setCharacterInvisible(character, invisible, owner)
             obj.Enabled = not invisible
         end
     end
-end
-
-local function getCharacterComponents()
-	local character = player.Character
-	if not character then return nil end
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return nil end
-	local animator = humanoid:FindFirstChildOfClass("Animator")
-	local hrp = character:FindFirstChild("HumanoidRootPart")
-	return character, humanoid, animator, hrp
 end
 
 -- 🚨 CAMERA-RELATIVE DASHING!
