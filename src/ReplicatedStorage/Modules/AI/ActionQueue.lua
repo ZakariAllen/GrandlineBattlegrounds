@@ -59,7 +59,9 @@ function ActionQueue:PressM1()
         end
 
         task.delay(CombatConfig.M1.HitDelay or 0.15, function()
-            M1Service.ApplyHit(self.Model, comboIndex)
+            -- ServerCastM1 handles server-side hit detection for both players and NPCs
+            -- replacing the legacy ApplyHit call.
+            M1Service.ServerCastM1(self.Model, comboIndex)
         end)
 
         if comboIndex >= CombatConfig.M1.ComboHits then
