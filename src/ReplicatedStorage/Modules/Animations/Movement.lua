@@ -12,7 +12,7 @@ Animation.Dash = {
 	BackwardLeft = "rbxassetid://117435369588116",
 }
 
-Animation.Idle = "rbxassetid:////507766388"
+Animation.Idle = "rbxassetid://507766388"
 Animation.Walk = "rbxassetid://507777826"
 Animation.Run = "rbxassetid://507767714"
 Animation.Sprint = "rbxassetid://1113750642"

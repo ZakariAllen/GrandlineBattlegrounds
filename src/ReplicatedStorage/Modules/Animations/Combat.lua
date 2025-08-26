@@ -24,11 +24,11 @@ Animation.M1 = {
 
         Rokushiki = {
                 Combo = {
-                        [1] = "rbxassetid://114200559376775",
-                        [2] = "rbxassetid://96320001137526",
-                        [3] = "rbxassetid://114200559376775",
-                        [4] = "rbxassetid://96320001137526",
-                        [5] = "rbxassetid://70382508234278",
+                        [1] = "rbxassetid://131881919155575",
+                        [2] = "rbxassetid://131881919155575",
+                        [3] = "rbxassetid://131881919155575",
+                        [4] = "rbxassetid://131881919155575",
+                        [5] = "rbxassetid://131881919155575",
                 },
         }
 }
