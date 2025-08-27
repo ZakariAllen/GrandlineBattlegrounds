@@ -1,32 +1,44 @@
 --ReplicatedStorage.Modules.Client.MusicManager
 
-local MusicManager = {}
+--[[
+    Simple utility for playing menu and gameplay music on the client.
+    This version avoids cross-game dependencies and only references
+    modules that exist within this project.
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 
-local player = Players.LocalPlayer
-local SoundConfig = require(ReplicatedStorage.Modules.Config.SoundConfig)
+local modulesFolder = ReplicatedStorage:WaitForChild("Modules")
+local configFolder = modulesFolder:WaitForChild("Config")
+local SoundConfig = require(configFolder:WaitForChild("SoundConfig"))
 
-local currentSound
+local MusicManager = {}
+
+local currentSound: Sound?
 
 -- Plays the given sound info which can be a string ID or a table { Id, Pitch, Volume }
 local function playSound(soundInfo: any, looped: boolean)
-    if not soundInfo then return nil end
+    if not soundInfo then
+        return nil
+    end
 
-    local id
+    local id = ""
     local pitch = 1
     local volume = 0.5
 
     if typeof(soundInfo) == "table" then
-        id = soundInfo.Id
+        id = soundInfo.Id or ""
         pitch = soundInfo.Pitch or 1
         volume = soundInfo.Volume or 0.5
     else
         id = soundInfo
     end
 
-    if not id or id == "" then return nil end
+    if id == "" then
+        return nil
+    end
     if not id:match("^rbxassetid://") then
         id = "rbxassetid://" .. id
     end
@@ -42,7 +54,7 @@ local function playSound(soundInfo: any, looped: boolean)
     sound.Volume = volume
     sound.PlaybackSpeed = pitch
     sound.Looped = looped or false
-    sound.Parent = workspace
+    sound.Parent = SoundService
     sound:Play()
 
     currentSound = sound
@@ -55,13 +67,15 @@ end
 
 function MusicManager.StartGameplayMusic()
     local pool = SoundConfig.Music.MusicPool
-    if not pool or #pool == 0 then return end
+    if typeof(pool) ~= "table" or #pool == 0 then
+        return
+    end
 
     local function playRandom()
-        local index = math.random(1, #pool)
-        local track = playSound(pool[index], false)
-        if track then
-            track.Ended:Once(playRandom)
+        local track = pool[math.random(1, #pool)]
+        local sound = playSound(track, false)
+        if sound then
+            sound.Ended:Once(playRandom)
         end
     end
 
