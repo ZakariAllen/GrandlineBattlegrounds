@@ -16,18 +16,45 @@ local ELASTICITY = 0
 local DENSITY = 1
 local CORRECTION_DELAY = 0.2
 
+-- Keep lower body parts anchored with normal mass to provide friction when
+-- walking. Making every limb massless causes the humanoid to slide because the
+-- HumanoidRootPart is the only massive part and it never touches the ground.
+local MASSLESS_EXCEPTIONS = {
+    HumanoidRootPart = true,
+    LowerTorso = true,
+    LeftUpperLeg = true,
+    LeftLowerLeg = true,
+    LeftFoot = true,
+    RightUpperLeg = true,
+    RightLowerLeg = true,
+    RightFoot = true,
+    Torso = true,
+    ["Left Leg"] = true,
+    ["Right Leg"] = true,
+}
+
+local DEFAULT_PROPERTIES = PhysicalProperties.new(DENSITY, FRICTION, ELASTICITY)
+local CONTACT_PROPERTIES = PhysicalProperties.new(DENSITY, FRICTION * 2, ELASTICITY)
+
 -- Prevent duplicate application
 if character:FindFirstChild("AntiRagdollInitialized") then return end
 local tag = Instance.new("BoolValue")
 tag.Name = "AntiRagdollInitialized"
 tag.Parent = character
 
--- Apply stable physical properties to all parts (except HRP)
+-- Apply stable physical properties to all parts while keeping the lower body
+-- heavy enough to generate friction against the ground.
 for _, part in ipairs(character:GetDescendants()) do
-	if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-		part.Massless = true
-		part.CustomPhysicalProperties = PhysicalProperties.new(DENSITY, FRICTION, ELASTICITY)
-	end
+        if part:IsA("BasePart") then
+                local exception = MASSLESS_EXCEPTIONS[part.Name]
+                if not exception then
+                        part.Massless = true
+                        part.CustomPhysicalProperties = DEFAULT_PROPERTIES
+                else
+                        part.Massless = false
+                        part.CustomPhysicalProperties = CONTACT_PROPERTIES
+                end
+        end
 end
 
 -- Remove any leftover alignments
