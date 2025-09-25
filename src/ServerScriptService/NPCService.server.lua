@@ -4,7 +4,9 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local combatFolder = ReplicatedStorage:WaitForChild("Combat")
-local CombatConstants = require(combatFolder:WaitForChild("CombatConstants"))
+local configFolder = ReplicatedStorage:WaitForChild("Config")
+local CombatConfig = require(configFolder:WaitForChild("Combat"))
+local NPCConfig = require(configFolder:WaitForChild("NPC"))
 local CombatService = require(script.Parent:WaitForChild("CombatService"):WaitForChild("Service"))
 
 local NPCService = {}
@@ -20,6 +22,7 @@ local function createNPCModel(position)
     root.Size = Vector3.new(2, 5, 2)
     root.CFrame = CFrame.new(position)
     root.Anchored = false
+    root.Color = NPCConfig.Appearance.BodyColor
     root.Parent = model
 
     local head = Instance.new("Part")
@@ -27,6 +30,7 @@ local function createNPCModel(position)
     head.Size = Vector3.new(2, 1, 2)
     head.CFrame = root.CFrame * CFrame.new(0, 3, 0)
     head.Anchored = false
+    head.Color = NPCConfig.Appearance.HeadColor
     head.Parent = model
 
     local weld = Instance.new("WeldConstraint")
@@ -36,10 +40,10 @@ local function createNPCModel(position)
 
     local humanoid = Instance.new("Humanoid")
     humanoid.Name = "Humanoid"
-    humanoid.MaxHealth = 150
+    humanoid.MaxHealth = NPCConfig.DefaultStats.MaxHealth
     humanoid.Health = humanoid.MaxHealth
-    humanoid.WalkSpeed = 14
-    humanoid.JumpPower = 0
+    humanoid.WalkSpeed = NPCConfig.DefaultStats.WalkSpeed
+    humanoid.JumpPower = NPCConfig.DefaultStats.JumpPower
     humanoid.Parent = model
 
     model.PrimaryPart = root
@@ -60,7 +64,7 @@ local function findTarget(position)
             local rootPart = state:GetRootPart()
             if rootPart then
                 local distance = (rootPart.Position - position).Magnitude
-                if distance < closestDistance and distance <= CombatConstants.NPC_DETECTION_RADIUS then
+                if distance < closestDistance and distance <= NPCConfig.Behavior.DetectionRadius then
                     closestCharacter = character
                     closestDistance = distance
                 end
@@ -82,8 +86,9 @@ function NPCService.SpawnNPC(position)
     local npcData = {
         Model = model,
         Humanoid = humanoid,
-        NextAttack = CombatConstants.NPC_ATTACK_INTERVAL,
+        NextAttack = NPCConfig.Behavior.AttackInterval,
         Target = nil,
+        AccumulatedTime = 0,
     }
 
     npcs[model] = npcData
@@ -131,30 +136,32 @@ local function updateNPC(npcData, dt)
 
     local distance = (targetRoot.Position - rootPart.Position).Magnitude
 
-    if distance > CombatConstants.RANGE.Light then
+    if distance > CombatConfig.Range.Light then
         npcData.Humanoid:MoveTo(targetRoot.Position)
     else
         npcData.Humanoid:Move(Vector3.zero, true)
     end
 
     npcData.NextAttack -= dt
+    npcData.AccumulatedTime += dt
+    if npcData.AccumulatedTime >= NPCConfig.Behavior.TrackingUpdateInterval then
+        npcData.AccumulatedTime = 0
+        if targetRoot then
+            npcData.Humanoid:MoveTo(targetRoot.Position)
+        end
+    end
+
     if npcData.NextAttack <= 0 then
         local success = CombatService.ProcessAttack(model, targetCharacter, "Light")
         if success then
-            npcData.NextAttack = CombatConstants.NPC_ATTACK_INTERVAL
+            npcData.NextAttack = NPCConfig.Behavior.AttackInterval
         else
-            npcData.NextAttack = 0.5
+            npcData.NextAttack = NPCConfig.Behavior.RetryDelay
         end
     end
 end
 
-local spawnPositions = {
-    Vector3.new(0, 5, 0),
-    Vector3.new(12, 5, 8),
-    Vector3.new(-14, 5, -6),
-}
-
-for _, position in ipairs(spawnPositions) do
+for _, position in ipairs(NPCConfig.Spawns) do
     NPCService.SpawnNPC(position)
 end
 
