@@ -6,7 +6,9 @@ local combatFolder = ReplicatedStorage:WaitForChild("Combat")
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local combatRemote = remotesFolder:WaitForChild("Combat")
 
-local CombatConstants = require(combatFolder:WaitForChild("CombatConstants"))
+local configFolder = ReplicatedStorage:WaitForChild("Config")
+
+local CombatConfig = require(configFolder:WaitForChild("Combat"))
 local CharacterState = require(combatFolder:WaitForChild("CharacterState"))
 local DamageCalculator = require(combatFolder:WaitForChild("DamageCalculator"))
 
@@ -123,9 +125,9 @@ local function resolveCharacterFromInstance(instance)
 end
 
 local function isInRange(attackerState, defenderState, attackType)
-    local range = CombatConstants.RANGE[attackType]
+    local range = CombatConfig.Range[attackType]
     if not range then
-        range = CombatConstants.RANGE.Light or 10
+        range = CombatConfig.Range.Default or CombatConfig.Range.Light or 10
     end
 
     local attackerRoot = attackerState and attackerState:GetRootPart()

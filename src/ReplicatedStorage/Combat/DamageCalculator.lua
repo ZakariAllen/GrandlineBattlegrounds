@@ -1,13 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CombatConstants = require(ReplicatedStorage:WaitForChild("Combat"):WaitForChild("CombatConstants"))
+local ConfigFolder = ReplicatedStorage:WaitForChild("Config")
+local CombatConfig = require(ConfigFolder:WaitForChild("Combat"))
 
 local DamageCalculator = {}
 
 function DamageCalculator.Calculate(attackerState, defenderState, attackType, metadata)
     metadata = metadata or {}
 
-    local baseDamage = CombatConstants.DAMAGE[attackType] or 0
+    local baseDamage = CombatConfig.Damage[attackType] or 0
     if baseDamage <= 0 then
         return 0
     end
@@ -15,15 +16,18 @@ function DamageCalculator.Calculate(attackerState, defenderState, attackType, me
     local damageMultiplier = 1
 
     if defenderState and defenderState:IsBlocking() then
-        damageMultiplier *= 0.3
+        damageMultiplier *= CombatConfig.Block.MitigationMultiplier
     end
 
     if metadata.Headshot then
-        damageMultiplier *= 1.5
+        damageMultiplier *= CombatConfig.MetadataMultipliers.Headshot
     end
 
     if metadata.ComboMultiplier then
         damageMultiplier *= metadata.ComboMultiplier
+    elseif metadata.ComboIndex then
+        local comboBonus = 1 + ((metadata.ComboIndex - 1) * (CombatConfig.Combo.BonusMultiplier - 1))
+        damageMultiplier *= comboBonus
     end
 
     local damage = math.floor(baseDamage * damageMultiplier)

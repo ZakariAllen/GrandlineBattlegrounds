@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local CombatConstants = require(ReplicatedStorage:WaitForChild("Combat"):WaitForChild("CombatConstants"))
+local ConfigFolder = ReplicatedStorage:WaitForChild("Config")
+local CombatConfig = require(ConfigFolder:WaitForChild("Combat"))
 
 local CharacterState = {}
 CharacterState.__index = CharacterState
@@ -19,7 +20,7 @@ function CharacterState.new(character)
     self.Blocking = false
     self.Destroyed = false
     self.LastAttackTime = 0
-    self.Stamina = CombatConstants.STAMINA.Max
+    self.Stamina = CombatConfig.Stamina.Max
     self.Connections = {}
 
     table.insert(self.Connections, character.AncestryChanged:Connect(function(_, parent)
@@ -63,10 +64,10 @@ end
 
 function CharacterState:SetBlocking(isBlocking)
     if isBlocking and not self.Blocking then
-        if self.Stamina < CombatConstants.STAMINA.BlockStartCost then
+        if self.Stamina < CombatConfig.Block.StartCost then
             return false
         end
-        self:SpendStamina(CombatConstants.STAMINA.BlockStartCost)
+        self:SpendStamina(CombatConfig.Block.StartCost)
     end
 
     self.Blocking = isBlocking
@@ -79,11 +80,11 @@ function CharacterState:CanAttack(attackType)
     end
 
     local now = os.clock()
-    if now - self.LastAttackTime < CombatConstants.ATTACK_COOLDOWN then
+    if now - self.LastAttackTime < CombatConfig.AttackCooldown then
         return false, "Cooldown"
     end
 
-    local cost = CombatConstants.STAMINA.AttackCost[attackType]
+    local cost = CombatConfig.Stamina.AttackCost[attackType]
     if cost and self.Stamina < cost then
         return false, "NoStamina"
     end
@@ -93,7 +94,7 @@ end
 
 function CharacterState:RecordAttack(attackType)
     self.LastAttackTime = os.clock()
-    local cost = CombatConstants.STAMINA.AttackCost[attackType]
+    local cost = CombatConfig.Stamina.AttackCost[attackType]
     if cost then
         self:SpendStamina(cost)
     end
@@ -108,12 +109,16 @@ function CharacterState:RegenerateStamina(dt)
         return
     end
 
-    local regen = CombatConstants.STAMINA_REGEN_PER_SECOND * dt
+    local regen = CombatConfig.Stamina.RegenPerSecond * dt
     if self.Blocking then
-        regen -= CombatConstants.BLOCK_STAMINA_DRAIN_PER_SECOND * dt
+        regen -= CombatConfig.Block.StaminaDrainPerSecond * dt
     end
 
-    self.Stamina = math.clamp(self.Stamina + regen, 0, CombatConstants.STAMINA.Max)
+    self.Stamina = math.clamp(self.Stamina + regen, 0, CombatConfig.Stamina.Max)
+
+    if self.Blocking and self.Stamina <= 0 then
+        self.Blocking = false
+    end
 end
 
 function CharacterState:ApplyDamage(amount)
