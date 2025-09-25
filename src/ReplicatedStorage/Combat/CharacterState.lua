@@ -20,6 +20,8 @@ function CharacterState.new(character)
     self.Blocking = false
     self.Destroyed = false
     self.LastAttackTime = 0
+    self.LastComboTime = 0
+    self.ComboIndex = 1
     self.Stamina = CombatConfig.Stamina.Max
     self.Connections = {}
 
@@ -74,6 +76,36 @@ function CharacterState:SetBlocking(isBlocking)
     return true
 end
 
+function CharacterState:GetNextComboIndex(now)
+    now = now or os.clock()
+
+    if self.LastComboTime == 0 then
+        return 1
+    end
+
+    local elapsed = now - self.LastComboTime
+    if elapsed >= CombatConfig.Combo.MinimumWindow and elapsed <= CombatConfig.Combo.MaximumWindow then
+        return self.ComboIndex + 1
+    end
+
+    return 1
+end
+
+function CharacterState:GetComboMultiplier(comboIndex)
+    comboIndex = comboIndex or self.ComboIndex
+
+    if comboIndex <= 1 then
+        return 1
+    end
+
+    local stepBonus = CombatConfig.Combo.BonusMultiplier or 1
+    if stepBonus <= 1 then
+        return 1
+    end
+
+    return 1 + ((comboIndex - 1) * (stepBonus - 1))
+end
+
 function CharacterState:CanAttack(attackType)
     if self.Destroyed or not self:IsAlive() then
         return false, "NotAlive"
@@ -92,12 +124,20 @@ function CharacterState:CanAttack(attackType)
     return true
 end
 
-function CharacterState:RecordAttack(attackType)
-    self.LastAttackTime = os.clock()
+function CharacterState:RecordAttack(attackType, attackTime, comboIndex)
+    attackTime = attackTime or os.clock()
+    comboIndex = comboIndex or 1
+
+    self.LastAttackTime = attackTime
+    self.LastComboTime = attackTime
+    self.ComboIndex = comboIndex
+
     local cost = CombatConfig.Stamina.AttackCost[attackType]
     if cost then
         self:SpendStamina(cost)
     end
+
+    return comboIndex
 end
 
 function CharacterState:SpendStamina(amount)
@@ -107,6 +147,15 @@ end
 function CharacterState:RegenerateStamina(dt)
     if self.Destroyed then
         return
+    end
+
+    local now = os.clock()
+    if self.ComboIndex > 1 then
+        local elapsed = now - self.LastComboTime
+        if elapsed > CombatConfig.Combo.MaximumWindow then
+            self.ComboIndex = 1
+            self.LastComboTime = 0
+        end
     end
 
     local regen = CombatConfig.Stamina.RegenPerSecond * dt

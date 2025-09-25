@@ -22,6 +22,7 @@ local blocking = false
 local lastAttackTime = 0
 local comboIndex = 1
 local lastComboTime = 0
+local comboVisibleUntil = 0
 
 local billboards = {}
 
@@ -71,7 +72,7 @@ local function createHud()
     staminaFill.AnchorPoint = Vector2.new(0, 0.5)
     staminaFill.Position = UDim2.new(0, 0, 0.5, 0)
     staminaFill.Size = UDim2.new(1, 0, 1, 0)
-    staminaFill.BackgroundColor3 = UIConfig.Theme.Accent
+    staminaFill.BackgroundColor3 = UIConfig.Hud.StaminaHighColor or UIConfig.Theme.Accent
     staminaFill.BorderSizePixel = 0
     staminaFill.Parent = staminaBar
 
@@ -90,6 +91,19 @@ local function createHud()
     staminaLabel.Size = UDim2.new(0, 200, 0, 24)
     staminaLabel.TextColor3 = UIConfig.Theme.Text
     staminaLabel.Parent = baseFrame
+
+    local comboLabel = Instance.new("TextLabel")
+    comboLabel.Name = "ComboLabel"
+    comboLabel.BackgroundTransparency = 1
+    comboLabel.Font = UIConfig.Fonts.Header
+    comboLabel.TextSize = 18
+    comboLabel.TextXAlignment = Enum.TextXAlignment.Left
+    comboLabel.TextColor3 = UIConfig.Hud.ComboInactiveColor or UIConfig.Theme.TextMuted
+    comboLabel.AnchorPoint = Vector2.new(0, 0)
+    comboLabel.Position = UDim2.new(0, UIConfig.Hud.Padding + UIConfig.Hud.ComboLabelOffset.X, 0, UIConfig.Hud.ComboLabelOffset.Y)
+    comboLabel.Size = UIConfig.Hud.ComboLabelSize
+    comboLabel.Visible = false
+    comboLabel.Parent = baseFrame
 
     local stateLabel = Instance.new("TextLabel")
     stateLabel.Name = "StateLabel"
@@ -147,6 +161,32 @@ local function createHud()
     targetHealth.Text = "-- / --"
     targetHealth.Parent = targetFrame
 
+    local targetHealthBar = Instance.new("Frame")
+    targetHealthBar.Name = "HealthBar"
+    targetHealthBar.BackgroundColor3 = UIConfig.TargetPanel.HealthBarBackgroundColor
+    targetHealthBar.BackgroundTransparency = 0.3
+    targetHealthBar.BorderSizePixel = 0
+    targetHealthBar.Size = UIConfig.TargetPanel.HealthBarSize
+    targetHealthBar.Position = UIConfig.TargetPanel.HealthBarPosition
+    targetHealthBar.Parent = targetFrame
+
+    local targetHealthBarCorner = Instance.new("UICorner")
+    targetHealthBarCorner.CornerRadius = UIConfig.TargetPanel.CornerRadius
+    targetHealthBarCorner.Parent = targetHealthBar
+
+    local targetHealthFill = Instance.new("Frame")
+    targetHealthFill.Name = "Fill"
+    targetHealthFill.AnchorPoint = Vector2.new(0, 0.5)
+    targetHealthFill.Position = UDim2.new(0, 0, 0.5, 0)
+    targetHealthFill.Size = UDim2.new(0, 0, 1, 0)
+    targetHealthFill.BackgroundColor3 = UIConfig.TargetPanel.HealthBarFillColor
+    targetHealthFill.BorderSizePixel = 0
+    targetHealthFill.Parent = targetHealthBar
+
+    local targetHealthFillCorner = Instance.new("UICorner")
+    targetHealthFillCorner.CornerRadius = UIConfig.TargetPanel.CornerRadius
+    targetHealthFillCorner.Parent = targetHealthFill
+
     targetFrame.Visible = false
 
     return {
@@ -154,10 +194,12 @@ local function createHud()
         BaseFrame = baseFrame,
         StaminaFill = staminaFill,
         StaminaLabel = staminaLabel,
+        ComboLabel = comboLabel,
         StateLabel = stateLabel,
         TargetFrame = targetFrame,
         TargetName = targetName,
         TargetHealth = targetHealth,
+        TargetHealthFill = targetHealthFill,
     }
 end
 
@@ -172,6 +214,23 @@ local function updateHud()
     hud.StaminaFill.Size = UDim2.new(staminaPercent, 0, 1, 0)
     hud.StaminaLabel.Text = string.format("Stamina: %d%%", math.floor(staminaPercent * 100 + 0.5))
 
+    if staminaPercent <= UIConfig.Hud.LowStaminaThreshold then
+        hud.StaminaFill.BackgroundColor3 = UIConfig.Hud.StaminaLowColor or UIConfig.Theme.AccentDim
+        hud.StaminaLabel.TextColor3 = UIConfig.Hud.StaminaLowColor or UIConfig.Theme.AccentDim
+    else
+        hud.StaminaFill.BackgroundColor3 = UIConfig.Hud.StaminaHighColor or UIConfig.Theme.Accent
+        hud.StaminaLabel.TextColor3 = UIConfig.Theme.Text
+    end
+
+    if comboIndex > 1 and os.clock() <= comboVisibleUntil then
+        hud.ComboLabel.Visible = true
+        hud.ComboLabel.Text = string.format(UIConfig.Hud.ComboTextFormat, comboIndex)
+        hud.ComboLabel.TextColor3 = UIConfig.Hud.ComboActiveColor or UIConfig.Theme.Accent
+    else
+        hud.ComboLabel.Visible = false
+        hud.ComboLabel.TextColor3 = UIConfig.Hud.ComboInactiveColor or UIConfig.Theme.TextMuted
+    end
+
     if blocking then
         hud.StateLabel.Text = "Blocking"
         hud.StateLabel.TextColor3 = UIConfig.Theme.Accent
@@ -179,7 +238,7 @@ local function updateHud()
         local cooldownLeft = math.max(0, CombatConfig.AttackCooldown - (os.clock() - lastAttackTime))
         if cooldownLeft > 0 then
             hud.StateLabel.Text = string.format("Cooling (%.1fs)", cooldownLeft)
-            hud.StateLabel.TextColor3 = UIConfig.Theme.TextMuted
+            hud.StateLabel.TextColor3 = UIConfig.Hud.CooldownColor or UIConfig.Theme.TextMuted
         else
             hud.StateLabel.Text = "Ready"
             hud.StateLabel.TextColor3 = UIConfig.Theme.Success
@@ -196,7 +255,19 @@ local function updateTargetPanel()
     if target and target.Parent then
         hud.TargetFrame.Visible = true
         hud.TargetName.Text = target.Parent.Name
-        hud.TargetHealth.Text = string.format("%d / %d", math.max(0, math.floor(target.Health + 0.5)), math.floor(target.MaxHealth + 0.5))
+        local maxHealth = math.max(1, math.floor(target.MaxHealth + 0.5))
+        local currentHealth = math.max(0, math.floor(target.Health + 0.5))
+        local ratio = math.clamp(currentHealth / maxHealth, 0, 1)
+        hud.TargetHealth.Text = string.format("%d / %d", currentHealth, maxHealth)
+        hud.TargetHealthFill.Size = ratio > 0 and UDim2.new(ratio, 0, 1, 0) or UDim2.new(0, 0, 1, 0)
+
+        if ratio <= UIConfig.TargetPanel.HealthCriticalThreshold then
+            hud.TargetHealth.TextColor3 = UIConfig.Theme.Warning
+            hud.TargetHealthFill.BackgroundColor3 = UIConfig.Theme.Warning
+        else
+            hud.TargetHealth.TextColor3 = UIConfig.Theme.Text
+            hud.TargetHealthFill.BackgroundColor3 = UIConfig.TargetPanel.HealthBarFillColor
+        end
     else
         hud.TargetFrame.Visible = false
     end
@@ -388,9 +459,6 @@ local function sendAttack(attackType, targetHumanoid)
     combatRemote:FireServer("Attack", {
         AttackType = attackType,
         Target = targetHumanoid,
-        Metadata = {
-            ComboIndex = comboIndex,
-        },
     })
 end
 
@@ -413,12 +481,14 @@ local function performAttack(attackType)
     stamina = math.max(0, stamina - cost)
     smoothedStamina = math.min(smoothedStamina, stamina)
 
-    if now - lastComboTime <= CombatConfig.Combo.MaximumWindow and now - lastComboTime >= CombatConfig.Combo.MinimumWindow then
+    local comboDelta = now - lastComboTime
+    if comboDelta <= CombatConfig.Combo.MaximumWindow and comboDelta >= CombatConfig.Combo.MinimumWindow then
         comboIndex += 1
     else
         comboIndex = 1
     end
     lastComboTime = now
+    comboVisibleUntil = now + CombatConfig.Combo.MaximumWindow
 
     lastAttackTime = now
     sendAttack(attackType, targetHumanoid)
@@ -546,6 +616,14 @@ RunService.RenderStepped:Connect(function(dt)
     end
 
     currentTargetHumanoid = findHumanoidFromPart(mouse.Target)
+
+    if comboIndex > 1 and lastComboTime > 0 then
+        local elapsed = os.clock() - lastComboTime
+        if elapsed > CombatConfig.Combo.MaximumWindow then
+            comboIndex = 1
+            lastComboTime = 0
+        end
+    end
 
     updateHud()
     updateTargetPanel()
