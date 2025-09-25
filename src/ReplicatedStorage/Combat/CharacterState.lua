@@ -23,6 +23,9 @@ function CharacterState.new(character)
     self.LastComboTime = 0
     self.ComboIndex = 1
     self.Stamina = CombatConfig.Stamina.Max
+    self.BlockStartTime = 0
+    self.GuardBrokenUntil = 0
+    self.NeedsSync = false
     self.Connections = {}
 
     table.insert(self.Connections, character.AncestryChanged:Connect(function(_, parent)
@@ -65,14 +68,34 @@ function CharacterState:IsBlocking()
 end
 
 function CharacterState:SetBlocking(isBlocking)
-    if isBlocking and not self.Blocking then
+    local now = os.clock()
+
+    if isBlocking then
+        if self:IsGuardBroken(now) then
+            return false
+        end
+
+        if self.Blocking then
+            return true
+        end
+
         if self.Stamina < CombatConfig.Block.StartCost then
             return false
         end
+
         self:SpendStamina(CombatConfig.Block.StartCost)
+        self.Blocking = true
+        self.BlockStartTime = now
+        self:MarkDirty()
+        return true
     end
 
-    self.Blocking = isBlocking
+    if self.Blocking then
+        self.Blocking = false
+        self.BlockStartTime = 0
+        self:MarkDirty()
+    end
+
     return true
 end
 
@@ -141,7 +164,18 @@ function CharacterState:RecordAttack(attackType, attackTime, comboIndex)
 end
 
 function CharacterState:SpendStamina(amount)
-    self.Stamina = math.max(0, self.Stamina - amount)
+    if amount <= 0 then
+        return self.Stamina
+    end
+
+    local previous = self.Stamina
+    self.Stamina = math.clamp(previous - amount, 0, CombatConfig.Stamina.Max)
+
+    if self.Stamina ~= previous then
+        self:MarkDirty()
+    end
+
+    return self.Stamina
 end
 
 function CharacterState:RegenerateStamina(dt)
@@ -158,6 +192,8 @@ function CharacterState:RegenerateStamina(dt)
         end
     end
 
+    local previous = self.Stamina
+
     local regen = CombatConfig.Stamina.RegenPerSecond * dt
     if self.Blocking then
         regen -= CombatConfig.Block.StaminaDrainPerSecond * dt
@@ -165,8 +201,13 @@ function CharacterState:RegenerateStamina(dt)
 
     self.Stamina = math.clamp(self.Stamina + regen, 0, CombatConfig.Stamina.Max)
 
-    if self.Blocking and self.Stamina <= 0 then
-        self.Blocking = false
+    local threshold = CombatConfig.Block.GuardBreakThreshold or 0
+    if self.Blocking and self.Stamina <= threshold then
+        self:ForceGuardBreak()
+    end
+
+    if self.Stamina ~= previous then
+        self:MarkDirty()
     end
 end
 
@@ -177,6 +218,101 @@ function CharacterState:ApplyDamage(amount)
     end
 
     humanoid:TakeDamage(amount)
+end
+
+function CharacterState:RestoreStamina(amount)
+    if amount <= 0 then
+        return self.Stamina
+    end
+
+    local previous = self.Stamina
+    self.Stamina = math.clamp(previous + amount, 0, CombatConfig.Stamina.Max)
+
+    if self.Stamina ~= previous then
+        self:MarkDirty()
+    end
+
+    return self.Stamina
+end
+
+function CharacterState:IsGuardBroken(now)
+    now = now or os.clock()
+    return now < self.GuardBrokenUntil
+end
+
+function CharacterState:IsPerfectBlock(now)
+    if not self.Blocking then
+        return false
+    end
+
+    now = now or os.clock()
+    if self.BlockStartTime <= 0 then
+        return false
+    end
+
+    return now - self.BlockStartTime <= CombatConfig.Block.PerfectWindow
+end
+
+function CharacterState:HandleBlockedHit(damage, isPerfect)
+    if not self.Blocking then
+        return false
+    end
+
+    if isPerfect then
+        local refund = CombatConfig.Block.PerfectStaminaRefund or 0
+        if refund > 0 then
+            self:RestoreStamina(refund)
+        end
+        return false
+    end
+
+    local multiplier = CombatConfig.Block.HitStaminaMultiplier or 0
+    local flatCost = CombatConfig.Block.HitStaminaFlatCost or 0
+    local threshold = CombatConfig.Block.GuardBreakThreshold or 0
+    local cost = flatCost + (multiplier * damage)
+    if cost > 0 then
+        local staminaLeft = self:SpendStamina(cost)
+        if staminaLeft <= threshold then
+            self:ForceGuardBreak()
+            return true
+        end
+    end
+
+    return false
+end
+
+function CharacterState:ForceGuardBreak()
+    if self.Blocking then
+        self.Blocking = false
+        self.BlockStartTime = 0
+    end
+
+    self.Stamina = 0
+    self.GuardBrokenUntil = os.clock() + (CombatConfig.Block.GuardBreakCooldown or 0)
+    self:MarkDirty()
+end
+
+function CharacterState:GetPublicState(now)
+    now = now or os.clock()
+    return {
+        Stamina = math.floor(self.Stamina + 0.5),
+        Blocking = self.Blocking,
+        GuardBrokenFor = math.max(0, self.GuardBrokenUntil - now),
+        MaxStamina = CombatConfig.Stamina.Max,
+    }
+end
+
+function CharacterState:MarkDirty()
+    self.NeedsSync = true
+end
+
+function CharacterState:ConsumeDirtyFlag()
+    if self.NeedsSync then
+        self.NeedsSync = false
+        return true
+    end
+
+    return false
 end
 
 function CharacterState:Destroy()

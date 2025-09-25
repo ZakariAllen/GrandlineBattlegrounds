@@ -152,9 +152,17 @@ local function updateNPC(npcData, dt)
     end
 
     if npcData.NextAttack <= 0 then
-        local success = CombatService.ProcessAttack(model, targetCharacter, "Light")
+        local success, result = CombatService.ProcessAttack(model, targetCharacter, "Light")
         if success then
-            npcData.NextAttack = NPCConfig.Behavior.AttackInterval
+            if result and result.GuardBreak then
+                npcData.NextAttack = NPCConfig.Behavior.GuardBreakFollowUp or 0.4
+            elseif result and result.PerfectBlock then
+                npcData.NextAttack = NPCConfig.Behavior.PerfectBlockPenalty or NPCConfig.Behavior.AttackInterval
+            elseif result and result.Blocked then
+                npcData.NextAttack = NPCConfig.Behavior.BlockedInterval or NPCConfig.Behavior.RetryDelay
+            else
+                npcData.NextAttack = NPCConfig.Behavior.AttackInterval
+            end
         else
             npcData.NextAttack = NPCConfig.Behavior.RetryDelay
         end

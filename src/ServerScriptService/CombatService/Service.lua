@@ -30,6 +30,42 @@ local statesByCharacter = {}
 local statesByHumanoid = {}
 local connections = {}
 
+local function getPlayerFromCharacter(character)
+    if not character then
+        return nil
+    end
+
+    return Players:GetPlayerFromCharacter(character)
+end
+
+local function sendStateUpdate(state)
+    if not state then
+        return
+    end
+
+    local character = state:GetCharacter()
+    local player = getPlayerFromCharacter(character)
+    if not player then
+        return
+    end
+
+    combatRemote:FireClient(player, "StateUpdate", state:GetPublicState())
+end
+
+local function sendFeedback(character, feedbackType, payload)
+    payload = payload or {}
+
+    local player = getPlayerFromCharacter(character)
+    if not player then
+        return
+    end
+
+    combatRemote:FireClient(player, "Feedback", {
+        Type = feedbackType,
+        Data = payload,
+    })
+end
+
 local function cleanupState(character)
     local state = statesByCharacter[character]
     if not state then
@@ -107,6 +143,8 @@ function CombatService.GetOrCreateState(character)
 
     trackState(state)
 
+    sendStateUpdate(state)
+
     return state
 end
 
@@ -180,15 +218,68 @@ local function processAttack(attackerCharacter, attackType, targetCharacter, met
     metadata.ComboIndex = comboIndex
     metadata.ComboMultiplier = attackerState:GetComboMultiplier(comboIndex)
 
+    local blocked = defenderState:IsBlocking()
+    local perfectBlock = blocked and defenderState:IsPerfectBlock(attackTime)
+    metadata.PerfectBlock = perfectBlock
+
     local damage = DamageCalculator.Calculate(attackerState, defenderState, attackType, metadata)
-    if damage <= 0 then
+    if damage <= 0 and not perfectBlock and not blocked then
         return false, "NoDamage"
     end
 
     attackerState:RecordAttack(attackType, attackTime, comboIndex)
-    defenderState:ApplyDamage(damage)
+    if damage > 0 then
+        defenderState:ApplyDamage(damage)
+    end
 
-    return true
+    local guardBroken = false
+    if blocked then
+        guardBroken = defenderState:HandleBlockedHit(damage, perfectBlock)
+    end
+
+    if perfectBlock then
+        if CombatConfig.Block.PerfectCounterDamage and CombatConfig.Block.PerfectCounterDamage > 0 then
+            attackerState:ApplyDamage(CombatConfig.Block.PerfectCounterDamage)
+            if attackerState:ConsumeDirtyFlag() then
+                sendStateUpdate(attackerState)
+            end
+        end
+        sendFeedback(targetCharacter, "PerfectBlock", {
+            AttackType = attackType,
+            ComboIndex = comboIndex,
+        })
+    end
+
+    if guardBroken then
+        sendFeedback(targetCharacter, "GuardBreak", {
+            Cooldown = CombatConfig.Block.GuardBreakCooldown,
+        })
+
+        sendFeedback(attackerCharacter, "GuardBreakInflicted", {
+            Target = targetCharacter,
+        })
+    elseif blocked and not perfectBlock then
+        sendFeedback(targetCharacter, "BlockedHit", {
+            Damage = damage,
+            AttackType = attackType,
+        })
+    end
+
+    if attackerState:ConsumeDirtyFlag() then
+        sendStateUpdate(attackerState)
+    end
+
+    if defenderState:ConsumeDirtyFlag() then
+        sendStateUpdate(defenderState)
+    end
+
+    return true, {
+        Damage = damage,
+        Blocked = blocked,
+        PerfectBlock = perfectBlock,
+        GuardBreak = guardBroken,
+        ComboIndex = comboIndex,
+    }
 end
 
 local function handlePlayerAttack(player, payload)
@@ -220,10 +311,19 @@ local function handlePlayerBlock(player, payload)
         return
     end
 
-    if payload.IsBlocking == true then
-        state:SetBlocking(true)
-    elseif payload.IsBlocking == false then
+    local desiredState = payload.IsBlocking
+    if desiredState == true then
+        if state:SetBlocking(true) then
+            -- already handled
+        else
+            sendStateUpdate(state)
+        end
+    elseif desiredState == false then
         state:SetBlocking(false)
+    end
+
+    if state:ConsumeDirtyFlag() then
+        sendStateUpdate(state)
     end
 end
 
@@ -270,6 +370,9 @@ function CombatService.Start()
                 cleanupState(character)
             else
                 state:RegenerateStamina(dt)
+                if state:ConsumeDirtyFlag() then
+                    sendStateUpdate(state)
+                end
             end
         end
     end))
