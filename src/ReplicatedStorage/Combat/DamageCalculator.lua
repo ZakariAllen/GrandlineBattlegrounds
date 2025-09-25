@@ -24,7 +24,7 @@ function DamageCalculator.Calculate(attackerState, defenderState, attackType, me
     end
 
     if metadata.ComboMultiplier then
-        damageMultiplier *= metadata.ComboMultiplier
+        damageMultiplier *= math.max(metadata.ComboMultiplier, 0)
     elseif metadata.ComboIndex then
         local comboBonus = 1 + ((metadata.ComboIndex - 1) * (CombatConfig.Combo.BonusMultiplier - 1))
         damageMultiplier *= comboBonus

@@ -175,12 +175,17 @@ local function processAttack(attackerCharacter, attackType, targetCharacter, met
         return false, "OutOfRange"
     end
 
+    local attackTime = os.clock()
+    local comboIndex = attackerState:GetNextComboIndex(attackTime)
+    metadata.ComboIndex = comboIndex
+    metadata.ComboMultiplier = attackerState:GetComboMultiplier(comboIndex)
+
     local damage = DamageCalculator.Calculate(attackerState, defenderState, attackType, metadata)
     if damage <= 0 then
         return false, "NoDamage"
     end
 
-    attackerState:RecordAttack(attackType)
+    attackerState:RecordAttack(attackType, attackTime, comboIndex)
     defenderState:ApplyDamage(damage)
 
     return true
@@ -200,7 +205,7 @@ local function handlePlayerAttack(player, payload)
         return
     end
 
-    processAttack(character, attackType, targetCharacter, payload.Metadata)
+    processAttack(character, attackType, targetCharacter)
 end
 
 local function handlePlayerBlock(player, payload)
