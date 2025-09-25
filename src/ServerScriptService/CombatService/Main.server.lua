@@ -1,3 +1,3 @@
-local serviceModule = require(script:WaitForChild("Service"))
+local serviceModule = require(script.Parent:WaitForChild("Service"))
 
 serviceModule.Start()

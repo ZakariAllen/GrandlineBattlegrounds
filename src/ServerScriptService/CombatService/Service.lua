@@ -3,8 +3,20 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local combatFolder = ReplicatedStorage:WaitForChild("Combat")
-local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
-local combatRemote = remotesFolder:WaitForChild("Combat")
+
+local remotesFolder = ReplicatedStorage:FindFirstChild("Remotes")
+if not remotesFolder then
+    remotesFolder = Instance.new("Folder")
+    remotesFolder.Name = "Remotes"
+    remotesFolder.Parent = ReplicatedStorage
+end
+
+local combatRemote = remotesFolder:FindFirstChild("Combat")
+if not combatRemote then
+    combatRemote = Instance.new("RemoteEvent")
+    combatRemote.Name = "Combat"
+    combatRemote.Parent = remotesFolder
+end
 
 local configFolder = ReplicatedStorage:WaitForChild("Config")
 
