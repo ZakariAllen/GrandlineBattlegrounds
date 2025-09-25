@@ -15,8 +15,13 @@ function DamageCalculator.Calculate(attackerState, defenderState, attackType, me
 
     local damageMultiplier = 1
 
-    if defenderState and defenderState:IsBlocking() then
-        damageMultiplier *= CombatConfig.Block.MitigationMultiplier
+    local isBlocking = defenderState and defenderState:IsBlocking()
+    if isBlocking then
+        if metadata.PerfectBlock then
+            damageMultiplier *= CombatConfig.Block.PerfectMitigationMultiplier or 0
+        else
+            damageMultiplier *= CombatConfig.Block.MitigationMultiplier
+        end
     end
 
     if metadata.Headshot then

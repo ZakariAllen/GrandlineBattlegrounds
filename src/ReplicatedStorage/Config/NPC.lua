@@ -9,6 +9,9 @@ local NPCConfig = {
         RetryDelay = 0.5,
         DetectionRadius = 45,
         TrackingUpdateInterval = 0.15,
+        BlockedInterval = 1.2,
+        GuardBreakFollowUp = 0.35,
+        PerfectBlockPenalty = 2.5,
     },
     Spawns = {
         Vector3.new(0, 5, 0),

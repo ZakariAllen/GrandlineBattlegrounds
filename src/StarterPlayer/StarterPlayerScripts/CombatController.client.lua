@@ -23,8 +23,19 @@ local lastAttackTime = 0
 local comboIndex = 1
 local lastComboTime = 0
 local comboVisibleUntil = 0
+local guardBrokenUntil = 0
+local statusOverrideText = nil
+local statusOverrideColor = nil
+local statusOverrideUntil = 0
 
 local billboards = {}
+local guardBreakHighlights = {}
+
+local function showStatusMessage(text, color, duration)
+    statusOverrideText = text
+    statusOverrideColor = color or UIConfig.Theme.Text
+    statusOverrideUntil = os.clock() + (duration or 1)
+end
 
 local function createHud()
     local playerGui = player:WaitForChild("PlayerGui")
@@ -208,6 +219,7 @@ local function updateHud()
         return
     end
 
+    local now = os.clock()
     local staminaMax = CombatConfig.Stamina.Max
     smoothedStamina += (stamina - smoothedStamina) * UIConfig.Hud.SmoothFillAlpha
     local staminaPercent = staminaMax > 0 and math.clamp(smoothedStamina / staminaMax, 0, 1) or 0
@@ -229,6 +241,18 @@ local function updateHud()
     else
         hud.ComboLabel.Visible = false
         hud.ComboLabel.TextColor3 = UIConfig.Hud.ComboInactiveColor or UIConfig.Theme.TextMuted
+    end
+
+    if now < guardBrokenUntil then
+        hud.StateLabel.Text = string.format("Guard Break (%.1fs)", guardBrokenUntil - now)
+        hud.StateLabel.TextColor3 = UIConfig.Theme.Warning
+        return
+    end
+
+    if statusOverrideUntil > now then
+        hud.StateLabel.Text = statusOverrideText or ""
+        hud.StateLabel.TextColor3 = statusOverrideColor or UIConfig.Theme.Text
+        return
     end
 
     if blocking then
@@ -297,6 +321,7 @@ local function removeBillboard(model)
     end
 
     billboards[model] = nil
+    guardBreakHighlights[model] = nil
     if data.Connections then
         for _, conn in ipairs(data.Connections) do
             conn:Disconnect()
@@ -421,7 +446,8 @@ local function ensureBillboard(character)
     createBillboard(character, humanoid)
 end
 
-local function updateBillboards(dt)
+local function updateBillboards()
+    local now = os.clock()
     for model, data in pairs(billboards) do
         local humanoid = data.Humanoid
         if not humanoid or not humanoid.Parent then
@@ -440,6 +466,21 @@ local function updateBillboards(dt)
                 data.Status.TextColor3 = UIConfig.Theme.Accent
                 data.Stroke.Color = UIConfig.Theme.Accent
                 data.Background.BackgroundTransparency = 0.15
+            end
+
+            local highlightUntil = guardBreakHighlights[model]
+            if highlightUntil and now > highlightUntil then
+                guardBreakHighlights[model] = nil
+                highlightUntil = nil
+            end
+
+            if highlightUntil then
+                data.Status.Text = "BROKEN"
+                data.Status.TextColor3 = UIConfig.Theme.Warning
+                data.Stroke.Color = UIConfig.Theme.Warning
+                data.Background.BackgroundTransparency = 0.15
+            elseif humanoid == currentTargetHumanoid and humanoid.Health > 0 then
+                -- Target styling already applied above.
             elseif humanoid.Health <= 0 then
                 data.Status.Text = "DEFEATED"
                 data.Status.TextColor3 = BillboardConfig.SecondaryTextColor
@@ -468,9 +509,20 @@ local function performAttack(attackType)
         return
     end
 
+    if now < guardBrokenUntil then
+        return
+    end
+
     local cost = CombatConfig.Stamina.AttackCost[attackType] or 0
     if stamina < cost then
         return
+    end
+
+    if blocking then
+        blocking = false
+        combatRemote:FireServer("Block", {
+            IsBlocking = false,
+        })
     end
 
     local targetHumanoid = currentTargetHumanoid
@@ -517,6 +569,10 @@ local function blockAction(_, inputState)
         if blocking then
             return Enum.ContextActionResult.Sink
         end
+        if os.clock() < guardBrokenUntil then
+            showStatusMessage("Guard Break", UIConfig.Theme.Warning, 1)
+            return Enum.ContextActionResult.Sink
+        end
         if stamina < CombatConfig.Block.StartCost then
             return Enum.ContextActionResult.Sink
         end
@@ -538,6 +594,57 @@ local function blockAction(_, inputState)
     return Enum.ContextActionResult.Sink
 end
 
+local function handleStateUpdate(data)
+    if typeof(data) ~= "table" then
+        return
+    end
+
+    local now = os.clock()
+
+    if typeof(data.Stamina) == "number" then
+        stamina = math.clamp(data.Stamina, 0, CombatConfig.Stamina.Max)
+        smoothedStamina = math.min(smoothedStamina, stamina)
+    end
+
+    if data.Blocking ~= nil then
+        blocking = data.Blocking == true
+    end
+
+    if typeof(data.GuardBrokenFor) == "number" then
+        guardBrokenUntil = now + math.max(0, data.GuardBrokenFor)
+        if now < guardBrokenUntil then
+            blocking = false
+        end
+    end
+end
+
+local function handleFeedback(payload)
+    if typeof(payload) ~= "table" then
+        return
+    end
+
+    local data = payload.Data
+    local feedbackType = payload.Type
+    if feedbackType == "GuardBreak" then
+        local cooldown = data and data.Cooldown or CombatConfig.Block.GuardBreakCooldown or 1.5
+        guardBrokenUntil = os.clock() + cooldown
+        blocking = false
+        stamina = 0
+        smoothedStamina = math.min(smoothedStamina, stamina)
+        showStatusMessage("Guard Broken!", UIConfig.Theme.Warning, cooldown)
+    elseif feedbackType == "PerfectBlock" then
+        showStatusMessage("Perfect Block!", UIConfig.Theme.Success, 1.2)
+    elseif feedbackType == "GuardBreakInflicted" then
+        showStatusMessage("Guard Break!", UIConfig.Theme.Accent, 1)
+        if data and typeof(data.Target) == "Instance" then
+            guardBreakHighlights[data.Target] = os.clock() + 1.2
+            ensureBillboard(data.Target)
+        end
+    elseif feedbackType == "BlockedHit" then
+        showStatusMessage("Blocked", UIConfig.Theme.TextMuted, 0.6)
+    end
+end
+
 local function onCharacterAdded(character)
     if character == player.Character then
         stamina = CombatConfig.Stamina.Max
@@ -546,6 +653,11 @@ local function onCharacterAdded(character)
         lastAttackTime = 0
         comboIndex = 1
         lastComboTime = 0
+        comboVisibleUntil = 0
+        guardBrokenUntil = 0
+        statusOverrideText = nil
+        statusOverrideColor = nil
+        statusOverrideUntil = 0
     else
         ensureBillboard(character)
     end
@@ -600,6 +712,11 @@ Workspace.ChildAdded:Connect(function(child)
 end)
 
 RunService.RenderStepped:Connect(function(dt)
+    local now = os.clock()
+    if now < guardBrokenUntil then
+        blocking = false
+    end
+
     if blocking then
         stamina -= CombatConfig.Block.StaminaDrainPerSecond * dt
     else
@@ -633,5 +750,13 @@ end)
 ContextActionService:BindAction("LightAttack", lightAttackAction, false, Enum.UserInputType.MouseButton1)
 ContextActionService:BindAction("HeavyAttack", heavyAttackAction, false, Enum.UserInputType.MouseButton2, Enum.KeyCode.Q)
 ContextActionService:BindAction("Block", blockAction, false, Enum.KeyCode.F)
+
+combatRemote.OnClientEvent:Connect(function(action, payload)
+    if action == "StateUpdate" then
+        handleStateUpdate(payload)
+    elseif action == "Feedback" then
+        handleFeedback(payload)
+    end
+end)
 
 return {}
