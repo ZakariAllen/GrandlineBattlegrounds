@@ -15,5 +15,10 @@ workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 
 local spawnLocation = workspace.IsometricWorld:FindFirstChild("Spawn")
 if spawnLocation then
-    spawnLocation.Position = WorldConfig.Spawn + Vector3.new(0, spawnLocation.Size.Y / 2, 0)
+    local baseHeight = WorldConfig.Tiles.BaseHeight or 0
+    spawnLocation.Position = Vector3.new(
+        WorldConfig.Spawn.X,
+        baseHeight + spawnLocation.Size.Y / 2,
+        WorldConfig.Spawn.Z
+    )
 end

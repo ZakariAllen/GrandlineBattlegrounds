@@ -1,8 +1,17 @@
 local WorldConfig = {
     Tiles = {
+        -- Number of tiles to keep loaded outward from the player on each axis (square coverage)
+        ActiveRadius = 32,
+        -- Legacy grid size kept for UI display; generation is now infinite and radius-driven
         GridSize = Vector2.new(32, 32),
-        TileSize = 6,
+        TileSize = 16,
+        BaseHeight = 0,
         ElevationStep = 1,
+        TileTypeWeights = {
+            { Type = "Grass", Weight = 0.7 },
+            { Type = "Sand", Weight = 0.2 },
+            { Type = "Water", Weight = 0.1 },
+        },
         GrassColors = {
             Color3.fromRGB(134, 212, 133),
             Color3.fromRGB(154, 228, 144),
@@ -30,7 +39,7 @@ local WorldConfig = {
         YawDeg = 45,
         FocusHeight = 3,
     },
-    Spawn = Vector3.new(0, 8, 0),
+    Spawn = Vector3.new(0, 0, 0),
 }
 
 return WorldConfig

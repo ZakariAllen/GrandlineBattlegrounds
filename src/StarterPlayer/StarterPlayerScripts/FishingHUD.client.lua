@@ -50,17 +50,17 @@ controls.TextYAlignment = Enum.TextYAlignment.Top
 controls.Text = table.concat({
     "WASD/Thumbstick: roam the isometric islands",
     "",
-    "Fishing hotspots glow amber — future updates will let you cast lines and haul in the catch!",
+    "Fishing hotspots glow amber; future updates will let you cast lines and haul in the catch!",
 }, "\n")
 controls.Parent = screenGui
 
 local function heartbeat()
     subtitle.Text = string.format(
-        "Camera: %.0f° pitch, %.0f° yaw | Tiles: %dx%d",
+        "Camera: %.0f deg pitch, %.0f deg yaw | Loaded tiles: %dx%d",
         WorldConfig.Camera.PitchDeg,
         WorldConfig.Camera.YawDeg,
-        WorldConfig.Tiles.GridSize.X,
-        WorldConfig.Tiles.GridSize.Y
+        WorldConfig.Tiles.ActiveRadius * 2 + 1,
+        WorldConfig.Tiles.ActiveRadius * 2 + 1
     )
 end
 
