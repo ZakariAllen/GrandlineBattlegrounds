@@ -3,6 +3,7 @@ local Lighting = game:GetService("Lighting")
 
 local WorldGenerator = require(ReplicatedStorage.Modules.World.WorldGenerator)
 local WorldConfig = require(ReplicatedStorage.Modules.Config.WorldConfig)
+local TerrainNoise = require(ReplicatedStorage.Modules.World.TerrainNoise)
 
 Lighting.Brightness = 2
 Lighting.ClockTime = 14
@@ -15,10 +16,10 @@ workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 
 local spawnLocation = workspace.IsometricWorld:FindFirstChild("Spawn")
 if spawnLocation then
-    local baseHeight = WorldConfig.Tiles.BaseHeight or 0
+    local spawnSample = TerrainNoise.SampleFromWorldPosition(WorldConfig.Spawn)
     spawnLocation.Position = Vector3.new(
         WorldConfig.Spawn.X,
-        baseHeight + spawnLocation.Size.Y / 2,
+        spawnSample.height + spawnLocation.Size.Y / 2,
         WorldConfig.Spawn.Z
     )
 end

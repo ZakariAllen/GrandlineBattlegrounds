@@ -49,8 +49,9 @@ controls.TextXAlignment = Enum.TextXAlignment.Left
 controls.TextYAlignment = Enum.TextYAlignment.Top
 controls.Text = table.concat({
     "WASD/Thumbstick: roam the isometric islands",
-    "",
-    "Fishing hotspots glow amber; future updates will let you cast lines and haul in the catch!",
+    "Hold LMB/Right Trigger to charge a cast, release to throw the line",
+    "Click/Space during the fight to keep the fish marker inside the green window",
+    "Amber buoys mark hotspots (faster bites, better luck)",
 }, "\n")
 controls.Parent = screenGui
 
